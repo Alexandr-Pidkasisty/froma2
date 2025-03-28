@@ -1,0 +1,104 @@
+#ifndef SERIALIZATION_MODULE_H_INCLUDED
+#define SERIALIZATION_MODULE_H_INCLUDED
+
+#include <iostream>         // Заголовочный файл с классами, функциями и переменными для организации ввода-вывода
+#include <string>           // Заголовочный файд для работы со строками
+#include <fstream>          // Заголовочный файл для работы с файлами
+
+using namespace std;
+
+/*************************************************************************************************************************/
+/**                                                                                                                     **/
+/**               Шаблоны и нешаблонные перегруженные функции для серилизации в файл и чтения из файла                  **/
+/**                                                                                                                     **/
+/*************************************************************************************************************************/
+/** version from 2024.10.13 **/
+
+template<typename T>
+constexpr bool is_srlzd_v =
+    std::is_trivially_copyable<T>::value;   // Условие проверки помещено в отдельный trait с именем "is_srlz_v"
+                                            // Расчет is_srlz_v происходит на этапе компиляции: если в качестве типа
+                                            // T подставляется тривиально копируемый тип, то результат расчета true,
+                                            // иначе false (https://cplusplus.com/reference/type_traits/is_trivially_copyable/)
+
+namespace nmSrlz {
+    const size_t  sZero = 0;
+    const string EmpStr ="";
+}   // namespace nmSrlz
+
+template<typename T=string>
+bool SEF(ofstream &_outF, string& str) {                // Нешаблонная функция для сериализации строки в файл
+// Параметры функии: &_outF - ссылка на файловую переменную _outF типа ofstream; &str - ссылка на переменную str типа string
+    size_t len = str.length();                          // Определяем длину переменной типа string
+    _outF.write((char*)&len, sizeof(size_t));           // Приводим значение len к типу char и записываем его в переменную _outF
+    if(len>nmSrlz::sZero)                               // Есди строка ненулевой длины, то
+        _outF.write(str.data(), len);                   // Записываем весь массив символов длиной len в переменную _outF
+    if(_outF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;                    // https://learntutorials.net/ru/cplusplus/topic/496/файловый-ввод-вывод
+};  // SEF-нешаблонная функция
+
+template<typename T, class=std::enable_if_t<is_srlzd_v<T>>> // Объявление шаблона T типа, пригодного к сериализации
+bool SEF(ofstream &_outF, T x[], size_t Cnt) {              // Шаблонная функция для сериализации массива произвольного типа T
+// в файл. Параметры функии: &_outF - ссылка на файловую переменную _outF типа ofstream; x - указатель на первый элемент
+// массива; Cnt - значение, равное количеству элементов массива
+    bool flag;                                          // Флаг существования массива. Если указатель на массив не равен nullptr
+    if(x && Cnt>nmSrlz::sZero) flag = true; else flag = false;  // и длина массива больше нуля, флаг true. Иначе false
+    _outF.write((char*)&flag, sizeof(bool));            // Записываем флаг в поток
+    if(flag)                                            // Если флаг true, то записываем массив в поток
+        for(size_t j=nmSrlz::sZero; j<Cnt; j++) {       // Приводим каждый элемент массива в цикле к типу char и записываем,
+            _outF.write((char*)(x+j), sizeof(*(x+j)));  // используя адресацию указателей (вместо индексов элементов массива).
+        };                                              // В качестве размера берем фактический размер объекта по адресу x+j.
+    if(_outF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;
+};  // SEF-шаблон
+
+template<typename T, class=std::enable_if_t<is_srlzd_v<T>>> // Объявление шаблона T типа, пригодного к сериализации
+bool SEF(ofstream &_outF, T& x) {                           // Шаблонная функция для сериализации значения произвольного типа T
+// в файл. Параметры функии: &_outF - ссылка на файловую переменную _outF типа ofstream; &x - ссылка на переменную типа T
+    _outF.write((char*)&x, sizeof(x));                  // Записываем значение, расположенное по адресу &x и размером x
+    if(_outF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;
+}; // SEF-шаблон
+
+template<typename T=string>
+bool DSF(ifstream &_inF, string& str) {                 // Нешаблонная функция для десериализации строки из файла, записанной
+// туда с помощью функции bool SEF(ofstream &_outF, string& str). Параметры функии: &_inF - ссылка на файловую переменную _inF
+// типа ifstream; &str - ссылка на переменную str типа string
+    size_t len;                                         // Временная переменная: длина возвращаемой строки в символах
+    _inF.read((char*)&len, sizeof(size_t));             // Читаем из файловой переменной длину текущей строки
+    char c=nmSrlz::sZero;                               // Присваиваем вспомогательной переменной типа символ значение "пусто"
+    str=nmSrlz::EmpStr;                                 // Присваиваем значение "пусто" текущей строке
+    for(size_t j=nmSrlz::sZero; j<len; j++) {           // В цикле читаем из файловой переменной каждый символ текущей строки
+        _inF.read((char*)&c, sizeof(char));             // и записываем его во вспомогательную переменную
+        str += c;                                       // Добавляем в текущую строку массива каждый считанный символ
+                                                        // из вспомогательной переменной,
+    };
+    if(_inF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;
+};  // DSF-нешаблонная функция
+
+template<typename T, class=std::enable_if_t<is_srlzd_v<T>>> // Объявление шаблона T типа, пригодного к сериализации
+bool DSF(ifstream &_inF, T x[], size_t Cnt) {               // Шаблонная функция для десериализации массива произвольного типа T
+// из файла, записанной туда с помощью функции bool SEF(ofstream &_outF, T& x, size_t Cnt). Параметры функии: &_inF - ссылка на
+// файловую переменную _inF типа ifstream; x - ссылка на первый элемент массива; Cnt - значение, равное количеству
+// элементов массива
+    bool flag;                                          // Флаг существования массива
+    _inF.read((char*)&flag, sizeof(bool));              // Читаем флаг из файла
+    if(flag)                                            // Если прочитанный флаг true, то
+        for(size_t i=nmSrlz::sZero; i<Cnt; i++) {       // Читаем из файла каждый элемент массива в цикле, используя адресацию
+        _inF.read((char*)(x+i), sizeof(*(x+i)));        // указателей (вместо индексов элементов массива). В качестве размера
+        }                                               // берем фактический размер объекта по адресу x+i.
+    else x = nullptr;                                   // Если флан false, то устанавливаем указатель массива на nullptr
+    if(_inF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;
+};  // DSF - шаблонная функция
+
+template<typename T, class=std::enable_if_t<is_srlzd_v<T>>> // Объявление шаблона T типа, пригодного к сериализации
+bool DSF(ifstream &_inF, T& x) {                            // Шаблонная функция для десериализации значения произвольного типа T
+// из файла. Параметры функии: &_inF - ссылка на файловую переменную _inF типа ifstream; &x - ссылка на переменную типа T
+    _inF.read((char*)&x, sizeof(x));                    // Читаем из файла блок информации фактическим размером x и записываем в x
+    if(_inF.bad()) return false;   // Проверка состояния флага ошибки badbit (https://cplusplus.com/reference/ios/ios/rdstate/)
+    return true;                                        // его в переменную x
+};  // DSF - шаблонная функция
+
+#endif // SERIALIZATION_MODULE_H_INCLUDED

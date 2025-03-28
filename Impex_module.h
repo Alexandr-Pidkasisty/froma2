@@ -1,0 +1,82 @@
+#ifndef CLSIMPEX_H
+#define CLSIMPEX_H
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <iomanip>
+#include "common_values.hpp"
+#include "LongReal_module.h"
+
+using namespace std;
+
+/*************************************************************************************************************************/
+/**                                             Вспомогательные методы                                                  **/
+/*************************************************************************************************************************/
+
+void MeasRestore(nmBPTypes::strNameMeas Big[], nmBPTypes::strNameMeas Lit[], const size_t brows, const size_t lrows);
+/** Метод заполняет поля с единицами измерения в массиве lit данными из массива Big при совпадении имен в этих массивах.
+Параметры: brows - количество строк в массиве Big, lrows - количество строк в массиве Lit. **/
+
+//template<typename T>
+//string To_String(const T& val, const size_t n);
+///** Метод возвращает число val типа T (double или LongReal) в виде строки. Используется в методе bool Import(...) **/
+
+/*************************************************************************************************************************/
+/**                        Класс clsImpex для импорта и экспорта информации из cvs-файлов                               **/
+/**                 и подготовки исходных данных для объектов типа clsStorage и clsManufactory                          **/
+/*************************************************************************************************************************/
+/** version from 2024.09.13 **/
+
+class clsImpex
+{
+    private:
+        vector<std::vector<std::string>> m_data;    // Вектор для хранения данных из файла
+        size_t m_rowcount, m_colcount;              // Количество строк и столбцов вектора
+        char separator;                             // Разделитель
+
+    public:
+        clsImpex();                                 // Конструктор по умолчанию
+        clsImpex(ifstream& ifs, const char& ch);    // Конструктор с параметрами для импорта из файла
+        clsImpex(const size_t ncount, const nmBPTypes::strNameMeas names[],\
+        const nmBPTypes::strItem data[], const size_t dcount, nmBPTypes::ReportData flg);
+                                                    // Конструктор с параметрами для импорта из массивов
+        ~clsImpex();                                // Деструктор
+        clsImpex(const clsImpex& other);            // Конструктор копирования
+        clsImpex(clsImpex&& other);                 // Конструктор перемещения
+        void swap(clsImpex& other) noexcept;        // Функция обмена значениями между объектами
+        clsImpex& operator=(const clsImpex& other); // Перегрузка оператора присваивания копированием
+        clsImpex& operator=(clsImpex &&obj);        // Перегрузка оператора присваивания перемещением
+        void reset();                               // Сбрасывает состояние объекта до значения по умолчанию
+        bool is_Empty() const;                      // Возвращает true, если m_data пустой
+
+        void View(ostream& os) const;               // Метод визуального контроля
+        void csvExport(ofstream& ofs) const;        // Экспорт данных в файл
+        void Transpon();                            // Метод транспонирует матрицу m_data
+        bool Import(ifstream& ifs, const char& ch); // Метод импорта данных из файла
+        bool Import(const size_t ncount, const nmBPTypes::strNameMeas names[],\
+        const nmBPTypes::strItem data[], const size_t dcount, nmBPTypes::ReportData flg);  // Метод импорта данных из массива
+
+        /** Методы Get **/
+        decimal* GetDecimal(const size_t brow, const size_t erow, const size_t bcol,\
+        const size_t ecol) const;                   // Метод для получения исходных данных вещественного типа
+
+        nmBPTypes::strNameMeas* GetNames(const size_t brow, const size_t erow,const size_t idName,\
+        const size_t idMeas) const;                   // Метод для получения исходных данных типа strNameMeas
+
+        string* GetNames(const size_t brow, const size_t erow, const size_t idName) const;
+                                                    // Метод для получения исходных данных типа string
+
+        nmBPTypes::strItem* GetstrItem(const size_t brow, const size_t erow, const size_t bcol,\
+        const size_t ecol, nmBPTypes::ReportData flg) const;    // Метод для получения исходных данных структурного типа
+
+        size_t GetRowCount() const;                 // Метод возвращает число столбцов матрицы
+        size_t GetColCount() const;                 // Метод возвращает число строк матрицы
+
+    protected:
+
+};
+
+#endif // CLSIMPEX_H
