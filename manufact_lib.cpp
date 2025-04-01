@@ -100,16 +100,16 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
 цикла. Период с самым большим номером соответствует периоду выхода готового продукта. **/
 
         decimal* clsRecipeItem::CalcRawMatVolumeItem(const size_t PrCount, const size_t period, const decimal volume) const {
-        /** Метод рассчитывает объем потребления сырья и материалов (в каждый период производственного цикла) в зависимости от
-        требуемого объема производства продукта на выходе этого производственного цикла. Метод рассчитывает потребность в сырье
-        и материалах только для одного единичного производственного цикла (ЕТП). ЕТП - это процесс производства одного
-        наименования продукта в каком-либо отдельном периоде проекта, Каждая 2D-матрица ЕТП имеет размер rcount*PrCount: строки
-        соответствуют наименованиям сырья, столбцы - периодам проекта. Параметры:  PrCount - число периодов проекта, period -
-        номер периода проекта, в котором требуется готовый произведенный продукт, volume - требуемый объем этого продукта. Метод
-        возвращает указатель на матрицу рассчитанных объемов сырья и материалов: число строк матрицы совпадает с числом позиций
-        сырья и материалов, число столбцов - с длительностью проекта. Нулевой период проекта не задействуется (соответствует
-        стартовому балансу). ВНИМАНИЕ!!! При вызове данного метода следует помнить о необходимости высвобождения памяти и
-        удалении созданного данным методом динамического массива. **/
+        /** Метод рассчитывает объем потребления ресурсов в каждом периоде технологического цикла в зависимости от
+            требуемого объема готового продукта на выходе этого цикла. Метод рассчитывает потребность в ресурсах только для
+            одного единичного производственного цикла (ЕПЦ). ЕПЦ - это процесс производства одного наименования продукта в
+            каком-либо отдельном периоде проекта. Параметры:  PrCount - число периодов проекта, period - номер периода проекта,
+            в котором требуется готовый произведенный продукт, volume - требуемый объем этого продукта. Метод возвращает
+            указатель на одномерный массив, аналог двумерной матрицы, размером rcount*PrCount с рассчитанными объемами
+            потребных в производстве ресурсов: число строк матрицы совпадает с числом позиций ресурсов, число столбцов - с
+            длительностью проекта. Нулевой период проекта не задействуется (соответствует стартовому балансу).
+            ВНИМАНИЕ!!! При вызове данного метода следует помнить о необходимости высвобождения памяти и удалении
+            созданного данным методом динамического массива **/
             if(period < duration) { return nullptr; };      // Если период меньше, чем производственный цикл, возврат "пусто"
             if(period >= PrCount) { return nullptr; };      // Если период больше или равно длительности проекта, возврат "пусто"
             if(rcount == sZero) { return nullptr; };        // Если число номенклатурных позиций сырья нулевое, то "пусто"
@@ -142,11 +142,8 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(period >= PrCount) { return nullptr; };      // Если период больше или равно длительности проекта, возврат "пусто"
             decimal *temp = new(nothrow) decimal[PrCount]{};// Выделяем память массиву
             if(!temp) { return nullptr; };                  // Если память не выделена, то выход и возврат "пусто"
-//            for(size_t i=sZero; i<PrCount; i++) {           // Заполняем нулями вспомогательный массив
-//                *(temp+i) = dZero;
-//            };
             const size_t diff = period - duration;          // Нижняя граница цикла (начало поступления сырья в производство)
-            const size_t frm = period-sOne;
+            const size_t frm = period-sOne;                 // Верхняя граница цикла (предшествует готовности продукта)
             for(size_t j=frm; j>diff; j--) {
                 *(temp+j) = volume;                         // Заполняем массив значениями объемов незавершенного производства
             }
@@ -236,9 +233,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(period < duration) { return nullptr; };      // Если период меньше, чем производственный цикл, возврат "пусто"
             if(period >=_PrCount) return nullptr;           // Проверка допустимости периода
             if(!rmprice) { return nullptr; };               // Проверка существования массива
-            decimal *tmp = CalcWorkingValue(_PrCount, period, rmprice, volume);  // Получаем массив с акк.себестоимостью
+            decimal *tmp = CalcWorkingValue(_PrCount, period, rmprice, volume); // Получаем массив с акк.себестоимостью ресурсов
             if(!tmp) { return nullptr; };                                       // Если массив пуст, то выход и возврат nullptr
-            decimal *wptemp=CalcWorkingVolumeItem(_PrCount, period, volume);     // Получаем массив незаверш.производства
+            decimal *wptemp=CalcWorkingVolumeItem(_PrCount, period, volume);    // Получаем массив незаверш.производства
             if(!wptemp) {                                                       // Если массив не получен, то
                 delete[] tmp;                                                   // Удаляем массив tmp
                 return nullptr;                                                 // Выходим и возвращаем Nullptr
@@ -272,8 +269,8 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         /** Метод "обнуляет" все поля экземпляра класса. **/
             name = measure = "";
             duration = rcount = sZero;
-            if(rnames) { rnames = nullptr;}
-            if(recipeitem) { recipeitem = nullptr;};
+            if(rnames) { delete[] rnames; rnames = nullptr;}
+            if(recipeitem) { delete[] recipeitem; recipeitem = nullptr;};
 
         }   // clsEraser
 
@@ -339,7 +336,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             const strNameMeas _rnames[], const decimal _recipeitem[])
         /** Конструктор с вводом всех параметров. Параметры: &_name - ссылка на название продукта, &_measure - ссылка на
         наименование единицы измерения натурального объема продукта, _duration - длительность производственного цикла,
-        _rcount - количество позиций сырья, _rnames[] - указатель на массив с наименованиями сырья и единицами измерения
+        _rcount - количество позиций ресурсов, _rnames[] - указатель на массив с наименованиями ресурсов и единицами измерения
         размером _rcount, _recipeitem[] - указатель на массив одномерный аналог матрицы с рецептурами размерностью
         _rcount*_duration. **/
             : name(_name), measure(_measure), duration(_duration), rcount(_rcount) {
@@ -458,14 +455,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 delete[] tvolume;                                       // Удаляем ранее созданный массив tvolume
                 return nullptr;                                         // выходим и возвращаем nullptr
             };
-//            for(size_t i=sZero; i<_PrCount; i++) {                      // Обнуление массива
-//                *(tvalue+i) = dZero;
-//            };
             decimal *temp;                                              // Другая временная переменная
             for(size_t i=duration; i<_PrCount; i++) {
-                temp = CalcWorkingBalanceItem(_PrCount, i, rmprice, (ProPlan+i)->volume); // Получаем себестоимость для ЕТП
+                temp = CalcWorkingBalanceItem(_PrCount, i, rmprice, (ProPlan+i)->volume); // Получаем себестоимость для ЕТЦ
                 if(temp) {                                              // Если массив не пустой,то
-                    Sum(tvalue, temp, _PrCount);                        // Суммируем все ЕТП в массив tvalue
+                    Sum(tvalue, temp, _PrCount);                        // Суммируем все ЕТЦ в массив tvalue
                     delete[] temp;                                      // Удаляем источник суммирования
                 };
             };
@@ -482,7 +476,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 (twbalance+i)->price = (twbalance+i)->volume > epsln ? (twbalance+i)->value / (twbalance+i)->volume : dZero;
             };
             delete[] tvolume;                                           // Удаляем ранее созданный массив tvolume
-            delete[] tvalue;                                            // Суммируем все ЕТП в массив tvalue
+            delete[] tvalue;                                            // Суммируем все ЕТЦ в массив tvalue
             return twbalance;
         }   // CalcWorkingBalance
 
@@ -504,9 +498,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             };
             decimal *temp;                                              // Другая временная переменная
             for(size_t i=duration; i<_PrCount; i++) {
-                temp = CalcProductBalanceItem(_PrCount, i, rmprice, (ProPlan+i)->volume); // Получаем себестоимость для ЕТП
+                temp = CalcProductBalanceItem(_PrCount, i, rmprice, (ProPlan+i)->volume); // Получаем себестоимость для ЕТЦ
                 if(temp) {                                                      // Если массив не пустой,то
-                    Sum(tvalue, temp, _PrCount);                                // Суммируем все ЕТП в массив tvalue
+                    Sum(tvalue, temp, _PrCount);                                // Суммируем все ЕТЦ в массив tvalue
                     delete[] temp;                                              // Удаляем источник суммирования
                 };
             };
@@ -527,10 +521,10 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // CalcProductBalance
 
         decimal* clsRecipeItem::CalcRawMatVolume(const size_t PrCount, const strItem volume[]) const {
-        /** Метод рассчитывает и возвращает объем потребления сырья и материалов в натуральном выражении для всего плана
+        /** Метод рассчитывает и возвращает объем потребления ресурсов в натуральном выражении для всего плана
         выпуска продукта. Параметры:  PrCount - число периодов проекта, volume[] - указатель на массив размерности PrCount с
         объемами производства продукта по периодам (план выпуска продукта). Метод возвращает 2D-массив строки которого
-        представляют собой название сырья и материалов, а столбцы - период проекта. **/
+        представляют собой название ресурсов, а столбцы - период проекта. **/
             if(!rnames) { return nullptr; };                // Если отсутствует массив с номенклатурой сырья, то "пусто"
             if(!recipeitem) { return nullptr; };            // Если отсутствует матрица с рецептурами, то "пусто"
             if(!volume) { return nullptr; };                // Если остутствует массив с объемами производства продукта
@@ -551,8 +545,8 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // CalcRawMatVolume
 
         strNameMeas* clsRecipeItem::GetRawNamesItem() const {
-        /** Метод возвращает указатель на вновь создаваемый динамический массив с наименованиями сырья и материалов
-        и единицами измерения расхода сырья на изготовление единицы продукта. Массив создается как копия и подлежит
+        /** Метод возвращает указатель на вновь создаваемый динамический массив с наименованиями ресурсов
+        и единицами измерения расхода ресурсов на изготовление единицы продукта. Массив создается как копия и подлежит
         удалению после использования. **/
             if(rcount == sZero) return nullptr;         // Если размер массива с наименованием сырья рулевой, то выход и "пусто"
             strNameMeas *temp = new(nothrow) strNameMeas[rcount];   // Пытаемся выделить память для вспомогательного массива
@@ -775,7 +769,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         /** Метод визуального контроля работоспособности функции CalcWorkingValue **/
             cout << "Контроль работы метода CalcWorkingValue" << endl;
             cout << "Себестоимость продукта " << name << " в течении единичного технологического цикла" << endl;
-            cout << "Строки - единичные технологические циклы, столбцы - себестоимость в периоде" << endl;
+            cout << "Строки - единичные технологические циклы, столбцы - аккумулир. расход в периоде" << endl;
             View_f_Item(PrCount, ProPlan, rmprice, hmcur, &clsRecipeItem::CalcWorkingValue);
         }   // ViewWorkingValue
 
@@ -831,11 +825,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             measure = nullptr;
             duration = sZero;
             rcount = sZero;
-            Recipe = nullptr;
-            ProductPlan = nullptr;
-            RawMatPurchPlan = nullptr;
-            RawMatPrice = nullptr;
-            Balance = nullptr;
+            if(Recipe) { delete Recipe; Recipe = nullptr;}
+            if(ProductPlan) { delete[] ProductPlan; ProductPlan = nullptr;}
+            if(RawMatPurchPlan) { delete[] RawMatPurchPlan; RawMatPurchPlan = nullptr;}
+            if(RawMatPrice) {delete[] RawMatPrice; RawMatPrice = nullptr;}
+            if(Balance) {delete[] Balance; Balance = nullptr;}
         }   // clsEraser
 
         clsManufactItem::clsManufactItem() {
