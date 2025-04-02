@@ -1120,22 +1120,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             return true;
         }   // SetProductPlan
 
-//        bool clsManufactItem::SetRawMatPrice(const decimal _Price[]) {
-//        /** Метод ввода цен на сырье и материалы. Предполагается, что после получения складом информации о потребности
-//        в сырье и материалах, склад возвращает информацию об учетных ценах на сырье и материалы. Эта информация с помощью
-//        данного метода копируется в массив RawMatPrice размером rcount*PrCount. Параметры: _Price - указатель на массив
-//        (матрицу) цен на сырье и материалы размером rcount*PrCount. **/
-//            const size_t tcount = rcount*PrCount;               // Вычисляем размер массива (аналог двумерной матрицы)
-//            if( (tcount>sZero) && (_Price) ) {
-//                RawMatPrice = new(nothrow) decimal[tcount];      // Выделяем память под массив
-//                if(RawMatPrice) {                               // Если память выделена, то
-////                    memcpy(RawMatPrice, _Price, sizeof(decimal)*tcount); // Копируем массивы и
-//                    var_cpy(RawMatPrice, _Price, tcount);
-//                    return true;                                        // Возвращаем True
-//                } else return false;
-//            } else return false;
-//        }   // SetRawMatPrice
-
         bool clsManufactItem::SetRawMatPrice(const decimal _Price[]) {
         /** Метод ввода цен на сырье и материалы. Предполагается, что после получения складом информации о потребности
         в сырье и материалах, склад возвращает информацию об учетных ценах на сырье и материалы. Эта информация с помощью
@@ -1221,13 +1205,8 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(!SEF(_outF, flagBalance)) return false;
             /** Сохраняем в файл основные данные **/
             if(!SEF(_outF, PrCount)) return false;  // Сохраняем в файл Количество периодов проекта
-//          SEF(_outF, *name);                      // Эти параметры не сохраняем, они доступны в clsRecipeItem
-//          SEF(_outF, *measure);
-//          SEF(_outF, duration);
-//          SEF(_outF, rcount)
             if(!Recipe->StF(_outF)) return false;   // Если не удалось сохранить объект, то выход и возврат false
             if(flagProductPlan)
-//                if(!SEF(_outF, ProductPlan, PrCount)) return false;     // Сохраняем в файл план по выпуску продукции
                 for(size_t i{}; i<PrCount; i++) {
                     if(!(ProductPlan+i)->StF(_outF)) return false;
                 };
@@ -1237,7 +1216,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(flagRawMatPrice)
                 if(!SEF(_outF, RawMatPrice, tcount)) return false;      // Сохраняем в файл цены на сырье и материалы
             if(flagBalance)
-//                if(!SEF(_outF, Balance, PrCount)) return false;         // сохраняем в файл массив со значениями объемов,
                 for(size_t i{}; i<PrCount; i++) {
                     if(!(Balance+i)->StF(_outF)) return false;
                 };
@@ -1294,7 +1272,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 cout << "flagBalance= " << flagBalance << endl;
             #endif // CDtor_voice
             if(!DSF(_inF, PrCount)) return false;       // Читаем из файла Количество периодов проекта
-
             if(!Recipe) Recipe = new(nothrow) clsRecipeItem(EmpStr, EmpStr, sZero, sZero, nullptr, nullptr);
             if(!Recipe) return false;
             if(!Recipe->RfF(_inF)) return false;    // Если не удалось прочитать объект, то выход и возврат false
@@ -1302,15 +1279,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             measure = &Recipe->GetMeasure();
             rcount = Recipe->GetRCount();
             duration = Recipe->GetDuration();
-
-//            if(ProductPlan) delete[] ProductPlan;   // Удаляем массив, если он есть, т.к. не знаем его размер и пригодность
-//            if(flagProductPlan) {                   // Если флаг true, то массив надо прочитать из файла
-//                ProductPlan = new(nothrow) strItem[PrCount];        // Выделяем память для массива
-//                if(!ProductPlan) return false;                      // Если память не выделена, то выход и возврат false
-//                for(size_t i{}; i<PrCount; i++)
-//                    if(!(ProductPlan+i)->RfF(_inF)) return false;   // Если память выделена, то читаем массив из файла
-//            } else ProductPlan = nullptr;
-
             if(flagProductPlan) {                                   // Если флаг true, то массив надо прочитать из файла
                 strItem* PPtmp = new(nothrow) strItem[PrCount];     // Выделяем память для временного массива
                 if(!PPtmp) return false;                            // Если память не выделена, то выход и возврат false
@@ -1319,15 +1287,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 std::swap(PPtmp, ProductPlan);                      // Обмениваемся указателями
                 if(PPtmp) delete[] PPtmp;                           // Удаляем вспомогательный массив
             } else ProductPlan = nullptr;
-
             size_t tcount = rcount*PrCount;                         // ПОлучаем размер массива
-//            if(RawMatPurchPlan) delete[] RawMatPurchPlan;           // Удаляем массив, если он есть
-//            if(flagRawMatPurchPlan) {                               // Если флаг true, то массив надо прочитать из файла
-//                RawMatPurchPlan = new(nothrow) decimal[tcount];     // выделяем память для массива
-//                if(!RawMatPurchPlan) return false;                  // Если память не выделена, то выход
-//                if(!DSF(_inF, RawMatPurchPlan, tcount)) return false;  // Если память выделена, то читаем их файла массив
-//            } else RawMatPurchPlan = nullptr;
-
             if(flagRawMatPurchPlan) {                               // Если флаг true, то массив надо прочитать из файла
                 decimal* RMPPtmp = new(nothrow) decimal[tcount];    // Выделяем память для временного массива
                 if(!RMPPtmp) return false;                          // Если память не выделена, то выход и возврат false
@@ -1335,14 +1295,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 std::swap(RMPPtmp, RawMatPurchPlan);                // Обмениваемся указателями
                 if(RMPPtmp) delete[] RMPPtmp;                       // Удаляем вспомогательный массив
             } else RawMatPurchPlan = nullptr;
-
-//            if(RawMatPrice) delete[] RawMatPrice;                   // Удаляем массив, если он есть
-//            if(flagRawMatPrice) {                                   // Если флаг true, то массив надо прочитать из файла
-//                RawMatPrice = new(nothrow) decimal[tcount];         // выделяем память для массива
-//                if(!RawMatPrice) return false;                      // Если память не выделена, то выход
-//                if(!DSF(_inF, RawMatPrice, tcount)) return false;   // Если память выделена, то читаем их файла массив
-//            } else RawMatPrice = nullptr;
-
             if(flagRawMatPrice) {                                   // Если флаг true, то массив надо прочитать из файла
                 decimal* RMprcTmp = new(nothrow) decimal[tcount];   // Выделяем память для временного массива
                 if(!RMprcTmp) return false;                         // Если память не выделена, то выход и возврат false
@@ -1350,15 +1302,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 std::swap(RMprcTmp, RawMatPrice);                   // Обмениваемся указателями
                 if(RMprcTmp) delete[] RMprcTmp;                     // Удаляем вспомогательный массив
             } else RawMatPrice = nullptr;
-
-//            if(Balance) delete[] Balance;                           // Удаляем массив, если он есть
-//            if(flagBalance) {                                       // Если флаг true, то массив надо прочитать из файла
-//                Balance = new(nothrow) strItem[PrCount];            // выделяем память для массива
-//                if(!Balance) return false;                          // Если память не выделена, то выход
-//                for(size_t i{}; i<PrCount; i++)
-//                    if(!(Balance+i)->RfF(_inF)) return false;       // Если память выделена, то читаем их файла массив
-//            } else Balance = nullptr;
-
             if(flagBalance) {                                       // Если флаг true, то массив надо прочитать из файла
                 strItem* tmpBal = new(nothrow) strItem[PrCount];    // выделяем память для массива
                 if(!tmpBal) return false;                           // Если память не выделена, то выход
