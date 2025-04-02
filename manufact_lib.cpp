@@ -1075,21 +1075,21 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // GetRefRecipe
 
         const strNameMeas* clsManufactItem::GetRefRawNames() const {
-        /** Метод возвращает константный указатель на внутренний массив с наименованиями сырья и материалов и
-        единицами натурального измерения сырья. **/
+        /** Метод возвращает константный указатель на внутренний массив с наименованиями ресурсов и
+        единицами натурального измерения ресурсов. **/
             if(!Recipe) return nullptr;
             return Recipe->GetRefRawNamesItem();
         }   // GetRefRawNames
 
         const decimal* clsManufactItem::GetRawMatPurchPlan() const {
-        /** Метод возвращает константный указатель на массив RawMatPurchPlan с объемом потребления сырья и материалов в
+        /** Метод возвращает константный указатель на массив RawMatPurchPlan с объемом потребления ресурсов в
         натуральном выражении для всего плана выпуска продукта **/
             if(!RawMatPurchPlan) return nullptr;        // Если массив не существует, то выход и возврат nullptr
             return RawMatPurchPlan;
         } // GetRawMatPurchPlan
 
         const decimal* clsManufactItem::GetRawMatPrice() const {
-        /** Метод возвращает константный указатель на массив RawMatPrice с ценами на сырье и материалы. **/
+        /** Метод возвращает константный указатель на массив RawMatPrice с ценами на ресурсы. **/
             if(!RawMatPrice) return nullptr;    // Если массив не существует, то выход и возврат nullptr
             return RawMatPrice;
         }   // GetRawMatPrice
@@ -1107,20 +1107,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // GetProductPlan
 
         /** Set - методы **/
-
-//        bool clsManufactItem::SetProductPlan(const strItem _ProductPlan[]) {
-//        /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска).
-//        Параметры: _ProductPlan - массив типа strItem размерностью PrCount. Используются только поля _Product.volume.  **/
-//            if( (PrCount>sZero) && (_ProductPlan) ) {           // Валидация параметров
-//                if(ProductPlan) delete[] ProductPlan;           // Если массив существует, то удаляем его
-//                ProductPlan = new(nothrow) strItem[PrCount];    // Выделяем память под массив
-//                if(ProductPlan) {                               // Если память выделена, то
-////                    memcpy(ProductPlan, _ProductPlan, sizeof(strItem)*PrCount); // Копируем массивы и
-//                    var_cpy(ProductPlan, _ProductPlan, PrCount);
-//                    return true;                                                // Возвращаем True
-//                } else return false;
-//            } else return false;
-//        }   // SetProductPlan
 
         bool clsManufactItem::SetProductPlan(const strItem _ProductPlan[]) {
         /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска).
@@ -1186,21 +1172,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(PrCount>sZero)
                 RawMatPurchPlan = Recipe->CalcRawMatVolume(PrCount, ProductPlan);
         }   // CalcRawMatPurchPlan
-
-//        bool clsManufactItem::CalculateItem() {
-//        /** Метод рассчитывает объем, удельную и полную себестоимость незавершенного производства и готовой продукции
-//        для конкретного продукта, выпускаемого на протяжении всего проекта. **/
-//            if(!ProductPlan) return false;      // Если нет массива с планом выхода готовой продукции, то выход и false
-//            if(!RawMatPurchPlan) return false;  // Если нет массива с планом закупок сырья и материалов, то выход и false
-//            if(!RawMatPrice) return false;      // Если нет массива с ценами сырья и материалов, то выход и false
-//            Balance = Recipe->CalcWorkingBalance(PrCount,RawMatPrice, ProductPlan); // Получаем баланс незавершенного производства
-//            if(!Balance) return false;          // Если массив пуст, то выход и false
-//            strItem* temp = Recipe->CalcProductBalance(PrCount, RawMatPrice, ProductPlan);  // Получаем готовую продукцию
-//            if(!temp) return false;             // Если массив пуст, то выход и false
-//            delete[] ProductPlan;               // Удаляем прежний массив готового продукта
-//            ProductPlan = temp;                 // Перекидываем указатель на temp
-//            return true;
-//        }   // CalculateItem
 
         bool clsManufactItem::CalculateItem() {
         /** Метод рассчитывает объем, удельную и полную себестоимость незавершенного производства и готовой продукции
