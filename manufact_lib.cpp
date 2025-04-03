@@ -1150,6 +1150,83 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
 
         /** Вычислительные методы **/
 
+        bool clsManufactItem::Resize(size_t _n) {
+        /** Функция изменяет размеры массивов, устанавливая новое число периодов проекта, равное _n. При _n < PrCount,
+        данные обрезаются, при _n > PrCount, - добавляются новые элементы массивов с нулевыми значениями. Функция
+        возвращает true при удачном изменении размеров массивов, false - в противном случае **/
+            if(_n < sOne) { return false; };        // Некорректный размер
+            if(_n == PrCount) { return true; };     // Изменение размера не производится
+            strItem *p, *b;                         // Временный указатель для массивов ProductPlan и Balance
+            decimal *w, *a;                         // Временный указатель для массивов RawMatPurchPlan и RawMatPrice
+            p = new(nothrow) strItem[_n];           // Выделяем память массиву
+            if(!p) return false;                    // Если память не выделена, то выход с false
+            b = new(nothrow) strItem[_n];           // Выделяем память массиву
+            if(!b) {                                // Если память не выделена, то
+                delete[] p;                         // удаляем ранее созданные массивы
+                return false;                       // и выходим с false
+            }
+            size_t tmpcount = rcount * _n;          // Временная переменная с новым размером матрицы
+            size_t Rtpcount = rcount * PrCount;     // Временная переменная со старым размером матрицы
+            w = new(nothrow) decimal(tmpcount);     // Выделяем память массиву
+            if(!w) {                                // Если память не выделена, то
+                delete[] p;                         // удаляем ранее созданные массивы
+                delete[] b;
+                return false;                       // и выходим с false
+            }
+            a = new(nothrow) decimal(tmpcount);     // Выделяем память массиву
+            if(!a) {                                // Если память не выделена, то
+                delete[] p;                         // удаляем ранее созданные массивы
+                delete[] b;
+                delete[] w;
+                return false;                       // и выходим с false
+            }
+            if(_n < PrCount) {                      // Если новое число периодов меньше старого, то
+                for(size_t i{}; i<_n; i++) {        // копируем первые _n элементов массива
+                    *(p+i) = *(ProductPlan+i);
+                    *(b+i) = *(Balance+i);
+                };
+                for(size_t i{}; i<rcount; i++) {                        // Цикл по строкам матрицы
+                    for(size_t j{}; j<_n; j++) {                        // Цикл по столбцам матрицы
+                        *(w+i*_n+j) = *(RawMatPurchPlan+i*PrCount+j);   // Заполняем первые _n столбцов
+                        *(a+i*_n+j) = *(RawMatPrice+i*PrCount+j);
+                    }
+                }
+            }
+            else {
+                for(size_t i{}; i<PrCount; i++) {
+                    *(p+i) = *(ProductPlan+i);
+                    *(b+i) = *(Balance+i);
+                };
+                for(size_t i=PrCount; i<_n; i++) {
+                    (b+i)->volume = (p+i)->volume = dZero;
+                    (b+i)->price  = (p+i)->price  = dZero;
+                    (b+i)->value  = (p+i)->value  = dZero;
+                };
+                for(size_t i{}; i<rcount; i++) {
+                    for(size_t j{}; j<PrCount; j++) {
+                        *(w+i*_n+j) = *(RawMatPurchPlan+i*PrCount+j);
+                        *(w+i*_n+j) = *(RawMatPrice+i*PrCount+j);
+                    };
+                    for(size_t j=PrCount; j<_n; j++) {
+                        *(w+i*_n+j) = dZero;
+                        *(w+i*_n+j) = dZero;
+                    }
+                }
+            }
+            if(PrCount > sZero) {
+                delete[] ProductPlan;
+                delete[] Balance;
+                delete[] RawMatPurchPlan;
+                delete[] RawMatPrice;
+            };
+            ProductPlan = p;
+            Balance     = b;
+            RawMatPurchPlan = w;
+            RawMatPrice     = a;
+            PrCount = _n;
+            return true;
+        }   // Resize
+
         void clsManufactItem::CalcRawMatPurchPlan() {
         /** Метод рассчитывает объем потребления сырья и материалов в натуральном выражении для всего плана
         выпуска продукта и заполняет массив RawMatPurchPlan. **/
