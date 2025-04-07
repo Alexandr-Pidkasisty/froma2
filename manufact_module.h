@@ -487,9 +487,9 @@ class clsManufactory {
 
     private:
         size_t PrCount;                 //  оличество периодов проекта
-        size_t RMCount;                 // ѕолное количество позиций в номенклатуре сырь€ и материалов или используемых продуктов
+        size_t RMCount;                 // ѕолное количество позиций в номенклатуре ресурсов
         Currency hmcur;                 // ƒомашн€€ (основна€) валюта ("Home Currency")
-        strNameMeas *RMNames;           /** ѕолный массив с названи€ми сырь€ и материалов. –азмерность RMCount. Ётот массив в
+        strNameMeas *RMNames;           /** ѕолный массив с названи€ми ресурсов. –азмерность RMCount. Ётот массив в
         отличие от массивов clsRecipeItem::*rnames содержит полный список всех позиций сырь€ и материалов. —оответственно,
         RMCount >= clsRecipeItem::rcount. **/
         vector <clsManufactItem> Manuf; // ћассив производства отдельных продуктов
