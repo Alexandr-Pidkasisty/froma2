@@ -266,11 +266,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // CalcProductBalanceItem
 
         void clsRecipeItem::clsEraser() {
-        /** Метод "обнуляет" все поля экземпляра класса. **/
+        /** Метод "обнуляет" все поля экземпляра класса. Используется только в конструкторе перемещения**/
             name = measure = "";
             duration = rcount = sZero;
-            if(rnames) { delete[] rnames; rnames = nullptr;}
-            if(recipeitem) { delete[] recipeitem; recipeitem = nullptr;};
+            rnames = nullptr;
+            recipeitem = nullptr;
 
         }   // clsEraser
 
@@ -819,17 +819,17 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
 Балансовую полную и удельную стоимость незаконченного производства. **/
 
         void clsManufactItem::clsEraser() {
-        /** Метод "обнуляет" все поля класса **/
+        /** Метод "обнуляет" все поля класса. Используется только в конструкторе перемещения. **/
             PrCount = sZero;
             name = nullptr;
             measure = nullptr;
             duration = sZero;
             rcount = sZero;
-            if(Recipe) { delete Recipe; Recipe = nullptr;}
-            if(ProductPlan) { delete[] ProductPlan; ProductPlan = nullptr;}
-            if(RawMatPurchPlan) { delete[] RawMatPurchPlan; RawMatPurchPlan = nullptr;}
-            if(RawMatPrice) {delete[] RawMatPrice; RawMatPrice = nullptr;}
-            if(Balance) {delete[] Balance; Balance = nullptr;}
+            Recipe = nullptr;
+            ProductPlan = nullptr;
+            RawMatPurchPlan = nullptr;
+            RawMatPrice = nullptr;
+            Balance = nullptr;
         }   // clsEraser
 
         clsManufactItem::clsManufactItem() {
@@ -1425,7 +1425,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         /** Метод визуального контроля работоспособности функций GetBalance и GetProductPlan. **/
             cout << "Контроль работы методов GetBalance и GetProductPlan" << endl << endl;
             cout << "Незавершенное производство в натуральном, удельном и полном стоимостном выражении" << endl;
-            strNameMeas pname[sOne] = {*name, *measure};        // Формируем заголовки таблицы
+            string tname = *(name);                             // Временная переменная для ограничения длины строки
+            tname.resize(15);                                   // Обрезаем строку
+            strNameMeas pname[sOne] = {tname, *measure};        // Формируем заголовки таблицы
             const strItem *Btemp = GetBalance();                // Получаем указатель на массив незавершенного производства
             if(Btemp) {                                         // Если массив не пуст, то печатаем отчет
                 ArrPrint(sOne, pname, Btemp, PrCount, volume, hmcur);  // Печать натуральных показателей
