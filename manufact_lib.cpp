@@ -1712,18 +1712,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
 
         /** Вычислительные методы. Приводятся в очередности вызова **/
 
-//        void clsManufactory::CalcRawMatPurchPlan() {
-//        /** Метод рассчитывает объем потребления сырья и материалов в натуральном выражении для всего плана
-//        выпуска всех продуктов. **/
-//            vector <clsManufactItem>::iterator it;          // Итератор для массива
-//            for(it=Manuf.begin(); it!=Manuf.end(); it++) {  // Цикл по всем элементам вектора
-//                it->CalcRawMatPurchPlan();                  // Выполняем расчет для каждого элемента вектора
-//            }
-//        }   // CalcRawMatPurchPlan
-
         void clsManufactory::CalcRawMatPurchPlan(size_t bg, size_t en) {
-        /** Метод рассчитывает объем потребления сырья и материалов в натуральном выражении для планов
-        выпуска продуктов от продукта с индексом bg до продукта с индексом en-1. **/
+        /** Метод рассчитывает объем потребления ресурсов в натуральном выражении в соответствии с планом
+            выпуска для каждого продукта в диапазоне: от продукта с индексом bg до продукта с индексом en-1. **/
             size_t lim = Manuf.size();                      // Верхняя граница опустимого значения индекса
             if(bg>=lim) return;                             // Валидация нижней границы индекса
             if(en>=lim) en = lim;                           // Валидация верхней границы индекса
@@ -1805,41 +1796,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             for(auto &t : pool)                         // Цикл по всему пулу потоков
                 t.join();                               // Ожидаем завершения каждого запущенного потока
         }   // CalcRawMatPurchPlan_thread
-
-//        decimal* clsManufactory::GetRawMatPurchPlan() const {
-//        /** Метод возвращает Указатель на вновь создаваемый массив размером RMCount*PrCount, в котором содержится потребность
-//        для каждого наименования сырья в каждом периоде проекта. Потребность в сырье суммарная, по всем единичным производствам
-//        всех продуктов. Метод const. **/
-//            if(Manuf.size() == sZero) { return nullptr; };          // Если в векторе нет элементов
-//            const size_t tcount = RMCount*PrCount;                  // Вспомогательная переменная = размер выходного массива
-//            decimal *Rtemp = new(nothrow) decimal[tcount]{};        // Выделям память под вспомогательный массив и обнуляем его
-//            if(!Rtemp) { return nullptr; };                         // Если память не выделена, то выход и возврат nullptr
-////            for(size_t i=sZero; i<tcount; i++) {
-////                *(Rtemp+i) = dZero;                                 // Обнуление массива
-////            };
-//            for(size_t i=sZero; i<Manuf.size(); i++) {              // Цикл по всем элементам вектора
-////                const decimal *rtemp =  Manuf.at(i).GetRawMatPurchPlan();   // Получаем указатель на массив с планом закупок
-//                const decimal *rtemp =  (Manuf.data()+i)->GetRawMatPurchPlan();   // Получаем указатель на массив с планом закупок
-//                if(rtemp) {
-////                    const size_t _rcount = Manuf.at(i).GetRCount();        // Узнаем число сырья и материалов
-//                    const size_t _rcount = (Manuf.data()+i)->GetRCount();   // Узнаем число сырья и материалов
-////                    const strNameMeas *rnames = Manuf.at(i).GetRefRawNames(); // Получаем массив с наименованием сырья и материалов
-//                    const strNameMeas *rnames = (Manuf.data()+i)->GetRefRawNames(); // Получаем массив с наименованием сырья и материалов
-//                    if(rnames) {
-//                        for(size_t j=sZero; j<_rcount; j++) {
-//                            for(size_t k=sZero; k<RMCount; k++) {
-//                                if( (rnames+j)->name == (RMNames+k)->name ) {  // Сравниваем имена, если они совпадают, то
-//                                // прибавляем к k-строке массива Rtemp j-ю строку массива rtemp
-//                                    Sum((Rtemp+PrCount*k), (rtemp+PrCount*j), PrCount);
-//                                    break;
-//                                }
-//                            }   // for k
-//                        }   // for j
-//                    };
-//                };  // if(rtemp)
-//            }   // for i
-//            return Rtemp;
-//        }   //  GetRawMatPurchPlan
 
         decimal* clsManufactory::GetRawMatPurchPlan() const {
         /** Вычислительный метод возвращает указатель на вновь создаваемый массив размером RMCount*PrCount, в котором содержится
