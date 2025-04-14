@@ -1718,8 +1718,12 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             size_t lim = Manuf.size();                      // Верхняя граница опустимого значения индекса
             if(bg>=lim) return;                             // Валидация нижней границы индекса
             if(en>=lim) en = lim;                           // Валидация верхней границы индекса
-            for(size_t i = bg; i<en; i++)
-                (Manuf.data()+i)->CalcRawMatPurchPlan();    // Выполняем расчет для каждого элемента вектора
+            for(size_t i = bg; i<en; i++) {
+                auto p = (Manuf.data()+i);      // Вспомогательный указатель уснанавливаем на элемент вектора
+                if(p->GetPrCount() != PrCount)  // Если длительности проекта не совпадают, то
+                    p->Resize(PrCount);         // изменяем массивы и длительность
+                p->CalcRawMatPurchPlan();       // Выполняем расчет для каждого элемента вектора
+            }
             return;
         }   // CalcRawMatPurchPlan(size_t bg, size_t en)
 
