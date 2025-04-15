@@ -1719,7 +1719,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(bg>=lim) return;                             // Валидация нижней границы индекса
             if(en>=lim) en = lim;                           // Валидация верхней границы индекса
             for(size_t i = bg; i<en; i++) {
-                auto p = (Manuf.data()+i);      // Вспомогательный указатель уснанавливаем на элемент вектора
+                clsManufactItem* p = (Manuf.data()+i);      // Вспомогательный указатель уснанавливаем на элемент вектора
                 if(p->GetPrCount() != PrCount)  // Если длительности проекта не совпадают, то
                     p->Resize(PrCount);         // изменяем массивы и длительность
                 p->CalcRawMatPurchPlan();       // Выполняем расчет для каждого элемента вектора
@@ -2033,12 +2033,12 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // GetProductDescription
 
         const strNameMeas* clsManufactory::GetRMNames() const {
-        /** Метод возвращает const-указатель на внутренний массив с именами и ел. измерения сырья и материалов. **/
+        /** Метод возвращает const-указатель на внутренний массив с именами и ед. измерения сырья и материалов. **/
             return RMNames;
         }   // GetRMNames
 
         strNameMeas* clsManufactory::GetRawMatDescription() const {
-        /** Метод возвращает указатель на вновь создаваемый массив с именами и ел. измерения сырья и материалов. **/
+        /** Метод возвращает указатель на вновь создаваемый массив с именами и ед. измерения сырья и материалов. **/
             strNameMeas *temp = new(nothrow) strNameMeas[RMCount];  // // Выделяем память массиву
             if(!temp) { return nullptr; };
             var_cpy(temp, RMNames, RMCount);
@@ -2046,24 +2046,10 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // GetRawMatDescription
 
         strItem* clsManufactory::GetTotalBalance() const {
-        /** Метод взвращает указатель на одномерный массив, являющийся аналогом двумерной матрицы с балансами незавершенного
+        /** Метод возвращает указатель на одномерный массив, являющийся аналогом двумерной матрицы с балансами незавершенного
         производства для всех продуктов. Размер матрицы Manuf.size()*PrCount. Каждый элемент матрицы имеет тип strItem, т.е.
         имеет в своем составе значения volume, price и value для незавершенного производства. Массив создается в динамической
         памяти, после использования требует явного удаления с помощью оператора delete[]. **/
-//            if(Manuf.size() == sZero) return nullptr;   // Если вектор не содержит ни одного единичного производства, то выход с nullptr
-//            if(PrCount == sZero) return nullptr;        // Если число периодов нулевое, то выход с nullptr
-//            strItem *temp = new(nothrow) strItem[Manuf.size()*PrCount]; // Пытаемся выделить память
-//            if(!temp) return nullptr;                   // Если память не выделена, то выход с nullptr
-//            size_t i = sZero;
-//            const strItem *Btmp;
-//            for(vector<clsManufactItem>::const_iterator it = Manuf.cbegin(); it!=Manuf.cend(); it++) {
-//                Btmp = it->GetBalance();
-//                if(Btmp) {
-//                    var_cpy((temp+PrCount*i), Btmp, PrCount);   // Копируем одномерный i-й баланс
-//                    i++;                                        // в строку временного массива И увеличиваем счетчик
-//                };
-//            };
-//            return temp;
             return gettotal(&clsManufactItem::GetBalance);
         }   // GetTotalBalance
 
@@ -2072,20 +2058,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         продуктов в натуральном, удельном и полном стоимостном выражении. Размер матрицы Manuf.size()*PrCount. Каждый элемент
         матрицы имеет тип strItem, т.е. имеет в своем составе значения volume, price и value для продукта. Массив создается
         в динамической памяти, после использования требует явного удаления с помощью оператора delete[].**/
-//            if(Manuf.size() == sZero) return nullptr;   // Если вектор не содержит ни одного единичного производства, то выход с nullptr
-//            if(PrCount == sZero) return nullptr;        // Если число периодов нулевое, то выход с nullptr
-//            strItem *temp = new(nothrow) strItem[Manuf.size()*PrCount]; // Пытаемся выделить память
-//            if(!temp) return nullptr;                   // Если память не выделена, то выход с nullptr
-//            size_t i = sZero;
-//            const strItem *Ptmp;
-//            for(vector<clsManufactItem>::const_iterator it = Manuf.cbegin(); it!=Manuf.cend(); it++) {
-//                Ptmp = it->GetProductPlan();
-//                if(Ptmp) {
-//                    var_cpy((temp+PrCount*i), Ptmp, PrCount);   // Копируем одномерный i-й баланс
-//                    i++;                                        // в строку временного массива
-//                }
-//            };
-//            return temp;
             return gettotal(&clsManufactItem::GetProductPlan);
         }   // GetTotalProduct
 
