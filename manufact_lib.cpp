@@ -2295,7 +2295,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         void clsManufactory::ViewRawMatPurchPlan() const {
         /** Метод визуального контроля функции GetRawMatPurchPlan **/
             cout << "*** Контроль работы метода GetRawMatPurchPlan ***" << endl;
-            cout << "Потребность в сырье и материалах для всех продуктов" << endl;
+            cout << "Потребность в ресурсах для всех продуктов" << endl;
             decimal* temp = GetRawMatPurchPlan();
             strNameMeas* RMNtemp = new(nothrow) nmBPTypes::strNameMeas[RMCount];
             if(!RMNtemp) return;
