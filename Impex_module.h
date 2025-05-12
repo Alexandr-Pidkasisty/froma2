@@ -51,15 +51,10 @@ void MeasRestore(nmBPTypes::strNameMeas Big[], nmBPTypes::strNameMeas Lit[], con
 /** Метод заполняет поля с единицами измерения в массиве lit данными из массива Big при совпадении имен в этих массивах.
 Параметры: brows - количество строк в массиве Big, lrows - количество строк в массиве Lit. **/
 
-//template<typename T>
-//string To_String(const T& val, const size_t n);
-///** Метод возвращает число val типа T (double или LongReal) в виде строки. Используется в методе bool Import(...) **/
-
 /*************************************************************************************************************************/
 /**                        Класс clsImpex для импорта и экспорта информации из cvs-файлов                               **/
 /**                 и подготовки исходных данных для объектов типа clsStorage и clsManufactory                          **/
 /*************************************************************************************************************************/
-/** version from 2024.09.13 **/
 
 class clsImpex
 {
@@ -70,10 +65,17 @@ class clsImpex
 
     public:
         clsImpex();                                 // Конструктор по умолчанию
-        clsImpex(ifstream& ifs, const char& ch);    // Конструктор с параметрами для импорта из файла
+        clsImpex(ifstream& ifs, const char& ch);    // Конструктор с параметрами для импорта из файлового потока.
+                                                    // Параметры: os - файловый поток на чтение, ch - символ разделителя
+                                                    // междуданными в файле
         clsImpex(const size_t ncount, const nmBPTypes::strNameMeas names[],\
         const nmBPTypes::strItem data[], const size_t dcount, nmBPTypes::ReportData flg);
-                                                    // Конструктор с параметрами для импорта из массивов
+                                                    // Конструктор с параметрами для импорта из массивов. Параметры:
+                                                    // ncount - число строк, равное числу элементов массива names[],
+                                                    // names[] - массив с наименованиями строк и единицами измерения,
+                                                    // data[] - одномерный массив,аналог двумерной матрицы размером
+                                                    // ncount*dcount с данными; dcount - число столбцов матрицы;
+                                                    // flg - флаг, определяющий тип данных: volume, price или value
         ~clsImpex();                                // Деструктор
         clsImpex(const clsImpex& other);            // Конструктор копирования
         clsImpex(clsImpex&& other);                 // Конструктор перемещения
@@ -84,6 +86,7 @@ class clsImpex
         bool is_Empty() const;                      // Возвращает true, если m_data пустой
 
         void View(ostream& os) const;               // Метод визуального контроля
+
         void csvExport(ofstream& ofs) const;        // Экспорт данных в файл
         void Transpon();                            // Метод транспонирует матрицу m_data
         bool Import(ifstream& ifs, const char& ch); // Метод импорта данных из файла

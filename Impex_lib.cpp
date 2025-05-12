@@ -32,10 +32,10 @@
 #include "impex_module.h"
 #include <limits>
 
-const unsigned short int mant = 15;
-//const unsigned short int mant = dbl::max_digits10 + 2;  // Количество разрядов вещественного числа (double и т.п.),
-                                        // используемого при инициализации экземпляра класса LongReal
-                                        // https://iq.opengenus.org/print-double-with-full-precision-in-cpp/
+const unsigned short int mant = std::numeric_limits<double>::max_digits10;  /** Количество разрядов
+вещественного числа double, используемого при выводе данных в поток в методе clsImpex::Import для
+импорта данных из массивов типа strItem (по умолчанию равно 17),
+см https://iq.opengenus.org/print-double-with-full-precision-in-cpp **/
 
 /*************************************************************************************************************************/
 /**                                             Вспомогательные методы                                                  **/
@@ -50,18 +50,6 @@ void MeasRestore(nmBPTypes::strNameMeas Big[], nmBPTypes::strNameMeas Lit[], con
                     (Lit+i)->measure = (Big+j)->measure;    // Заполняем поле с еди.измерения
             };
     }   // MeasRestore
-
-//template<typename T>
-//string To_String(const T& val, const size_t n) {
-///** Метод возвращает число val типа T (double или LongReal) в виде строки. Используется в методе bool Import(...).
-//Параметры: val - число, преобразуемое в строку, n - количество выводимых знаков для числа типа LongReal. **/
-//    if(std::is_floating_point<T>::value)
-//        return std::to_string(val);
-//    else
-//        if(typeid(T) == typeid(LongReal))
-//            return val.Get(n);
-//        else return "";
-//}   // To_String
 
 /*************************************************************************************************************************/
 /**                           Класс clsImpex для импорта информации из cvs-файлов                                       **/
@@ -86,7 +74,7 @@ clsImpex::clsImpex(ifstream& ifs, const char& ch) {
 
 clsImpex::clsImpex(const size_t ncount, const nmBPTypes::strNameMeas names[],\
 const nmBPTypes::strItem data[], const size_t dcount, nmBPTypes::ReportData flg) {
-/** Конструктор с параметром. Параметры: const size_t ncount - число строк, равное числу элементов массива names[]
+/** Конструктор с параметрами для импорта из массивов. Параметры: const size_t ncount - число строк, равное числу элементов массива names[]
 с наименованиями строк, names[] - массив с наименованиями строк и единицами измерения, data[] - одномерный массив,
 аналог двумерной матрицы размером ncount*dcount с данными, dcount - число столбцов матрицы, flg - флаг, определяющий
 тип используемых данных: volume, price или value. **/
