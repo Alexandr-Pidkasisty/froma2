@@ -63,7 +63,7 @@ clsImpex::clsImpex() {
 }   // Default Ctor
 
 clsImpex::clsImpex(ifstream& ifs, const char& ch) {
-/** Конструктор с параметром. Параметры: os - файловый поток на чтение, ch - символ разделителя между
+/** Конструктор с параметром. Параметры: ifs - файловый поток на чтение, ch - символ разделителя между
 данными в файле **/
     m_rowcount = m_colcount = nmBPTypes::sZero;     // Обнуляем счетчики
     separator = ';';                                // Устанавливаем сепаратор По умолчанию
@@ -141,6 +141,8 @@ bool clsImpex::is_Empty() const {
     else return false;
 }   // is_Empty
 
+/** Методы импорта **/
+
 bool clsImpex::Import(ifstream& ifs, const char& ch) {
 /** Метод импортирует данные из файла, связанного с потоком ifs, в качестве разделителя используется символ ch **/
     if((m_rowcount>nmBPTypes::sZero) || (m_colcount>nmBPTypes::sZero) || (m_data.size()>nmBPTypes::sZero))\
@@ -212,26 +214,7 @@ names[] с наименованиями строк, names[] - массив с наименованиями строк и единиц
     return true;
 }   // Impotr from massive
 
-void clsImpex::View(ostream& os) const {
-/** Метод визуального контроля считанной из файла информации **/
-    os << "Rows " << m_rowcount << "; columns " << m_colcount << endl;
-    for (const vector<string>& row : m_data) {
-        for(const string& value: row) {
-            os << setw(15) << value.substr(0,30) << " ";
-        }
-        os << endl;
-    };
-}   // View
-
-void clsImpex::csvExport(ofstream& ofs) const {
-/** Метод экспорта вектора в csv-файл с разделителем, сохраненном в переменной separator **/
-    for (const vector<string>& row : m_data) {
-        for(const string& value: row) {
-            ofs << value << separator;
-        }
-        ofs << endl;
-    };
-}   // csvExport
+/** Методы преобразования **/
 
 void clsImpex::Transpon() {
 /** Метод транспонирования матрицы m_data **/
@@ -250,6 +233,20 @@ void clsImpex::Transpon() {
     m_data.swap(tmp);                                       // Обмениваем содержание матрицы m_data и новой матрицы tmp
     std::swap(m_rowcount, m_colcount);                      // Обмениваем значения у счетчиков
 }   // Transpon
+
+/** Методы экспорта **/
+
+void clsImpex::csvExport(ofstream& ofs) const {
+/** Метод экспорта вектора в csv-файл с разделителем, заданным в переменной separator **/
+    for (const vector<string>& row : m_data) {
+        for(const string& value: row) {
+            ofs << value << separator;
+        }
+        ofs << endl;
+    };
+}   // csvExport
+
+/** Методы Get **/
 
 decimal* clsImpex::GetDecimal(const size_t brow, const size_t erow,\
 const size_t bcol, const size_t ecol) const {
@@ -313,7 +310,12 @@ clsManufactory. ВНИМАНИЕ!!! Для совместимости с параметрами методов классов clsS
 }   // GetNames
 
 string* clsImpex::GetNames(const size_t brow, const size_t erow, const size_t idName) const {
-/****/
+/** Метод возвращает выбранные в матрице данные, конвертированные в тип string. Параметры:
+brow - начальная строка данных, erow - конечная строка, idName - номер столбца с названиями.
+Метод возвращает одномерный динамический массив размером (erow-brow+1). ВНИМАНИЕ!!!
+Для совместимости с параметрами методов классов clsStorage и clsManufactory матрица (в векторе m_data)
+с импортированными данными должна иметь горизонтальную ориентацию (разные периоды - в разных столбцах).
+В противном случае перед применением настоящего метода матрицу необходимо транспонировать. **/
     if((m_rowcount==nmBPTypes::sZero) || (m_colcount==nmBPTypes::sZero) ||\
         (m_data.size()==nmBPTypes::sZero)) return nullptr;                          // Проверка на наличие данных
     if((idName>=m_colcount) || \
@@ -380,3 +382,16 @@ m_data) с импортированными данными должна иметь горизонтальную ориентацию (разны
 
 size_t clsImpex::GetRowCount() const { return m_rowcount; }
 size_t clsImpex::GetColCount() const { return m_colcount; }
+
+/** Методы визуального контроля **/
+
+void clsImpex::View(ostream& os) const {
+/** Метод визуального контроля считанной из файла информации **/
+    os << "Rows " << m_rowcount << "; columns " << m_colcount << endl;
+    for (const vector<string>& row : m_data) {
+        for(const string& value: row) {
+            os << setw(15) << value.substr(0,15) << " ";
+        }
+        os << endl;
+    };
+}   // View
