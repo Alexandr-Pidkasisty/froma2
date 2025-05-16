@@ -35,7 +35,7 @@
 #include <iostream>         // Ввод и вывод на экран
 #include <fstream>          // Ввод и вывод в файл
 #include <string>           // Работа со строками
-#include <limits>           // Предельные значения фундаментальных типов
+//#include <limits>         // Предельные значения фундаментальных типов
 #include <sstream>          // Потоковый класс для работы со строками
 #include <iomanip>          // std::setprecision
 #include <cmath>            // Математические функции и проверка на NaN
@@ -49,12 +49,11 @@ using Dtype = short int;            // Тип цифры мантиссы числа (каждая цифра им
 using Etype = int;                  // Тип числа экспоненты
 
 /** Константы **/
-const Dtype MaxDtype = numeric_limits<Dtype>::max();
-//const Etype MinEtype = numeric_limits<Etype>::min()/2+1;  // При выравнивании экспонент разность между экспонентами может
-//const Etype MaxEtype = numeric_limits<Etype>::max()/2-1;  // выходить за границы типа Etype и пожирать много памяти
-const Etype MinEtype = -32768;   // Данные значения при выполнении операций с двумя операндами ограничивают -67108864
-const Etype MaxEtype =  32768;   // потребление памяти размером не более 0,5 Гб. 67108864 {32768}
-const size_t manDigits = 64;     // Максимальное количество цифр после запятой
+//const Etype MinEtype = numeric_limits<Etype>::min()/2+1;  // Предельная граница для минимального значения экспоненты
+//const Etype MaxEtype = numeric_limits<Etype>::max()/2-1;  // Предельная граница для максимального значения экспоненты
+const Etype MinEtype = -32768;      // Текущая граница для минимального значения экспоненты
+const Etype MaxEtype =  32768;      // Текущая граница для максимального значения экспоненты
+const size_t manDigits = 64;        // Максимальное количество цифр после запятой
 
 enum Scale{NANO=-9, MICRO=-6, MILL=-3, KILO = 3, MEGA=6, GIGA=9}; // Для повышенной читаемости параметра в методе Expchange
 
@@ -63,7 +62,6 @@ enum Scale{NANO=-9, MICRO=-6, MILL=-3, KILO = 3, MEGA=6, GIGA=9}; // Для повышен
 /**                                               class LongReal                                                        **/
 /**                                                                                                                     **/
 /*************************************************************************************************************************/
-/** version from 2024.10.19 **/
 
 class LongReal {
 /** Класс для хранения и совершения арифметических операций с длинными вещественными числами. **/

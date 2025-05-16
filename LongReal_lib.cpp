@@ -31,7 +31,6 @@
 
 #include "LongReal_module.h"
 #include <limits>
-typedef std::numeric_limits<double> dbl;
 
 //#define Debug_voice                   // Макрос вывода отладочной информации. Раскомментировать для отладки
 
@@ -40,14 +39,11 @@ namespace nmLongReal {
 const size_t sZero =  0,
              sOne  =  1;
 const Dtype  dZero =  0,
-             dMask = 256;               // Единица в девятом бите
+             dMask = 256;               // Единица в девятом бите (признак NaN в текущей реализации)
 const Etype  eZero =  0,
              eOne  =  1;
-const unsigned short int mant = 15;
-//const unsigned short int mant = dbl::max_digits10 + 2;  // Количество разрядов вещественного числа (double и т.п.),
+const unsigned short int mant = std::numeric_limits<double>::max_digits10;  // Количество разрядов числа double,
                                         // используемого при инициализации экземпляра класса LongReal
-                                        // https://iq.opengenus.org/print-double-with-full-precision-in-cpp/
-//const size_t manDigits = 64;            // Максимальное количество цифр после запятой
 const char chZero  = '0';               // Символ нуля
 const char chPoint = '.';               // Символ десятичной точки
 const char chMinus = '-';               // Символ минус
@@ -55,7 +51,7 @@ const string strNaN  = "NaN";           // Not-A-Number не число
 const string strInf  = "inf";           // Infinity бесконечность
 const string strNInf = "-inf";          // Бсконечность со знаком минус
 const string strZero = "0.0";           // Ноль
-const string EmpStr = "";
+const string EmpStr = "";               // Пусто
 
 }   // namespace nmLongReal
 
