@@ -77,12 +77,12 @@ class LongReal {
         inline void setneginf();                                           // Ввод отрицательной бесконечности
         inline void setNaN();                                              // Ввод значения NaN
         void normalize();                                           // Нормализация числа
-        inline Dtype* cut(const Dtype _digits[], size_t Num);       // Обрезание массива до актуального размера
-        inline void Resize(const size_t _n);                        // Обрезание массива до актуального размера
+        inline Dtype* cut(const Dtype _digits[], size_t Num);       // Возвращает обрезанную копию заданного массива
+        inline void Resize(const size_t _n);                        // Обрезание внутреннего массива до актуального размера
         void init(const string& s);                                 // Инициализация числа из строки
         stringstream getstream() const;                             // Вывод хранимого числа в поток stringstream
         inline bool ovrflw(const Etype& E1, const Etype& E2) const; // Контроль переполнения
-        LongReal incrE(const Etype& _E) const;                      // Меняет экспоненту без имзенения числа
+        LongReal incrE(const Etype& _E) const;                      // Меняет экспоненту без изменения числа
         void incrD(const size_t& _N);       // Увеличивает длину массива digits до значения _N за счет правых нулей
 
     public:
@@ -101,7 +101,7 @@ class LongReal {
         LongReal& operator=(const string &value);       // Перегрузка оператора присваивания копированием объекта string
         LongReal& operator=(LongReal &&obj);            // Перегрузка оператора присваивания перемещением
 
-        /** Методы Get**/
+        /** Методы Get **/
         void View() const;                      // Метод визуального контроля числа с горизонтальным выводом массива
         void ViewM() const;                     // Метод визуального контроля числа с вертикальным выводом массива
         size_t Size() const;                    // Метод возвращает размер объекта в байтах
@@ -133,17 +133,17 @@ class LongReal {
         LongReal& operator+=(const LongReal& x);        // Оператор инкремента на величину x
         LongReal inverse() const;                       // Вычисление обратного числа (1/x)
         LongReal operator/(const LongReal& x) const;    // Перегрузка оператора деления
+        friend LongReal fabs(const LongReal& x);        // Взятие числа по модулю
+
+        /** Перегрузка операторов ввода и вывода **/
+        friend ostream& operator<<(ostream& os, const LongReal& value); // Оператор вывода информации в поток ostream
+        friend stringstream& operator>>(stringstream& ss, LongReal& value);  // Оператор ввода информации из потока stringstream
 
         /** Методы сериализации и десериализации **/
         bool StF(ofstream &_outF) const;                // Запись экземпляра класса в файловую переменную
         bool RfF(ifstream &_inF);                       // Чтение из файловой переменной в экземпляр класса
         bool SaveToFile(const string _filename) const;  // Запись экземпляра класса в файл
         bool ReadFromFile(const string _filename);      // Чтение из файла в экземпляр класса
-
-        friend ostream& operator<<(ostream& os, const LongReal& value); // Оператор вывода информации в поток ostream
-        friend ostream& operator>>(stringstream& ss, LongReal& value);  // Оператор ввода информации из потока stringstream
-        friend LongReal fabs(const LongReal& x);                        // Взятие числа по модулю
-
         friend bool SEF(ofstream &_outF, LongReal& x);                  // Перегрузка методов SEF
         friend bool SEF(ofstream &_outF, LongReal x[], size_t Cnt);     // Перегрузка методов SEF
         friend bool DSF(ifstream &_inF,  LongReal& x);                  // Перегрузка методов DSF
