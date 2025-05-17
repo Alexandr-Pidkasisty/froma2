@@ -389,7 +389,7 @@ LongReal::LongReal(const string& value) {
         digits = nullptr;                           // Устанавливаем указатель на массив в nullptr
         exponent = MinEtype;                        // Присваиваем экспоненте минимально возможное число
         return;                                     // и выходим
-    };                                      // Если же строка не состоит из одного элемента и этот элемент не равен нулю, то
+    };                                      // Если же строка не состоит из одного элемента или этот элемент не равен нулю, то
     string temp = Corrector(value);         // Получаем скорректированную строку во вспомогательную переменную
     if((temp.length()==sOne)&&(*temp.begin()==chPoint)) {   // Если размер строки равен одному символу, и этот символ равен точке
         sign = false;                               // Устанавливаем экземпляр класса в "ноль"
@@ -529,34 +529,34 @@ void LongReal::swap(LongReal& obj) noexcept {
     std::swap(digits, obj.digits);          // Обмениваем указатели
 }   // LongReal::swap
 
-void LongReal::View() const {
+void LongReal::View(ostream& os) const {
 /** Метод визуального контроля числа **/
-    cout << "sign= " << sign << endl;
-    cout << "NumCount= " << NumCount << endl;
-    cout << "exponent= " << exponent << endl;
+    os << "sign= " << sign << endl;
+    os << "NumCount= " << NumCount << endl;
+    os << "exponent= " << exponent << endl;
     if(!digits)
-        cout << "digits = nullptr" << endl;
+        os << "digits = nullptr" << endl;
     else {
-        cout << "digits are: ";
+        os << "digits are: ";
         for(size_t i=0; i<NumCount; i++)
-        cout << *(digits+i);
+        os << *(digits+i);
     };
-    cout << endl << endl;
+    os << endl << endl;
 }   // View
 
-void LongReal::ViewM() const {
+void LongReal::ViewM(ostream& os) const {
 /** Метод визуального контроля числа с выводом массива в столбик **/
-    cout << "sign= " << sign << endl;
-    cout << "NumCount= " << NumCount << endl;
-    cout << "exponent= " << exponent << endl;
+    os << "sign= " << sign << endl;
+    os << "NumCount= " << NumCount << endl;
+    os << "exponent= " << exponent << endl;
     if(!digits)
-        cout << "digits = nullptr" << endl;
+        os << "digits = nullptr" << endl;
     else {
-        cout << "digits are: \n";
+        os << "digits are: \n";
         for(size_t i=0; i<NumCount; i++)
-        cout << *(digits+i) << endl;
+        os << *(digits+i) << endl;
     };
-    cout << endl << endl;
+    os << endl << endl;
 }   // ViewM
 
 size_t LongReal::Size() const {
@@ -584,7 +584,7 @@ template double LongReal::Get<double>() const;
 template float LongReal::Get<float>() const;
 
 string LongReal::LongReal::Get(const size_t n) const {
-/** Функция возвращает число в форме string с заданным количеством n знаков после запятой **/
+/** Функция возвращает число в форме string с заданным количеством n знаков после точки **/
     if(this->isNaN()) return strNaN;        // Если объект равен NaN, выводим NaN и выходим
     if(this->isposInf()) return strInf;     // Если объект равен inf, выводим inf и выходим
     if(this->isnegInf()) return strNInf;    // Если объект равен -inf, выводим -inf и выходим
@@ -618,7 +618,7 @@ string LongReal::LongReal::Get(const size_t n) const {
 }   // LongReal::Get(...)
 
 string LongReal::EGet(size_t _n) const {
-/** Возвращает число в виде строки string в научной форме .ddddEn (мантисса со степенью)**/
+/** Возвращает число в виде строки string в научной форме .ddddEn (мантисса со степенью) **/
     if(this->isNaN()) return strNaN;            // Если объект равен NaN, выводим NaN и выходим
     stringstream sst;
     if(sign) sst << chMinus;                    // Проверяем знак числа, если отрицательное, то выводим в поток знак "минус"
@@ -647,7 +647,7 @@ LongReal& LongReal::Expchange(const Etype _exch) {
 MILL=-3, KILO = 3, MEGA=6, GIGA=9. Метод позволяет использовать в качестве исходных данных числа с
 очень большими или очень малыми экспонентами, которые невозможно представить в виде чисел типа
 long double, double Или float, а также неудобно представлять строкой из-за слишком большой ее длины,
-Достаточно ввести мантиссу числа любым доступным методом и затем увеличить экпоненту до нудного размера. **/
+Достаточно ввести мантиссу числа любым доступным методом и затем увеличить экпоненту до нужного размера. **/
     if( (this->isNaN()) || (this->isZero()) || (this->isposInf()) || (this->isnegInf()) )   // Если объект NaN, +/-нуль
         return *this;                                   // или любая бесконечность, возвращаем объект
     if(ovrflw(this->exponent, _exch)) return *this;     // При опасности переполнения, возвращаем объект без изменения

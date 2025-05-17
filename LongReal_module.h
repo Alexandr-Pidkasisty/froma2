@@ -90,7 +90,7 @@ class LongReal {
         LongReal();                         // Конструктор по-умолчанию
         LongReal(const string& value);      // Конструктор с инициализацией числа из строки
         LongReal(const double& value);      // Конструктор с инициализацией числа из числа типа double
-        LongReal(const LongReal& obj );     // Конструктор копирования
+        LongReal(const LongReal& obj);      // Конструктор копирования
         LongReal(LongReal&& obj);           // Конструктор перемещения
         ~LongReal();                        // Деструктор
         void swap(LongReal& obj) noexcept;  // Функция обмена значениями между объектами
@@ -102,12 +102,10 @@ class LongReal {
         LongReal& operator=(LongReal &&obj);            // Перегрузка оператора присваивания перемещением
 
         /** Методы Get **/
-        void View() const;                      // Метод визуального контроля числа с горизонтальным выводом массива
-        void ViewM() const;                     // Метод визуального контроля числа с вертикальным выводом массива
         size_t Size() const;                    // Метод возвращает размер объекта в байтах
         template <typename T>
         T Get() const;                          // Возвращает число в форме string, long double, double или float
-        string Get(size_t _n) const;            // Возвращает число в форме string с заданным количеством знаков после запятой
+        string Get(size_t _n) const;            // Возвращает число в форме string с заданным количеством знаков после точки
         string EGet(size_t n) const;            // Возвращает число в форме string в виде .ddddEn (мантисса со степенью)
 
         /** Методы масштабирования числа в кило-, мега-, милли-, микро- и т.п. числа **/
@@ -148,6 +146,10 @@ class LongReal {
         friend bool SEF(ofstream &_outF, LongReal x[], size_t Cnt);     // Перегрузка методов SEF
         friend bool DSF(ifstream &_inF,  LongReal& x);                  // Перегрузка методов DSF
         friend bool DSF(ifstream &_inF,  LongReal x[], size_t Cnt);     // Перегрузка методов DSF
+
+        /** Методы визуального контроля **/
+        void View(ostream& os) const;           // Метод визуального контроля числа с горизонтальным выводом массива
+        void ViewM(ostream& os) const;          // Метод визуального контроля числа с вертикальным выводом массива
 
     protected:
 
