@@ -642,12 +642,12 @@ string LongReal::EGet(size_t _n) const {
 }   // LongReal::EGet
 
 LongReal& LongReal::Expchange(const Etype _exch) {
-/** Метод взвращает объект, у которого экспонента изменена на величину +_exch. Для удобства можно
+/** Метод возвращает объект, у которого экспонента изменена на величину +_exch. Для удобства можно
 использовать вместо числа предопределенные константы из перечисления enum Scale: NANO=-9, MICRO=-6,
 MILL=-3, KILO = 3, MEGA=6, GIGA=9. Метод позволяет использовать в качестве исходных данных числа с
 очень большими или очень малыми экспонентами, которые невозможно представить в виде чисел типа
-long double, double Или float, а также неудобно представлять строкой из-за слишком большой ее длины,
-Достаточно ввести мантиссу числа любым доступным методом и затем увеличить экпоненту до нужного размера. **/
+long double, double или float, а также неудобно представлять строкой из-за слишком большой ее длины.
+Достаточно ввести мантиссу числа любым доступным методом и затем изменить экспоненту до нужного размера. **/
     if( (this->isNaN()) || (this->isZero()) || (this->isposInf()) || (this->isnegInf()) )   // Если объект NaN, +/-нуль
         return *this;                                   // или любая бесконечность, возвращаем объект
     if(ovrflw(this->exponent, _exch)) return *this;     // При опасности переполнения, возвращаем объект без изменения
@@ -661,13 +661,6 @@ bool LongReal::isZero() const {
     if((!digits) && (NumCount==sZero) && (exponent == MinEtype)) return true;
     return false;
 }   // LongReal::isZero
-
-bool LongReal::isposZero() const {
-/** Метод возвращает true, если число равно положительному нулю: знак числа проверяется.
-Может быть стоит удалить потом... **/
-    if( (!sign) && (!digits) && (NumCount==sZero) && (exponent == MinEtype)) return true;
-    return false;
-}   // LongReal::isposZero
 
 bool LongReal::isposInf() const {
 /** Метод возвращает true, если число равно Infinity (положительная бесконечность) **/
@@ -951,7 +944,6 @@ LongReal& LongReal::operator-=(const LongReal& x) {
     tmp = *this - x;            // Производим вычитание
     swap(tmp);                  // Обмениваемся содержимым с копией
     return *this;               // Возвращаем текущий объект
-//    return (*this = *this - x);
 }   // LongReal::operator-=
 
 LongReal& LongReal::operator+=(const LongReal& x) {
@@ -960,7 +952,6 @@ LongReal& LongReal::operator+=(const LongReal& x) {
     tmp = *this + x;            // Производим сложение
     swap(tmp);                  // Обмениваемся содержимым с копией
     return *this;               // Возвращаем текущий объект
-//    return (*this = *this - x);
 }   // LongReal::operator-=
 
 LongReal LongReal::inverse() const {
