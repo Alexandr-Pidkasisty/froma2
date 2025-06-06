@@ -38,7 +38,7 @@
 #include <algorithm>                // Функция copy_n
 #include "LongReal_module.h"        // Длинная арифметика с типом LongReal
 #include "serialization_module.hpp" // Методы сСкриализации и десериализации
-
+#include "progress_module.hpp"      // Методы идикации прогресса вычислений
 
 using namespace std;
 
@@ -61,6 +61,13 @@ using namespace std;
 
 typedef LongReal decimal;
 
+/** Тип индикатора прогресса. Псевдоним "type_progress" может принимать разные значения в зависимости
+    от используемого класса прогресс-индикатора. В модуле progress_module.hpp описан прогресс-индикатор для
+    консольного вывода класс clsprogress_bar. Для отображения индикатора в приложениям с графическим
+    интерфейсом, созданном, например, с помощью библиотеки wxWidget, можно использовать прогресс-индикатор
+    класс wxProgressDialog из модуля wx/progdlg.h **/
+
+typedef clsprogress_bar type_progress;
 
 namespace nmBPTypes {   /** Наиболее употребимые константы, типы, функции **/
 
