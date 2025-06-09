@@ -117,7 +117,7 @@ class clsProgress_shell {
         };  // Ctor
 
         void Set_shell(T* _pbar, const int _maxcounter, const int _stepcount) {
-        /** Метод устанавдивает указатель на новый объект Прогресс-бар и инициализирует поля заново **/
+        /** Метод устанавливает указатель на новый объект Прогресс-бар и инициализирует поля заново **/
             pbar = _pbar;
             maxcounter = _maxcounter;
             stepcount = _stepcount;
