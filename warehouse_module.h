@@ -1,5 +1,5 @@
-#ifndef WAREHOUSE_MODULE_H_INCLUDED
-#define WAREHOUSE_MODULE_H_INCLUDED
+#ifndef FROMA2_WAREHOUSE_MODULE_H_INCLUDED
+#define FROMA2_WAREHOUSE_MODULE_H_INCLUDED
 
 /**     Ётот файл €вл€етс€ частью библиотеки программного обеспечени€ дл€ экономического
         моделировани€, финансового анализа и планировани€ операционной де€тельности предпри€ти€
@@ -506,4 +506,4 @@ class clsStorage {       /** —клад ресурсов дл€ нескольких номенклатурных позици
 
 };  // clsStorage
 
-#endif // WAREHOUSE_MODULE_H_INCLUDED
+#endif // FROMA2_WAREHOUSE_MODULE_H_INCLUDED

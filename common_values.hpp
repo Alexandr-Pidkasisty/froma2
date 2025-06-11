@@ -1,5 +1,5 @@
-#ifndef COMMON_VALUES_H_INCLUDED
-#define COMMON_VALUES_H_INCLUDED
+#ifndef FROMA2_COMMON_VALUES_H_INCLUDED
+#define FROMA2_COMMON_VALUES_H_INCLUDED
 
 /**     Этот файл является частью библиотеки программного обеспечения для экономического
         моделирования, финансового анализа и планирования операционной деятельности предприятия
@@ -1112,4 +1112,4 @@ val - строка заголовка **/
 }   // nmRePrint
 
 
-#endif // COMMON_VALUES_H_INCLUDED
+#endif // FROMA2_COMMON_VALUES_H_INCLUDED

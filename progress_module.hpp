@@ -44,32 +44,33 @@ class clsprogress_bar {
 https://codereview.stackexchange.com/questions/186535/progress-bar-in-c **/
 
     private:
-        static const int overhead = sizeof"[100%}"; // Размер поля с процентами
+        static const int overhead = sizeof"[100%]"; // Размер поля с процентами
         ostream &os;                                // Выходной поток для вывода информации
         const int bar_width;                        // Ширина индикатора
         string message;                             // Сообщение во время вывода индикатора
-        const string full_bar;                      // Индикатор
-        int maxcount;                               // Максимальное число итераций
+        const string full_bar;                      // Строка, выбранная часть которой выводится как индикатор
+        int maxcount;                               // Максимальное число операций, соответствующее 100% выполнению
 
         void write(double fraction) {
         /** Метод вывода прогресс-бара **/
             const double dZero = 0.0;
             const double dOne  = 1.0;
-            if(fraction < dZero) fraction = dZero;      // Валидация параметра на вхождение
-            else if(fraction > dOne) fraction = dOne;   // в интервал [0, 1]
-            int width = bar_width - message.size();     // Ширина индикатора без сообщения
-            int offset = bar_width - static_cast<unsigned>(width * fraction);
-            os << '\r' << message;
-            os.write(full_bar.data() + offset, width);
-            os << "[" << std::setw(3) << static_cast<int>(100.0 * fraction) << "%]" << std::flush;
+            if(fraction < dZero) fraction = dZero;                              // Валидация параметра на вхождение
+            else if(fraction > dOne) fraction = dOne;                           // в интервал [0, 1]
+            int width = bar_width - message.size();                             // Ширина индикатора без сообщения
+            int offset = bar_width - static_cast<unsigned>(width * fraction);   // Расчет смещения в массиве символов,
+                                                                                // соответствующее текущему fraction
+            os << '\r' << message;                          // Вывод сообщения
+            os.write(full_bar.data() + offset, width);      // Вывод части строки, соответствующей текущему fraction
+            os << "[" << std::setw(3) << static_cast<int>(100.0 * fraction) << "%]" << std::flush;  // Вывод окончания
         }   // clsprogress_bar::write
 
     public:
         clsprogress_bar(ostream &_os, int const line_width, string _message, const char symbol='.', const int _mx=100):
             os(_os),
-            bar_width(line_width-overhead),
+            bar_width(line_width-overhead),                                     // Расчет ширины индикатора
             message(std::move(_message)),
-            full_bar(string(bar_width, symbol) + string(bar_width, ' ')),
+            full_bar(string(bar_width, symbol) + string(bar_width, ' ')),       // Создание строки для выбора части
             maxcount(_mx)  {
                 if(static_cast<int>(message.size()+1) >= bar_width || message.find('\n')!=message.npos) {
                     os << message << '\n';
@@ -116,7 +117,7 @@ class clsProgress_shell {
             pbar = _pbar;
         };  // Ctor
 
-        void Set_shell(T* _pbar, const int _maxcounter, const int _stepcount) {
+        void Set_shell(T* _pbar, const int _maxcounter=100, const int _stepcount=1) {
         /** Метод устанавливает указатель на новый объект Прогресс-бар и инициализирует поля заново **/
             pbar = _pbar;
             maxcounter = _maxcounter;
