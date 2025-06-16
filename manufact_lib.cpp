@@ -1537,6 +1537,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(obj.RMNames) { RMNames = new(nothrow) strNameMeas[RMCount]; } else RMNames = nullptr;
             if(RMNames) { var_cpy(RMNames, obj.RMNames, RMCount); };
             Manuf = obj.Manuf;
+            pshell = obj.pshell;
             #ifdef CDtor_voice
                 cout << "Copy clsManufactory Ctor " << endl;
             #endif // CDtor_voice
@@ -1548,6 +1549,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             std::swap(RMCount, obj.RMCount);    // Обмен значениями
             std::swap(hmcur, obj.hmcur);        // Обмен значениями
             std::swap(RMNames, obj.RMNames);    // Обмен указателями
+            std::swap(pshell, obj.pshell);      // Обмен указателями
             Manuf.swap(obj.Manuf);              // Обмен векторами
             #ifdef CDtor_voice
                 cout << "clsManufactory::swap" << endl;
@@ -1560,6 +1562,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             RMCount = sZero;
             hmcur = RUR;
             RMNames = nullptr;
+            pshell = nullptr;
             swap(obj);
             #ifdef CDtor_voice
                 cout << "Move clsManufactory Ctor" << endl;
@@ -1599,6 +1602,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // ~clsManufactory
 
         /** Set - методы **/
+
+        void clsManufactory::Set_progress_shell(clsProgress_shell<type_progress>* val) {
+        /** Функция присваивает указателю pshell адрес объекта val **/
+            pshell = val;
+        }   // Set_progress_shell
 
         void clsManufactory::SetCurrency(const Currency& _cur) {
         /** Устанавливаем основную валюту проекта **/
@@ -1715,22 +1723,31 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         void clsManufactory::CalcRawMatPurchPlan(size_t bg, size_t en) {
         /** Метод рассчитывает объем потребления ресурсов в натуральном выражении в соответствии с планом
             выпуска для каждого продукта в диапазоне: от продукта с индексом bg до продукта с индексом en-1. **/
-            size_t lim = Manuf.size();                      // Верхняя граница опустимого значения индекса
-            if(bg>=lim) return;                             // Валидация нижней границы индекса
-            if(en>=lim) en = lim;                           // Валидация верхней границы индекса
+            size_t lim = Manuf.size();                  // Верхняя граница опустимого значения индекса
+            if(bg>=lim) return;                         // Валидация нижней границы индекса
+            if(en>=lim) en = lim;                       // Валидация верхней границы индекса
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i = bg; i<en; i++) {
-                clsManufactItem* p = (Manuf.data()+i);      // Вспомогательный указатель уснанавливаем на элемент вектора
-                if(p->GetPrCount() != PrCount)  // Если длительности проекта не совпадают, то
-                    p->Resize(PrCount);         // изменяем массивы и длительность
-                p->CalcRawMatPurchPlan();       // Выполняем расчет для каждого элемента вектора
+                clsManufactItem* p = (Manuf.data()+i);  // Вспомогательный указатель уснанавливаем на элемент вектора
+                if(p->GetPrCount() != PrCount)          // Если длительности проекта не совпадают, то
+                    p->Resize(PrCount);                 // изменяем массивы и длительность
+                p->CalcRawMatPurchPlan();               // Выполняем расчет для каждого элемента вектора
+                (pshell) ? pshell->Counter_inc() : (void)([](){return;});           // Вызываем счетчик
             }
-            return;
         }   // CalcRawMatPurchPlan(size_t bg, size_t en)
 
         void clsManufactory::CalcRawMatPurchPlan() {
         /** Метод рассчитывает объем потребления сырья и материалов в натуральном выражении для всего плана
         выпуска всех продуктов. **/
-            CalcRawMatPurchPlan(sZero, Manuf.size());
+            size_t lim = Manuf.size();                  // Верхняя граница опустимого значения индекса
+            for(size_t i{}; i<lim; i++) {
+                clsManufactItem* p = (Manuf.data()+i);  // Вспомогательный указатель уснанавливаем на элемент вектора
+                if(p->GetPrCount() != PrCount)          // Если длительности проекта не совпадают, то
+                    p->Resize(PrCount);                 // изменяем массивы и длительность
+                p->CalcRawMatPurchPlan();               // Выполняем расчет для каждого элемента вектора
+                (pshell) ? pshell->Update((int)i) : (void)([](){return;});          // Вызываем индикатор прогресса
+            }
+            (pshell) ? pshell->Update((int)lim) : (void)([](){return;});   // Индикатор на 100%
         }   // CalcRawMatPurchPlan
 
         void clsManufactory::CalcRawMatPurchPlan_future() {
@@ -1746,6 +1763,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             pool.reserve(maxthreads);                   // Резервируем память вектору потоков
             size_t stocksize = Manuf.size();            // Получаем размер массива с единичными прозводствами
             size_t ncap = (stocksize/maxthreads)+sOne;  // Количество ед.производств для каждого потока
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
                 size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
                 if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу ед.пр-в, выходим из цикла
@@ -1764,6 +1782,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                     #endif
                 }, this, bg, en));                          // После лямбды стоят аргументы для нее: this, bg, en
             };
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;});   // Вызываем отрисовку индикатора
         }   // CalcRawMatPurchPlan_future
 
         void clsManufactory::CalcRawMatPurchPlan_thread() {
@@ -1779,6 +1798,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             pool.reserve(maxthreads);                   // Резервируем память вектору потоков
             size_t stocksize = Manuf.size();            // Получаем размер массива с единичными прозводствами
             size_t ncap = (stocksize/maxthreads)+sOne;  // Количество ед.производств для каждого потока
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
                 size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
                 if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу ед.пр-в, выходим из цикла
@@ -1797,6 +1817,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                     #endif
                 }, this, bg, en);                       // После лямбды стоят аргументы для нее: this, bg, en
             };
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;}); // Вызываем отрисовку индикатора
             for(auto &t : pool)                         // Цикл по всему пулу потоков
                 t.join();                               // Ожидаем завершения каждого запущенного потока
         }   // CalcRawMatPurchPlan_thread
@@ -1896,8 +1917,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(bg>=lim) return false;                       // Валидация нижней границы индекса
             if(en>=lim) en = lim;                           // Валидация верхней границы индекса
             bool check = true;                              // Индикатор успешности операции
-            for(size_t i = bg; i<en; i++)                   // Цикл по всем единичным производствам
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
+            for(size_t i = bg; i<en; i++)  {                 // Цикл по всем единичным производствам
                 check = check && (Manuf.data()+i)->CalculateItem(); // Расчет незаверш. пр-ва и готовой продукции в i-элементе
+                (pshell) ? pshell->Counter_inc() : (void)([](){return;});           // Вызываем счетчик
+            }
             return check;
         }   // Calculate(size_t, size_t)
 
@@ -1906,7 +1930,14 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         для всех продуктов, выпускаемых на протяжении всего проекта. Метод поочередно вызывает методы CalculateItem для
         каждого единичного производства; формирует массивы продуктов и баланса незавершенного производства для каждого
         продукта **/
-            return Calculate(sZero, Manuf.size());
+            size_t lim = Manuf.size();                      // Верхняя граница опустимого значения индекса
+            bool check = true;                              // Индикатор успешности операции
+            for(size_t i{}; i<lim; i++)  {                  // Цикл по всем единичным производствам
+                check = check && (Manuf.data()+i)->CalculateItem(); // Расчет незаверш. пр-ва и готовой продукции в i-элементе
+                (pshell) ? pshell->Update((int)i) : (void)([](){return;});  // Вызываем индикатор прогресса
+            }
+            (pshell) ? pshell->Update((int)lim) : (void)([](){return;});    // Индикатор на 100%
+            return check;
         }   // Calculate
 
         bool clsManufactory::Calculate_future() {
@@ -1921,6 +1952,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             pool.reserve(maxthreads);                   // Резервируем память вектору потоков
             size_t stocksize = Manuf.size();            // Получаем размер массива с единичными прозводствами
             size_t ncap = (stocksize/maxthreads)+sOne;  // Количество ед.производств для каждого потока
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
                 size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
                 if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу ед.пр-в, выходим из цикла
@@ -1940,6 +1972,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                     return res;                                             // выходим и возвращаем результат
                 }, this, bg, en));
             };                                          // Цикл по всему пулу потоков
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;});   // Вызываем отрисовку индикатора
             bool check = true;                          // Индикатор успешности операции
             for(auto &t : pool) {                       // Цикл по всему пулу потоков
                 check = check && t.get();               // Формируем индикатор успешности
@@ -1979,6 +2012,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             bool Res[maxthreads];                       // Вспомогательный массив с результатами вычислений
             for(size_t k{}; k<maxthreads; k++)          // Инициализация вспомогательного массива значениями true (при выходе из
                 *(Res+k) = true;                        // цикла по break элементы с индексами не прошедшими цикл д.б. true
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
                 size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
                 if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу SKU, выходим из цикла
@@ -1986,6 +2020,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 pool.emplace_back(do_Calculate, this, bg, en, std::ref(*(Res+i)));  // Создаем поток и запускаем вычисления
             };  // Для возврата значения из потока используем эмулятор ссылки std::ref(...), см.:
                 // https://pro--prof-com.turbopages.org/pro-prof.com/s/forums/topic/cplusplus_reference_wrapper
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;}); // Вызываем отрисовку индикатора
             for(auto &t : pool)                         // Цикл по всему пулу потоков
                 t.join();                               // Ожидаем завершения каждого запущенного потока
             for(size_t i{}; i<maxthreads; i++ )         // Цикл по всем элементам вспомогательного массива с результатами

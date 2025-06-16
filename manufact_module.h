@@ -1,3 +1,6 @@
+#ifndef FROMA2_MANUFACT_MODULE_H_INCLUDED
+#define FROMA2_MANUFACT_MODULE_H_INCLUDED
+
 /**     Этот файл является частью библиотеки программного обеспечения для экономического
         моделирования, финансового анализа и планирования операционной деятельности предприятия
         "Free Operation Manager 2" (библиотека FROMA2).
@@ -29,9 +32,6 @@
 /****************************************************************************************************/
 /****************************************************************************************************/
 
-#ifndef MANUFACT_H_INCLUDED
-#define MANUFACT_H_INCLUDED
-
 #include <vector>                   // Подключение контейнера
 #include <algorithm>                // Подключение алгоритмов для работы с vector
 #include <thread>                   // Потоки выполнения
@@ -46,7 +46,7 @@
 /**                                                                                                                     **/
 /**                                                                                                                     **/
 /**                       Интерфейс к классам clsRecipeItem, clsManufactItem, clsManufactory                            **/
-/**                                  Версия от 2025.03.13                                                               **/
+/**                                  Версия от 2025.06.11                                                               **/
 /**                                                                                                                     **/
 /**                                                                                                                     **/
 /*************************************************************************************************************************/
@@ -493,6 +493,7 @@ class clsManufactory {
         отличие от массивов clsRecipeItem::*rnames содержит полный список всех позиций ресурсов. Соответственно,
         RMCount >= clsRecipeItem::rcount. **/
         vector <clsManufactItem> Manuf; // Массив производства отдельных продуктов
+        clsProgress_shell<type_progress>* pshell{nullptr};  // Указатель на объект-оболочку для прогресс-бара
 
         inline bool Checkrnames(const size_t _rcount, const strNameMeas _rnames[]);
             /** Метод проводит поиск имен из массива _rnames в массиве RMNames. В случае наличия в массиве _rnames хотя бы
@@ -523,6 +524,9 @@ class clsManufactory {
         ~clsManufactory();                                          /** Деструктор **/
 
         /** Set - методы **/
+
+        void Set_progress_shell(clsProgress_shell<type_progress>* val);
+            /** Функция присваивает указателю pshell адрес объекта val **/
 
         void SetCurrency(const Currency&);                  /** Устанавливаем основную валюту проекта **/
 
@@ -717,4 +721,4 @@ class clsManufactory {
 
 };  // clsManufactory
 
-#endif // MANUFACT_H_INCLUDED
+#endif // FROMA2_MANUFACT_MODULE_H_INCLUDED

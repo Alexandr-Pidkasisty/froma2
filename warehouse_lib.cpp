@@ -1265,7 +1265,6 @@ void EraseVector(vector<thread>& _pool) {
         наименовании SKU, где найден дефицит. Дальнейшие расчеты не производятся. Информация возвращается в виде структуры
         типа TLack. Расчеты производятся во всех SKU. **/
             TLack Lack;                         // Вспомогательная переменная
-            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i{}; i<stock.size(); i++) {
                 clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
                 p->SetAccount(acct);            // Устанавливаем принцип учета запасов
