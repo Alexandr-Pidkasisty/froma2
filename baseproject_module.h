@@ -1,5 +1,5 @@
-#ifndef BASEPROJECT_MODULE_H_INCLUDED
-#define BASEPROJECT_MODULE_H_INCLUDED
+#ifndef FROMA2_BASEPROJECT_MODULE_H_INCLUDED
+#define FROMA2_BASEPROJECT_MODULE_H_INCLUDED
 
 #include <iostream>         // Заголовочный файл с классами, функциями и переменными для организации ввода-вывода
 #include <fstream>          // Заголовочный файл для организации ввода/ вывода в файл на диске
@@ -61,4 +61,4 @@ class clsBaseProject
         virtual void reportstream(ostream& os) const;   // Метод вывода отчета в поток
 };  // clsBaseProject
 
-#endif // BASEPROJECT_MODULE_H_INCLUDED
+#endif // FROMA2_BASEPROJECT_MODULE_H_INCLUDED

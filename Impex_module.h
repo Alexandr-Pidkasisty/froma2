@@ -29,8 +29,8 @@
 /****************************************************************************************************/
 /****************************************************************************************************/
 
-#ifndef CLSIMPEX_H
-#define CLSIMPEX_H
+#ifndef FROMA2_CLSIMPEX_H
+#define FROMA2_CLSIMPEX_H
 
 #include <iostream>
 #include <fstream>
@@ -161,4 +161,4 @@ class clsImpex
 
 };
 
-#endif // CLSIMPEX_H
+#endif // FROMA2_CLSIMPEX_H

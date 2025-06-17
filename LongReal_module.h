@@ -29,8 +29,8 @@
 /****************************************************************************************************/
 /****************************************************************************************************/
 
-#ifndef LONGREAL_H
-#define LONGREAL_H
+#ifndef FROMA2_LONGREAL_H
+#define FROMA2_LONGREAL_H
 
 #include <iostream>         // ¬вод и вывод на экран
 #include <fstream>          // ¬вод и вывод в файл
@@ -154,4 +154,4 @@ class LongReal {
 
 };  // LongReal
 
-#endif // LONGREAL_H
+#endif // FROMA2_LONGREAL_H

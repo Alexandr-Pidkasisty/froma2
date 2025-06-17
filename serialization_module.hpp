@@ -29,8 +29,8 @@
 /****************************************************************************************************/
 /****************************************************************************************************/
 
-#ifndef SERIALIZATION_MODULE_H_INCLUDED
-#define SERIALIZATION_MODULE_H_INCLUDED
+#ifndef FROMA2_SERIALIZATION_MODULE_H_INCLUDED
+#define FROMA2_SERIALIZATION_MODULE_H_INCLUDED
 
 #include <iostream>         // Заголовочный файл с классами, функциями и переменными для организации ввода-вывода
 #include <string>           // Заголовочный файд для работы со строками
@@ -132,4 +132,4 @@ bool DSF(ifstream &_inF, T& x) {                            // Шаблонная функция
     return true;                                        // его в переменную x
 };  // DSF - шаблонная функция
 
-#endif // SERIALIZATION_MODULE_H_INCLUDED
+#endif // FROMA2_SERIALIZATION_MODULE_H_INCLUDED
