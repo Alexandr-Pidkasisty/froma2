@@ -68,12 +68,10 @@ class clsBaseProject
         void SetTitle(const string& _title);                            // Метод ввода титула проекта
         void SetComment(const string* _comment, const size_t& _count);  // Метод ввода описания проекта
         void SetFName(const string _filename);          // Метод ввода имени файла для сериализации и десериализации
-        void SetFName(const string _filename, const string _ext);   // ВВод имени файла и его расширения
+        void SetFName(const string _filename, const string _ext);       // Ввод имени файла и его расширения
         void SetRName(const string _filename);          // Метод ввода имени файла для отчета
         void SetDevice(const Tdev& val);                // Метод устанавливает выходное устройство для отчета
         virtual void Reset();                           // Метод сбрасывает всю информацию
-//        virtual void View() const;                      // Метод визуального контроля
-//        virtual void VPrint(const string _filename);    // Метод вывода контрольной информации в файл
         void Report() const;                            // Метод вывода отчета на экран
 //        void Report(const string filename) const;       // Метод вывода отчета в файл
 //        void Report(const Tdev dev) const;              // Метод вывода отчета на выбранное в переменной dev устройство

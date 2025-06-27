@@ -83,7 +83,6 @@ clsBaseProject::clsBaseProject(const clsBaseProject& other) {
     RName = other.RName;
     Rdevice = other.Rdevice;
     About.sCount = other.About.sCount;
-    if(About.sComment) delete[] About.sComment;
     if(other.About.sComment)
         About.sComment = new(nothrow) string[About.sCount];
     else
@@ -115,6 +114,7 @@ clsBaseProject::clsBaseProject(clsBaseProject&& other) {
 
 clsBaseProject& clsBaseProject::operator=(const clsBaseProject& other) {
 /** Перегрузка оператора присваивания. Реализовано в идеоме КОПИРОВАНИЯ-И-ЗАМЕНЫ (copy-and-swap idiom)  **/
+    if(this == &other) { return *this; }; // Если объекты идентичны, то ничего не делаем
     clsBaseProject tmp(other);      // Вызываем конструктор копирования и получаем копию other в переменной tmp
     swap(tmp);                      // Обмениваемся содержанием с tmp
     return *this;
@@ -122,6 +122,8 @@ clsBaseProject& clsBaseProject::operator=(const clsBaseProject& other) {
 
 clsBaseProject& clsBaseProject::operator=(clsBaseProject&& other) {
 /** Перегрузка оператора присваивания перемещением аналогичного объекта **/
+    if(this == &other) { return *this; };   // Если объекты идентичны, то ничего не делаем
+    clsBaseProject tmp(move(other));    // Вызываем конструктор перемещения и получаем содержание other в переменной tmp
     swap(other);                        // Обмениваемся содержанием с other
     return *this;
 }   // Move operator=
@@ -169,25 +171,6 @@ void clsBaseProject::Reset() {
     clsBaseProject tmp;         // Создаем "пустую" переменную tmp
     swap(tmp);                  // Обмениваемся содержанием с tmp
 }   // Reset
-
-//void clsBaseProject::View() const {
-///** Метод визуального контроля. Выводит информацию на экран **/
-//    cout << Title << endl << endl;
-//    for(size_t i=sZero; i<About.sCount; i++) {
-//        cout << *(About.sComment+i) << endl;
-//    }
-//}   // View
-
-//void clsBaseProject::VPrint(const string _filename) {
-///** Метод визуального контроля. Выводит информацию в текстовый файл **/
-//    if(_filename == EmpStr) return;                     // Если имя файла пустое, то выход
-//    ofstream out(_filename);                            // Откроем файл для вывода
-//    streambuf* coutbuf = cout.rdbuf();                  // запомним старый буфер в переменной coutbuf
-//    cout.rdbuf(out.rdbuf());                            // перенаправляем поток в файл: теперь все будет в файл
-//    View();                                             // Выводим информацию о проекте в поток
-//    cout.rdbuf(coutbuf);                                // восстанавливаем вывод на экран
-//    out.close();                                        // закрываем файд
-//}   // VPrint
 
 //void clsBaseProject::Report() const {
 ///** Метод визуального контроля. Выводит информацию на экран **/
