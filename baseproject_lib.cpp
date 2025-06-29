@@ -172,11 +172,6 @@ void clsBaseProject::Reset() {
     swap(tmp);                  // Обмениваемся содержанием с tmp
 }   // Reset
 
-//void clsBaseProject::Report() const {
-///** Метод визуального контроля. Выводит информацию на экран **/
-//    reportstream(std::cout);
-//}   // Report()
-
 void clsBaseProject::Report() const {
 /** Метод вывода отчета на выбранное устройство **/
     if(Rdevice == nulldev) {
@@ -197,41 +192,6 @@ void clsBaseProject::Report() const {
         return;
     }
 }   // Report()
-
-//void clsBaseProject::Report(const string _filename) const {
-///** Метод визуального контроля. Выводит информацию в текстовый файл **/
-//    string filename;                                    // Вспомогательная переменная
-//    if(_filename != EmpStr) filename = _filename;       // Если имя файла не пустое, то используем его
-//    else                                                // Иначе
-//        if(RName != EmpStr) filename = RName;           // Если имя по умолчанию не пустое, то используем его,
-//        else return;                                    // Иначе выход
-////    if(filename == EmpStr) return;                      // Если имя файла пустое, то выход
-//    ofstream out(filename);                             // Откроем файл для вывода
-//    if(out.is_open())                                   // Если файл открыт, то
-//        reportstream(out);                              // Выводим в поток информацию
-//    out.close();                                        // и закрываем файл
-//}   // Report(...)
-
-//void clsBaseProject::Report(const Tdev dev) const {
-///** Метод вывода отчета на выбранное устройство. Параметры: dev - индекс устройства **/
-//    if(dev==nulldev) {
-//        std::ostream strNull(buff);
-//        reportstream(strNull);
-//        return;
-//    };
-//    if(dev==terminal) {
-//        reportstream(std::cout);
-//        return;
-//    };
-//    if(dev==file) {
-//        if(RName == EmpStr) return;                     // Если имя файла пустое, то выход
-//        ofstream out(RName);                            // Откроем файл для вывода
-//        if(out.is_open())                               // Если файл открыт, то
-//            reportstream(out);                          // Выводим в поток информацию
-//        out.close();                                    // и закрываем файл
-//        return;
-//    }
-//}   // Report(const Tstream dev)
 
 bool clsBaseProject::SaveToFile(const string _filename) {
 /** Метод записи текущего экземпляра класса в файл **/
@@ -306,9 +266,8 @@ bool clsBaseProject::RfF(ifstream &_inF) {
 
 void clsBaseProject::reportstream(ostream& os) const {
 /** Метод выводит отчет в поток os **/
-    nmRePrint::PrintHeader0(os, nmRePrint::smblcunt+nmRePrint::uThree, Title);
-//    os << Title << "\n\n";                      // Вывод названия проекта
-    for(size_t i=sZero; i<About.sCount; i++) {  // Вывод описания проекта
+    nmRePrint::PrintHeader0(os, nmRePrint::smblcunt+nmRePrint::uThree, Title);  // Вывод названия проекта
+    for(size_t i=sZero; i<About.sCount; i++) {                                  // Вывод описания проекта
         os << *(About.sComment+i) << "\n";
     };
     os << "\n";

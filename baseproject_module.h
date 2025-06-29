@@ -72,9 +72,7 @@ class clsBaseProject
         void SetRName(const string _filename);          // ћетод ввода имени файла дл€ отчета
         void SetDevice(const Tdev& val);                // ћетод устанавливает выходное устройство дл€ отчета
         virtual void Reset();                           // ћетод сбрасывает всю информацию
-        void Report() const;                            // ћетод вывода отчета на экран
-//        void Report(const string filename) const;       // ћетод вывода отчета в файл
-//        void Report(const Tdev dev) const;              // ћетод вывода отчета на выбранное в переменной dev устройство
+        void Report() const;                            // ћетод вывода отчета на выбранное устройство
         bool SaveToFile(const string _filename);        // ћетод записи текущего экземпл€ра класса в файл
         bool SaveToFile();                              // ћетод записи текущего экземпл€ра класса в файл
         bool ReadFromFile(const string _filename);      // ћетод чтени€ из файла и запись в экземпл€р класса
