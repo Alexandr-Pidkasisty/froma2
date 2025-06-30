@@ -140,13 +140,10 @@ void var_cpy(T* destin, const T* source, const size_t Num) {
 непрерывным и, следовательно, его копирование подразумевает тривиальную копию блока памяти, как если бы это
 выполнялось с помощью memcpy. Это справедливо для скалярных типов, тривиально копируемых классов и массивов
 любых подобных типов. https://cplusplus.com/reference/type_traits/is_trivially_copyable **/
-    if(std::is_trivially_copyable<T>::value) {        // Если тип элементов массива - тривиально копируемый тип,
-        memcpy(destin, source, sizeof(T)*Num);        // то копируем массивы поблочно с помощью функции memcpy
-        return;
-    } else {                                          // Иначе
-        std::copy_n(source, Num, destin);             // копируем массивы поэлементно с помощью функции std::copy_n
-        return;
-    }
+    // Если тип элементов массива - тривиально копируемый тип,
+    // то копируем массивы поблочно с помощью функции memcpy
+    // Иначе копируем массивы поэлементно с помощью функции std::copy_n
+    (std::is_trivially_copyable<T>::value) ? memcpy(destin, source, sizeof(T)*Num) : std::copy_n(source, Num, destin);
 }   // var_cpy
 
 
