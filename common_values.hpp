@@ -218,11 +218,11 @@ using namespace nmPrntSetup;// Разрешено использовать константы, типы и классы и
 
 /** Константы **/
 const size_t sNames = 15;   // Установка формата вывода имен для использования в классе clsTextField
-const size_t sNeas  = 12;   // Установка формата вывода ед.измерения для использования в классе clsTextField
+const size_t sMeas  = 12;   // Установка формата вывода ед.измерения для использования в классе clsTextField
 const size_t sNumb  = 12;   // Установка формата вывода числовых данных для использования в классе clsDataField
-const string CurUnt     = c_HCurrency + "/";   // Валюта на гатуральную единицу
+const string CurUnt = c_HCurrency + "/";   // Валюта на гатуральную единицу
 
-template<typename Tdata, typename TName>
+template<typename Tdata, typename TName=strNameMeas>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount) {
 /** Функция отображения таблиц, состоящих из первого столбца наименований и последующих столбцов с данными. Параметры:
 const size_t ncount - число строк, равное числу элементов массива names[] с наименованиями строк, names[] - массив с
@@ -234,22 +234,22 @@ const size_t ncount - число строк, равное числу элементов массива names[] с наим
     if(!names) return;
     if(!data) return;
     clsTextField name(sNames);          // Установка формата вывода имен с помощью класса clsTextField
-    clsTextField meas(sNeas);           // Установка формата вывода единиц измерения
+    clsTextField meas(sMeas);           // Установка формата вывода единиц измерения
     clsDataField number(sNumb);         // Установка формата вывода числовых данных с помощью класса clsDataField
     size_t b = sZero;                   // Начальный номер столбца для вывода данных
     size_t e = limit;                   // Количество столбцов для вывода
     auto lambda = [&](){                // Лямбда-функция для вывода таблицы
-        cout << name << c_TableName <<stSpc;                        // Вывод заголовков столбцов
-        cout << meas << c_TableMeas <<stSpc;                        // Вывод заголовков столбцов
+        cout << name << c_TableName <<stSpc;                    // Вывод заголовков столбцов
+        cout << meas << c_TableMeas <<stSpc;                    // Вывод заголовков столбцов
         for(size_t j=b; j<e; j++) {                             // Вывод заголовков столбцов (номера периодов)
             cout << number << j <<stSpc;
         };
         cout << endl;
         for(size_t i=sZero; i<ncount; i++) {                    // Цикл по строкам
-            cout << name << (names+i)->name << stSpc;             // Вывод названия строки
-            cout << meas << (names+i)->measure << stSpc;          // Вывод единицы измерения
+            cout << name << (names+i)->name << stSpc;           // Вывод названия строки
+            cout << meas << (names+i)->measure << stSpc;        // Вывод единицы измерения
             for(size_t j=b; j<e; j++) {                         // Цикл по столбцам
-                cout << number << *(data+dcount*i+j) <<stSpc;     // Вывод данных столбца
+                cout << number << *(data+dcount*i+j) <<stSpc;   // Вывод данных столбца
             };
             cout << endl;
         };  // Цикл по строкам
@@ -275,7 +275,7 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
     if(!names) return;
     if(!data) return;
     clsTextField name(sNames);          // Установка формата вывода имен с помощью класса clsTextField
-    clsTextField meas(sNeas);           // Установка формата вывода единиц измерения
+    clsTextField meas(sMeas);           // Установка формата вывода единиц измерения
     clsDataField number(sNumb);         // Установка формата вывода числовых данных с помощью класса clsDataField
     size_t b = sZero;                   // Начальный номер столбца для вывода данных
     size_t e = limit;                   // Количество столбцов для вывода
@@ -331,7 +331,7 @@ const string& _hmcur) {
     if(!names) return;
     if(!data) return;
     clsTextField name(sNames);          // Установка формата вывода имен с помощью класса clsTextField
-    clsTextField meas(sNeas);           // Установка формата вывода единиц измерения
+    clsTextField meas(sMeas);           // Установка формата вывода единиц измерения
     clsDataField number(sNumb);         // Установка формата вывода числовых данных с помощью класса clsDataField
     size_t b = sZero;                   // Начальный номер столбца для вывода данных
     size_t e = limit;                   // Количество столбцов для вывода
