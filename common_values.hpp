@@ -407,6 +407,9 @@ const size_t uTwo = 2;
 const size_t uThree = 3;
 
 template<typename T>
+constexpr bool is_real_v =
+    std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value;  // Условие проверки
+template<typename T, class=std::enable_if_t<is_real_v<T>>>
 size_t CalcSingleDataLenth(const T& val) {
 /** Метод расчета количества знаков при форматированном выводе числа типа T. **/
     const T tOne = 1,
@@ -440,7 +443,10 @@ size_t CalcArrayDataLenth(const size_t _asize, const T _arr[], const size_t _min
     return temp;
 } // CalcArrayDataLenth
 
-template<typename Tdata, typename TName>
+template<typename T>
+constexpr bool is_tbld_v =
+    std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value || std::is_same<T, strItem>::value;  // Условие проверки
+template<typename Tdata, class=std::enable_if_t<is_tbld_v<Tdata>>, typename TName=strNameMeas>
 class clsRePrint {
 /** Основной класс для форматированного вывода отчета на экран или в файл. **/
     private:
@@ -464,10 +470,10 @@ class clsRePrint {
 
         string TableName;       // Заголовок первого столбца отчета
         string TableMeas;       // Заголовок второго столбца отчета
-        string ByVolume;        // Заголовок таблицы для вывода натуральных поазателей
-        string ByPrice;         // Заголовок таблицы для вывода удельных стоимостных поазателей
-        string ByValue;         // Заголовок таблицы для вывода полных стоимостных поазателей
-        string HCurrency;       // Валюта проекта. Используется в единицах имзерения price и value типа strItem
+        string ByVolume;        // Заголовок таблицы для вывода натуральных показателей
+        string ByPrice;         // Заголовок таблицы для вывода удельных стоимостных показателей
+        string ByValue;         // Заголовок таблицы для вывода полных стоимостных показателей
+        string HCurrency;       // Валюта проекта. Используется в единицах измерения price и value типа strItem
 
         size_t rowcount;        // Количество строк отчета
         size_t colcount;        // Количество столбцов отчета
@@ -620,11 +626,11 @@ class clsRePrint {
             if(tnumb) delete tnumb;
             rownames = nullptr;
             Tcoldata = nullptr;
-            if(backup) {
+            if(backup)                      // Если есть сохраненный буфер вывода в поток cout, то:
                 cout.rdbuf(backup);         // Восстанавливаем состояние буфера cout
-                backup = nullptr;           // Обнуляем переменную
+            if(filestr.is_open())           // Если файл открыт, то
                 filestr.close();            // Закрываем файл
-            };
+
         }   // Dtor clsRePrint
 
         void ResetReport() {
@@ -639,8 +645,9 @@ class clsRePrint {
             if(backup) {                    // Если есть сохраненный буфер вывода в поток cout, то:
                 cout.rdbuf(backup);         // Восстанавливаем состояние буфера cout
                 backup = nullptr;           // Сбрасываем указатель
-                filestr.close();            // Закрываем файл
             };
+            if(filestr.is_open())           // Если файл открыт, то
+                filestr.close();            // Закрываем файл
             out = &std::cout;
         }   // ResetReport
 
