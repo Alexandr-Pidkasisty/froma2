@@ -477,8 +477,8 @@ class clsRePrint {
 
         size_t rowcount;        // Количество строк отчета
         size_t colcount;        // Количество столбцов отчета
-        const TName* rownames;  // Указатель на массив с названиями строк
-        const Tdata* Tcoldata;  // Указатель на массив с данными типа Tdata
+        const TName* rownames;  // Указатель на массив с названиями строк, размер rowcount
+        const Tdata* Tcoldata;  // Указатель на массив с данными типа Tdata, размер rowcount*colcount
 
         streambuf* backup;      // Указатель на переменную типа буфер для сохранения состояния буфера вывода cout
         ofstream filestr;       // Переменная для записи в файловый поток
@@ -709,7 +709,7 @@ class clsRePrint {
         bool SetReport(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount) {
         /** Метод вводит данные для отчета и рассчитывает ширину колонок. Параметры: ncount - число элементов массива
         names и число строк отчета; names - массив с именами и единицами измерения строк (наиболее подходящий тип - это
-        тип strNameMeas); data - массив с данными; dcount - размерность массива data и число столбцов отчета. **/
+        тип strNameMeas); data - массив с данными размером ncount*dcount; dcount - число столбцов отчета. **/
             if( (ncount==sZero) || (!names) || (dcount==sZero) || (!data) ) return false;   // Валидация параметров
             rowcount = ncount;                              // Размер массива наименований строк
             colcount = dcount;                              // Размер массива данных для столбцов
@@ -726,7 +726,7 @@ class clsRePrint {
                 };
                 nwidth = CalcArrayDataLenth(rowcount, ntemp, n_min, n_max); // Определяем ширину поля для столбца с наименованием
                 mwidth = CalcArrayDataLenth(rowcount, mtemp, m_min, m_max); // Определяем ширину поля для столбца с ед.измерения
-                dwidth = CalcArrayDataLenth(colcount, Tcoldata, d_min, d_max); // Определяем ширину поля для данных
+                dwidth = CalcArrayDataLenth(rowcount*colcount, Tcoldata, d_min, d_max); // Определяем ширину поля для данных
                 delete[] ntemp;
                 delete[] mtemp;
             };
@@ -745,7 +745,7 @@ class clsRePrint {
         bool SetReport(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg) {
         /** Метод вводит данные для отчета и рассчитывает ширину колонок для данных, выбранных флагом flg. Параметры:
         ncount - число элементов массива names и число строк отчета; names - массив с именами и единицами измерения строк;
-        data - массив с данными с тремя полями; dcount - размерность массива data и число столбцов отчета **/
+        data - массив с данными с тремя полями размером ncount*dcount; dcount - число столбцов отчета **/
             if( (ncount==sZero) || (!names) || (dcount==sZero) || (!data) ) return false;   // Валидация параметров
             rowcount = ncount;
             colcount = dcount;
@@ -756,7 +756,8 @@ class clsRePrint {
                 if(!ntemp) return false;
                 string* mtemp = new(nothrow) string[rowcount];
                 if(!mtemp) { delete[] ntemp; return false; };
-                decimal* dtemp = new(nothrow) decimal[colcount];
+                size_t tmpCount = rowcount*colcount;
+                decimal* dtemp = new(nothrow) decimal[tmpCount];
                 if(!dtemp) { delete[] ntemp; delete[] mtemp; return false; };
                 for(size_t i=sZero; i<rowcount; i++) {            // Формируем временные массивы для анализа
                     *(ntemp+i) = (rownames+i)->name;
@@ -766,19 +767,19 @@ class clsRePrint {
                 mwidth = CalcArrayDataLenth(rowcount, mtemp, m_min, m_max); // Определяем ширину поля
                 switch(flg) {
                 case volume:                                // Формируем временные массивы для анализа в зависимости от флага flg
-                    for(size_t i=sZero; i<colcount; i++) {
+                    for(size_t i=sZero; i<tmpCount; i++) {
                         *(dtemp+i) = (Tcoldata+i)->volume;
                     } break;
                 case price:
-                    for(size_t i=sZero; i<colcount; i++) {
+                    for(size_t i=sZero; i<tmpCount; i++) {
                         *(dtemp+i) = (Tcoldata+i)->price;
                     } break;
                 case value:
-                    for(size_t i=sZero; i<colcount; i++) {
+                    for(size_t i=sZero; i<tmpCount; i++) {
                         *(dtemp+i) = (Tcoldata+i)->value;
                     } break;
                 };
-                dwidth = CalcArrayDataLenth(colcount, dtemp, d_min, d_max); // Определяем ширину поля
+                dwidth = CalcArrayDataLenth(tmpCount, dtemp, d_min, d_max); // Определяем ширину поля
                 delete[] ntemp;
                 delete[] mtemp;
                 delete[] dtemp;
