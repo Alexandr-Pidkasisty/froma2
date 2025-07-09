@@ -266,7 +266,7 @@ const size_t ncount - число строк, равное числу элементов массива names[] с наим
     cout << endl;
 }   // ArrPrint
 
-template<typename Tdata, typename TName>
+template<typename Tdata, typename TName=strNameMeas>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
 параметр - flg - флаг, определяющий тип используемых данных: volume, price или value. **/
@@ -321,7 +321,7 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
     cout << endl;
 }   // ArrPrint with ReportData flag
 
-template<typename Tdata, typename TName>
+template<typename Tdata, typename TName=strNameMeas>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg,
 const string& _hmcur) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
@@ -797,11 +797,13 @@ class clsRePrint {
         }   // SetReport
 
         void Print() {
-        /** Метод выводит на экран данные, введенные с помощью функции SetReport **/
+        /** Метод выводит на экран данные, введенные с помощью функции SetReport. Метод не используется
+        для данных типа strItem **/
             if(rowcount==sZero) return;           // Проверка корректности параметров
             if(colcount==sZero) return;
             if(!rownames) return;
             if(!Tcoldata) return;
+            if(std::is_same<Tdata, strItem>::value) return; // Если шаблонный тип strItem, то данный метод не применяется
             TName* tmpnames = new(nothrow) TName[rowcount]; // Создаем вспомогательный массив, строки в котором можно урезать
             if(!tmpnames) return;                           // если память не выделена, то выходим из функции
             for(size_t i=sZero; i<rowcount; i++) {
@@ -848,11 +850,12 @@ class clsRePrint {
 
         void Print(ReportData flg) {
         /** Метод выводит на экран данные, введенные с помощью функции SetReport. Параметры: flg - выбор данных для массива
-        типа strItem **/
+        типа strItem. Метод используется только для данных типа strItem **/
             if(rowcount==sZero) return;           // Проверка корректности параметров
             if(colcount==sZero) return;
             if(!rownames) return;
             if(!Tcoldata) return;
+            if(!std::is_same<Tdata, strItem>::value) return; // Если шаблонный тип НЕ strItem, то метод не применяется
             TName* tmpnames = new(nothrow) TName[rowcount];
             if(!tmpnames) return;
             for(size_t i=sZero; i<rowcount; i++) {
