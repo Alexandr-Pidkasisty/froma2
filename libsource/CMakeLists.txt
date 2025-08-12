@@ -9,7 +9,7 @@ add_library(froma2 STATIC
 	LongReal_module.h
 	manufact_lib.cpp
 	manufact_module.h
+	progress_module.hpp
 	serialization_module.hpp
 	warehouse_lib.cpp
-	warehouse_module.h
-	progress_module.hpp)
+	warehouse_module.h)
