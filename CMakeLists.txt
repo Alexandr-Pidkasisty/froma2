@@ -15,3 +15,4 @@ set(FROMA2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libsource")
 add_subdirectory("${FROMA2_DIR}")				# Добавление пути к библиотеке
 add_subdirectory(examples/Storage_stress_test)	# Добавление пути к примеру
 add_subdirectory(examples/SKU_example)			# Добавление пути к примеру
+add_subdirectory(examples/Storage_example)		# Добавление пути к примеру
