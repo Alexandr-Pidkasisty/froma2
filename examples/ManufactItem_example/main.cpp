@@ -1,94 +1,76 @@
 #include <iostream>
-#include <manufact_module.h>    // Подключаем модуль "производство"
+#include <Manufact_module.h>
 
 using namespace std;
 
 int main() {
 
-    setlocale(LC_ALL, "Russian");   // Установка русского языка для вывода
+    setlocale(LC_ALL, "Russian");       // Установка русского языка для вывода
 
     /** Основные параметры проекта **/
-    size_t PrCount = 8;     // Длительность проекта
-    size_t RMCount = 10;    // Полное число наименований ресурсов
-    size_t MSize = 5;       // Число позиций в ассортименте готовой продукции
-    size_t rcount  = 5;     // Число наименований ресурсов в рецептуре продукта
-    size_t duratio = 7;     // Длительность производственного цикла
+        const size_t PrCount = 9;       // Количество периодов проекта
+        const string Cur = "RUR";       // Домашняя валюта проекта
 
-    /** Формирование полного массива имен ресурсов с единицами измерения **/
-    strNameMeas* RMNames = new strNameMeas[RMCount];
-    for(size_t i =sZero; i<RMCount; i++) {
-        (RMNames+i)->name = "Rawmat_" + to_string(i);
-        (RMNames+i)->measure = "kg";
-    };
+    /** Продукт **/
+        const string Name_00 = "Фрикасе из курицы с зеленым горошком";
+        const string Meas_00 = "шт.";
 
-    /** Формирование массива цен (удельной себестоимости) для ресурсов **/
-    decimal* RMPrice = new decimal[RMCount*PrCount];
-    for(size_t i=sZero; i<RMCount; i+=5 ) {
-        for(size_t j=sZero; j<PrCount; j++) {
-            *(RMPrice+PrCount*i+j) = 10.0;
-            *(RMPrice+PrCount*(i+1)+j) =  5.0;
-            *(RMPrice+PrCount*(i+2)+j) = 20.0;
-            *(RMPrice+PrCount*(i+3)+j) = 2.5;
-            *(RMPrice+PrCount*(i+4)+j) = 50.0;
-        };
-    };
+    /** План отгрузок готовой продукции **/
 
-    /** Рецептура для единичного продукта **/
-    strNameMeas* rnames = new strNameMeas[rcount] { {"Rawmat_0", "kg"}, {"Rawmat_1", "kg"},
-    {"Rawmat_2", "kg"}, {"Rawmat_3", "kg"}, {"Rawmat_4", "kg"} };   // Номенклатура ресурсов
-    decimal* recipe = new decimal[rcount*duratio]{
-        10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,  // Рецептура
-        50.0,  0.0,  0.0, 50.0,  0.0,  0.0,  0.0,
-        30.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-        0.0,  0.0,  0.0,  0.0,  0.0,  0.0, 20.0,
-        0.0,  0.0,  0.0,  10.0, 0.0,  0.0,  0.0 };
+    const strItem PPlan[PrCount] {  {0, 0, 0},  {5003, 0, 0},  {8482, 0, 0},
+                                {11825, 0, 0}, {15137, 0, 0}, {18428, 0, 0 },
+                                {21706, 0, 0}, {24975, 0, 0}, {28239, 0, 0}};
 
-    /** Формирование плана выпуска продуктов **/
-    strItem* ProPlan = new strItem[PrCount];
-    for(size_t i=sZero; i<PrCount; i++) {
-        (ProPlan+i)->volume = 10.0;
-        (ProPlan+i)->value = (ProPlan+i)->price  =  0.0;
-    };
+    /** Исходные данные для рецептуры продукта **/
+        const size_t rcount_00  = 9;    // Число наименований ресурсов
+        const size_t duratio_00 = 1;    // Длительность производственного цикла
 
-    /** Формирование списка продуктов **/
-    strNameMeas* ProdNames = new strNameMeas[MSize];
-    for(size_t i =sZero; i<MSize; i++) {
-        (ProdNames+i)->name = "Product_" + to_string(i);
-        (ProdNames+i)->measure = "kg";
-    };
+        const strNameMeas rnames_00[rcount_00]  // Номенклатура ресурсов
+            {{"Горошек зеленый с/м", "кг."}, {"Итальянские травы", "кг."},
+             {"Курица бедро", "кг."}, {"Молоко", "кг."},\
+             {"Морковь", "кг."}, {"Мука пшеничная", "кг."}, {"Соль", "кг."},
+             {"Упаковка", "шт."}, {"Чеснок", "кг."}};
 
-    /** Создание произвоства **/
-    clsManufactory* MMM = new clsManufactory(PrCount, RMCount, RMNames, MSize);
+        const decimal recipe_00[rcount_00*duratio_00]  {0.1200, // Рецептура
+                                                        0.0012,
+                                                        0.2700,
+                                                        0.1200,
+                                                        0.1320,
+                                                        0.0120,
+                                                        0.0042,
+                                                        1.0000,
+                                                        0.0024 };
+    /** Создаем рецептуру продукта **/
+    clsRecipeItem* rcp_00 =
+        new clsRecipeItem(Name_00, Meas_00, duratio_00, rcount_00,
+        rnames_00, recipe_00);
 
-    /** Ввод продуктов, рецептур и плана выпуска продуктов **/
-    for(size_t i=sZero; i<MSize; i++)
-        if(!MMM->SetManufItem((ProdNames+i)->name,\
-            (ProdNames+i)->measure, duratio, rcount,\
-            rnames, recipe, ProPlan))
-            cout << "Ошибка добавления производства для "\
-            << (ProdNames+i)->name << " продукта" << endl;
+    /** Создаем единичное производство **/
+    clsManufactItem* man_00 = new clsManufactItem(PrCount, move(*rcp_00));
+    man_00->SetProductPlan(PPlan);  // Вводим план отгрузок готовой продукции
+    man_00->CalcRawMatPurchPlan();  // Рассчитываем план потребления ресурсов
 
-    /** Расчет потребности в сырье и материалах **/
-    MMM->CalcRawMatPurchPlan();
+    /** Отдаем на склад ресурсов план потребления сырья и материалов (например, так:
+    const decimal* RMPlan = man_00->GetRawMatPurchPlan()), и получаем от склада данные
+    о себестоимости необходимых нам ресурсов. Например, склад вернул нам следующий массив: **/
+    const decimal RMRpice[rcount_00*PrCount] {
+     100.00,  101.00,  102.01,  103.03,  104.06,  105.10,  106.15,  107.21,  108.28,
+    4062.50, 4103.13, 4144.16, 4185.60, 4227.45, 4269.73, 4312.43, 4355.55, 4399.11,
+     225.00,  227.25,  229.52,  231.82,  234.14,  236.48,  238.84,  241.23,  243.64,
+      39.00,   39.39,   39.78,   40.18,   40.58,   40.99,   41.40,   41.81,   42.23,
+      15.00,   15.15,   15.30,   15.45,   15.61,   15.77,   15.92,   16.08,   16.24,
+      41.00,   41.41,   41.82,   42.24,   42.66,   43.09,   43.52,   43.96,   44.40,
+      19.00,   19.19,   19.38,   19.58,   19.77,   19.97,   20.17,   20.37,   20.57,
+      20.00,   20.20,   20.40,   20.61,   20.81,   21.02,   21.23,   21.44,   21.66,
+     105.00,  106.05,  107.11,  108.18,  109.26,  110.36,  111.46,  112.57,  113.70};
+    if(man_00->SetRawMatPrice(RMRpice));    // Вводим цены ресурсов в производство
 
-    /** Ввод цен сырья и материалов **/
-    MMM->SetRawMatPrice(RMPrice);
+    /** Рассчитываем учетную себестоимость готовой продукции **/
+    if(!man_00->CalculateItem()) cout << "Ошибка расчета" << endl;
+    /** Выводим на экран информаицю о готовом продукте и незавершенном производстве **/
+    man_00->ViewCalculate(Cur);                 //
 
-    /** Расчет себестоимости продуктов и незавершенного производства **/
-    MMM->Calculate();
-
-    /** Выборочный визуальный контроль работоспособности **/
-    MMM->ViewProjectParametrs();
-    MMM->ViewBalance();
-    MMM->ViewProductPlan();
-
-    delete[] RMNames;
-    delete[] RMPrice;
-    delete[] rnames;
-    delete[] recipe;
-    delete[] ProPlan;
-    delete[] ProdNames;
-    delete MMM;
-
+    delete rcp_00;
+    delete man_00;
     return 0;
 }
