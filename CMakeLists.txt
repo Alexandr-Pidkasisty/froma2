@@ -12,7 +12,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEAS
 #сораняем путь до директории froma2
 set(FROMA2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libsource")
 
-add_subdirectory("${FROMA2_DIR}")				# Добавление пути к библиотеке
-add_subdirectory(examples/Storage_stress_test)	# Добавление пути к примеру
-add_subdirectory(examples/SKU_example)			# Добавление пути к примеру
-add_subdirectory(examples/Storage_example)		# Добавление пути к примеру
+# Добавление путей к примерам
+add_subdirectory("${FROMA2_DIR}")
+add_subdirectory(examples/Storage_stress_test)
+add_subdirectory(examples/SKU_example)
+add_subdirectory(examples/Storage_example)
+add_subdirectory(examples/ManufactItem_example)
