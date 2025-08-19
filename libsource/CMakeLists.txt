@@ -1,4 +1,4 @@
-# Добавляем файлы библиотеки в проект статической библиотеки froma2
+# Добавляем файлы в проект статической библиотеки froma2
 add_library(froma2 STATIC
 	baseproject_lib.cpp
 	baseproject_module.h
@@ -13,3 +13,5 @@ add_library(froma2 STATIC
 	serialization_module.hpp
 	warehouse_lib.cpp
 	warehouse_module.h)
+# Добавляем текущий каталог для использования при компиляции зависимых целей от текущей
+target_include_directories(froma2 INTERFACE .)
