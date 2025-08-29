@@ -2,11 +2,18 @@
 set(PROJECT_NAME froma2_examples)	# Присваиваем переменной PROJECT_NAME строковую константу
 project(${PROJECT_NAME})		# Название проекта
 
+# Установка стандарта для компилятора
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #настраиваем места хранения скомпилированных файлов
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
+
+# Компилятору использовать опцию -fconcepts
+add_compile_options(-fconcepts)
 
 # Добавление подпроектов
 add_subdirectory(libsource)
