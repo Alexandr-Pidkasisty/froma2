@@ -9,16 +9,17 @@ using namespace nmBPTypes;
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "Russian");                   // Установка русского языка
 
-    string dir = "../../examples/Impex_example/";   // Расположение файлов данных
+    string idir = "../../examples/Impex_example/input/"; // Расположение файлов входных данных
+    string odir= "../examples/Impex_example/output/"; 	 // Расположение результатов расчетов
 
     /** Импортируем данные из CSV-файла во внутреннее хранилище **/
-    ifstream input(dir + "ship.csv");               // Связываем файл с потоком
+    ifstream input(idir + "ship.csv");              // Связываем файл с потоком
     const char ch =';';                             // Выбираем разделитель
     clsImpex* Data = new clsImpex(input, ch);       // Импортируем данные из файла
     input.close();                                  // Закрываем файл
 
     /** Визуальный контроль результата импорта **/
-    ofstream View_ship(dir + "View_ship.txt");  // Связываем файл с потоком
+    ofstream View_ship(odir + "View_ship.txt"); // Связываем файл с потоком
     Data->View(View_ship);                      // Отображаем хранилище
     View_ship.close();                          // Закрываем файл
 
@@ -34,7 +35,7 @@ int main(int argc, char* argv[]) {
     if(!ProdNames) cout << "ProdNames = nullptr" << endl;
 
     /** Печатаем в файл полученные массивы в виде таблицы **/
-    ofstream Output(dir + "Array.txt");                         // Связываем файл с потоком
+    ofstream Output(odir + "Array.txt");                        // Связываем файл с потоком
     Output << setw(15) << "Name" << setw(15) << "Measure";      // Заголовки
     for(size_t j{}; j<PrCount; j++)
         Output << setw(15) << j;
@@ -51,12 +52,12 @@ int main(int argc, char* argv[]) {
     Data->Transpon();
 
     /** Визуальный контроль результата транспонирования **/
-    ofstream View_ship_T(dir + "View_ship_T.txt");              // Связываем файл с потоком
+    ofstream View_ship_T(odir + "View_ship_T.txt");             // Связываем файл с потоком
     Data->View(View_ship_T);                                    // Выводим результат в файл
     View_ship_T.close();                                        // Закрываем файл
 
     /** Экспорт транспонированной матрицы внутреннего хранилища в CSV-файл **/
-    ofstream ship_T(dir + "ship_T.csv");    // Связываем файл с потоком
+    ofstream ship_T(odir + "ship_T.csv");   // Связываем файл с потоком
     Data->csvExport(ship_T);                // Экспорт транспонированной матрицы
     ship_T.close();                         // Закрываем выходной файл
 

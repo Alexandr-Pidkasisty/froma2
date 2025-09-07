@@ -4,7 +4,3 @@ bin/
 node_modules/
 .idea/
 my_notes.txt
-examples/Impex_example/Array.txt
-examples/Impex_example/View_ship.txt
-examples/Impex_example/View_ship_T.txt
-examples/Impex_example/ship_T.csv
