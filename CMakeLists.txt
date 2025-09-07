@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.31)	# Минимальная версия инструмента CMake
 set(PROJECT_NAME froma2_examples)	# Присваиваем переменной PROJECT_NAME строковую константу
-project(${PROJECT_NAME})		# Название проекта
+project(${PROJECT_NAME} VERSION 1.0)	# Название и версия проекта
 
 # Установка стандарта для компилятора
 set(CMAKE_CXX_STANDARD 17)
