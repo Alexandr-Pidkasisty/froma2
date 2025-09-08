@@ -1,5 +1,10 @@
+set(LIBRARY_NAME "froma2")	# Переменная с именем библиотеки
+project("${LIBRARY_NAME}"	# Название, версия, описание, язык программирования
+	VERSION 1.0
+	DESCRIPTION "Direct costing modeling software library"
+	LANGUAGES CXX)
 # Добавляем файлы в проект статической библиотеки froma2
-add_library(froma2 STATIC
+add_library("${LIBRARY_NAME}" STATIC
 	baseproject_lib.cpp
 	baseproject_module.h
 	common_values.hpp
@@ -14,4 +19,4 @@ add_library(froma2 STATIC
 	warehouse_lib.cpp
 	warehouse_module.h)
 # Добавляем текущий каталог для использования при компиляции зависимых целей от текущей
-target_include_directories(froma2 INTERFACE .)
+target_include_directories("${LIBRARY_NAME}" INTERFACE .)
