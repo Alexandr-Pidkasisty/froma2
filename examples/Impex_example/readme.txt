@@ -4,7 +4,7 @@
 ¬есь вывод идет в файлы.
 
 »сходные данные (Ќ≈ ”ƒјЋя“№!!!):
-‘айл ship.csv в папке input
+‘айл ship.csv в подпапке input текущей папки
 
 –езультирующие данные в папке froma2\build\examples\Impex_example\output:
 ship_T.csv
