@@ -994,7 +994,7 @@ class clsRePrint {
 
 template<typename T=void>
 void PrintHeader0(std::ostream& out, const size_t& Num, const string& val) {
-/** Метод выводит заголовок уровня 0 в поток os для повышения читаемости тестов. out - выходной поток,
+/** Метод выводит заголовок уровня 0 в поток для повышения читаемости тестов. out - выходной поток,
 Num - ширина заголовка в символах, val - строка заголовка **/
     size_t len = val.length();
     size_t field1, field2;
@@ -1029,7 +1029,7 @@ Num - ширина заголовка в символах, val - строка заголовка **/
 
 template<typename T=void>
 void PrintHeader1(std::ostream& out, const size_t& Num, const string& val) {
-/** Метод выводит заголовок уровня 1 в поток os для повышения читаемости тестов. out - выходной поток,
+/** Метод выводит заголовок уровня 1 в поток для повышения читаемости тестов. out - выходной поток,
 Num - ширина заголовка в символах, val - строка заголовка **/
     size_t len = val.length();
     size_t field1, field2;
@@ -1054,7 +1054,7 @@ Num - ширина заголовка в символах, val - строка заголовка **/
 
 template<typename T=void>
 void PrintHeader2(std::ostream& out, const size_t& Num, const string& val) {
-/** Метод выводит заголовок уровня 2 в поток os для повышения читаемости тестов. out - выходной поток,
+/** Метод выводит заголовок уровня 2 в поток для повышения читаемости тестов. out - выходной поток,
 Num - ширина заголовка в символах, val - строка заголовка **/
     size_t len = val.length();
     size_t field1, field2;
