@@ -914,9 +914,8 @@ class clsRePrint {
         }   // Print
 
         void Header0(const string& val) {
-        /** Метод выводит заголовок 0-го уровня для повышения читаемости тестов. Num - ширина заголовка
-        в символах, val - строка заголовка **/
-            size_t Num = smblcunt+uThree;
+        /** Метод выводит заголовок 0-го уровня для повышения читаемости тестов, val - строка заголовка **/
+            size_t Num = smblcunt+uThree;       // Ширина поля заголовка определяется константой smblcunt
             size_t len = val.length();
             size_t field1, field2;
             field1 = (Num - len) / uTwo;
@@ -949,8 +948,7 @@ class clsRePrint {
         }   // Header0
 
         void Header1(const string& val) {
-        /** Метод выводит заголовок 1-го уровня для повышения читаемости тестов. Num - ширина заголовка
-        в символах, val - строка заголовка **/
+        /** Метод выводит заголовок 1-го уровня для повышения читаемости тестов, val - строка заголовка **/
             size_t Num = smblcunt+uThree;
             size_t len = val.length();
             size_t field1, field2;
@@ -974,8 +972,7 @@ class clsRePrint {
         }   // Header1
 
         void Header2(const string& val) {
-        /** Метод выводит заголовок 2-го уровня для повышения читаемости тестов. Num - ширина заголовка
-        в символах, val - строка заголовка **/
+        /** Метод выводит заголовок 2-го уровня для повышения читаемости тестов, val - строка заголовка **/
             size_t Num = smblcunt+uThree;
             size_t len = val.length();
             size_t field1, field2;
