@@ -1,6 +1,4 @@
 *.log
 build/
 bin/
-node_modules/
-.idea/
-my_notes.txt
+*.doc*
