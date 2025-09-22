@@ -98,6 +98,8 @@ https://codereview.stackexchange.com/questions/186535/progress-bar-in-c **/
             maxcount = _mx;
         }   // Set_maxcount
 
+        int Getmaxcount() { return maxcount; }  // Возвращает Максимальное число итераций
+
 };  // clsprogress_bar
 
 template <typename T>
@@ -162,6 +164,9 @@ class clsProgress_shell {
             if(!pbar) return;
             pbar->Update(val);
         }
+
+        int Getmaxcounter() { return maxcounter; }  // Возвращает Максимальное число итераций
+        int Getstepcount() { return stepcount; }    // Возвращает Шаг итерации
 
 };  // clsProgress_shell
 
