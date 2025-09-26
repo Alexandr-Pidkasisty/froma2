@@ -1123,8 +1123,8 @@ void EraseVector(vector<thread>& _pool) {
         }   // SetStorage
 
         bool clsStorage::SetStorage(size_t RMCount, const strNameMeas RMNames[], strItem ShipPlan[], strItem PricePur[]) {
-        /** 2024.10.02 Аналогичный предыдущему, но массивы отгрузок и закупок в формате strItem. Метод допускает
-        nullptr вместо ссылки на массив закупок. **/
+        /** Аналогичный предыдущему, но массивы отгрузок и закупок в формате strItem, загружаются и цены и объемы.
+        Метод допускает nullptr вместо ссылки на массив закупок. **/
             if((RMCount==sZero) || (!RMNames) || (!ShipPlan)) return false;     // Валидация входных параметров
             if(!stock.empty()) stock.clear();                                   // Если вектор не пустой, то удаляем все элементы
             stock.reserve(RMCount);                                             // Резервируем память для вектора
