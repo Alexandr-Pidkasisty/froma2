@@ -437,8 +437,8 @@ class clsStorage {       /** Склад ресурсов для нескольких номенклатурных позици
             ВНИМАНИЕ!!!  массив ShipPlan - динамический, после их использования требуют удаления в ручном
             режиме оператором delete[].**/
 
-        bool SetStorage(size_t RMCount, const strNameMeas RMNames[], strItem ShipPlan[], strItem PricePur[]);
-            /** 2024.10.02 Аналогичный предыдущему, но массивы отгрузок и закупок в формате strItem **/
+        bool SetStorage(size_t RMCount, const strNameMeas RMNames[], strItem ShipPlan[], strItem Purchase[]);
+            /** Аналогичный предыдущему, но массивы отгрузок и закупок в формате strItem, загружаются и цены и объемы **/
 
         bool SetData(const clsSKU &obj);
             /** Функция заносит в вектор данных информацию о конкретном SKU путем копирования экземпляра класса

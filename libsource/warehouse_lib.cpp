@@ -1122,7 +1122,7 @@ void EraseVector(vector<thread>& _pool) {
             return true;
         }   // SetStorage
 
-        bool clsStorage::SetStorage(size_t RMCount, const strNameMeas RMNames[], strItem ShipPlan[], strItem PricePur[]) {
+        bool clsStorage::SetStorage(size_t RMCount, const strNameMeas RMNames[], strItem ShipPlan[], strItem Purchase[]) {
         /** Аналогичный предыдущему, но массивы отгрузок и закупок в формате strItem, загружаются и цены и объемы.
         Метод допускает nullptr вместо ссылки на массив закупок. **/
             if((RMCount==sZero) || (!RMNames) || (!ShipPlan)) return false;     // Валидация входных параметров
@@ -1131,7 +1131,7 @@ void EraseVector(vector<thread>& _pool) {
             for(size_t i=sZero; i<RMCount; i++) {                               // Цикл по номенклатуре сырья
                 /** Создаем склад для i-го сырья **/
                 stock.emplace_back(PrCount, (RMNames+i)->name, (RMNames+i)->measure, acct, true, calc, dZero, ShipPlan);
-                stock.back().SetPurchase(PricePur, PrCount); // Вводим закупки
+                stock.back().SetPurchase(Purchase, PrCount); // Вводим закупки
             };
             return true;
         }   // SetStorage 2024.12.10
