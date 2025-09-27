@@ -63,6 +63,7 @@ enum AccountingMethod{FIFO = sZero, LIFO, AVG};          // Индексы принципов уч
 const string AccountTXT[] = {"FIFO", "LIFO", "AVERAGE"}; // Наименования принципов учета запасов
 enum ChoiseData{purchase = sZero, balance, shipment};    // Выбор данных для ввода/вывода: данные закупок или отгрузок
 enum PurchaseCalc{calc = sZero, nocalc};                 // Флаг разрешающий/ запрещающий рассчитывать объем закупок
+const string PurchaseCalcTXT[] = {"AUTO", "MANUAL"};     // Наименования флага расчёта закупок
 
 const string strAllowed    = "ALLOWED",                  // "РАЗРЕШЕНО"
              strProhibited = "PROHIBITED",               // "ЗАПРЕЩЕНО"
