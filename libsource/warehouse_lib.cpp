@@ -406,12 +406,10 @@ void EraseVector(vector<thread>& _pool) {
                  else return "AVERAGE";
         } // AccMethod
         string clsSKU::Permission() const {         // Возвращает флаг разрешения/запрещения отгрузок в одном периоде
-            if(indr) return strAllowed;             // в виде текстовой строки
-            else return strProhibited;
+            return ProhibitedTXT[static_cast<size_t>(indr)];
         }   // Permission
         string clsSKU::AutoPurchase() const {       // Возвращает флаг авторасчета/ ручного расчета закупок
-            if(pcalc == calc) return strAuto;       // в виде текстовой строки
-            else return strManually;
+            return PurchaseCalcTXT[pcalc];
         }   // AutoPurchase
         const PurchaseCalc& clsSKU::GetAutoPurchase() const { return pcalc; }
         /** Возвращает const-ссылку на флаг авторасчета/ ручного расчета закупок **/
