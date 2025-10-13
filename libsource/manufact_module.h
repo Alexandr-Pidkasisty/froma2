@@ -560,7 +560,7 @@ class clsManufactory {
 
         bool SetProdPlan(const strItem _ProdPlan[]);
             /** Метод вводит план выпуска всех продуктов в производство. Параметры: _ProdPlan - указатель на полный
-            массив с планом выпуска всех продуктов, размером RMCount*PrCount **/
+            массив с планом выпуска всех продуктов, размером Manuf.size()*PrCount **/
 
         bool SetRawMatPrice(const decimal _Price[]);
             /** Метод ввода цен на ресурсы. Предполагается, что после получения складом информации о

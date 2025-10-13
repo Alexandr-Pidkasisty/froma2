@@ -1693,9 +1693,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
 
         bool clsManufactory::SetProdPlan(const strItem _ProdPlan[]) {
             /** Метод вводит план выпуска продуктов в производство. Параметры: _ProdPlan - указатель на полный массив
-            с планом выпуска всех продуктов, размером RMCount*PrCount **/bool SetProdPlan(const strItem _ProdPlan[]);
-            /** Метод вводит план выпуска продуктов в производство. Параметры: _ProdPlan - указатель на полный массив
-            с планом выпуска продуктов, размером RMCount*PrCount **/
+            с планом выпуска всех продуктов, размером Manuf.size()*PrCount **/
             if( (PrCount == sZero) || (RMCount == sZero) || (!RMNames) || (Manuf.size() == sZero) ) return false;
             vector<clsManufactItem>::iterator it;           // Итератор для массива
             size_t i = sZero;                               // Вспомогательный счетчик
