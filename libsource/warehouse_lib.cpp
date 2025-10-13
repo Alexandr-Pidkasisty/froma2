@@ -736,8 +736,14 @@ void EraseVector(vector<thread>& _pool) {
             strItem* temp = new(nothrow) strItem[tcount];   // Выделяем память массиву
             if(!temp) {return nullptr; };                   // Если память не выделена, возвращаем nullptr
             size_t i = sZero;                                   // Индекс SKU
+//            for(clsSKU val: stock) {                            // Цикл по всем SKU
+//                var_cpy((temp+i*PrCount), (val.*f)(), PrCount); // Копируем данные в новый массив
+//                i++;
+//            };
             for(clsSKU val: stock) {                            // Цикл по всем SKU
-                var_cpy((temp+i*PrCount), (val.*f)(), PrCount); // Копируем данные в новый массив
+                for(size_t j=sZero; j<PrCount; j++) {           // Цикл по всем периодам
+                    *(temp+PrCount*i+j) = *((val.*f)() + j);    // Копируем данные в новый массив
+                };
                 i++;
             };
             return temp;
@@ -1126,8 +1132,9 @@ void EraseVector(vector<thread>& _pool) {
             stock.reserve(RMCount);                                             // Резервируем память для вектора
             for(size_t i=sZero; i<RMCount; i++) {                               // Цикл по номенклатуре сырья
                 /** Создаем склад для i-го сырья **/
-                stock.emplace_back(PrCount, (RMNames+i)->name, (RMNames+i)->measure, acct, true, calc, dZero, ShipPlan);
-                stock.back().SetPurchase(Purchase, PrCount); // Вводим закупки
+                stock.emplace_back(PrCount, (RMNames+i)->name, (RMNames+i)->measure, acct, true, calc, dZero, (ShipPlan+i*PrCount));
+                if(Purchase)
+                    stock.back().SetPurchase((Purchase+i*PrCount), PrCount); // Вводим закупки
             };
             return true;
         }   // SetStorage 2024.12.10
