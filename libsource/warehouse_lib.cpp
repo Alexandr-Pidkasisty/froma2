@@ -737,9 +737,7 @@ void EraseVector(vector<thread>& _pool) {
             if(!temp) {return nullptr; };                   // Если память не выделена, возвращаем nullptr
             size_t i = sZero;                                   // Индекс SKU
             for(clsSKU val: stock) {                            // Цикл по всем SKU
-                for(size_t j=sZero; j<PrCount; j++) {           // Цикл по всем периодам
-                    *(temp+PrCount*i+j) = *((val.*f)() + j);    // Копируем данные в новый массив
-                };
+                var_cpy((temp+i*PrCount), (val.*f)(), PrCount); // Копируем данные в новый массив
                 i++;
             };
             return temp;
