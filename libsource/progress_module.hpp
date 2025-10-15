@@ -111,12 +111,14 @@ class clsProgress_shell {
         atomic<int> counter{};  // Счетчик операций; инициализируется нулем
         int maxcounter;         // Максимальное число итераций
         int stepcount;          // Шаг итерации
+//        atomic<bool> Exit;      // Флаг завершения работы
 
     public:
         clsProgress_shell(T* _pbar=nullptr, const int _maxcounter=100, const int _stepcount=1):
             maxcounter(_maxcounter),
             stepcount(_stepcount) {
             pbar = _pbar;
+//            Exit.store(false);
         };  // Ctor
 
         void Set_shell(T* _pbar, const int _maxcounter=100, const int _stepcount=1) {
@@ -131,6 +133,14 @@ class clsProgress_shell {
         для имплементации в цикл вычислений в поток при многопоточном вычислении. **/
             counter.fetch_add(stepcount, memory_order_relaxed);
         }   // Counter_inc
+
+//        void Counter_inc(bool _Exit) {
+//        /** Метод увеличивает значение счетчика на заданную величину. Метод предназначен
+//        для имплементации в цикл вычислений в поток при многопоточном вычислении. Параметры:
+//        _Exit - флаг остановки работы метода Progress_indicate**/
+//            counter.fetch_add(stepcount, memory_order_relaxed);
+//            Exit.store(_Exit, memory_order_relaxed);
+//        }   // Counter_inc(...)
 
         void Progress_indicate() {
         /** Метод вывода индикатора прогресс-бара в основной поток при многопоточном вычислении. **/
@@ -147,6 +157,7 @@ class clsProgress_shell {
                 };
             }
             pbar->Update(maxcounter);                           // Выводим максимальное значение индикатора прогресса
+//            Exit.store(false, memory_order_relaxed);
         }   // Progress_indicate
 
         void Counter_reset() {
