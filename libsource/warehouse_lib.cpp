@@ -1251,9 +1251,10 @@ void EraseVector(vector<thread>& _pool) {
                 if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
                     p->Resize(PrCount);         // выравниваем длительности
                 Lack = p->Calculate();          // Основные вычисления
-                (pshell) ? pshell->Counter_inc() : (void)([](){return;});           // Вызываем счетчик
-                if(fabs(Lack.lack) > epsln) {                           // и если обнаруживаем дефицит, то
-                    Calculation_Exit.store(true, memory_order_relaxed); // устанавливаем флаг выхода для других потоков
+                (pshell) ? pshell->Counter_inc() : (void)([](){return;});       // Вызываем счетчик
+                if(fabs(Lack.lack) > epsln) {                                   // и если обнаруживаем дефицит, то
+                    Calculation_Exit.store(true, memory_order_relaxed);         // устанавливаем флаг выхода для других
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // потоков и максимизируем счетчик
                     return Lack;    // и заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
                 };
             };
