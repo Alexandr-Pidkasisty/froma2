@@ -494,6 +494,8 @@ void EraseVector(vector<thread>& _pool) {
             if(_count > PrCount) M = PrCount; else M = _count;       // Если размер переданного в функцию массива больше массива
             for(size_t i = sZero; i<M; i++) {    // закупок, то данные обрезаются, иначе используется размер полученного массива
                  (Rem+i)->price = (Pur+i)->price = (_unit+i)->price; // Загружаем данные в массивы Pur (закупки) и Rem (остатки)
+                 (Rem+i)->value = ((Rem+i)->price)*((Rem+i)->volume);// Вычисляем стоимость
+                 (Pur+i)->value = ((Pur+i)->price)*((Pur+i)->volume);// Вычисляем стоимость
             };
             return true;
         }   // SetPurPrice
