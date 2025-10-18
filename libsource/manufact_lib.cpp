@@ -1503,6 +1503,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             RMCount = sZero;
             hmcur = RUR;
             RMNames = nullptr;
+            pshell = nullptr;
             #ifdef CDtor_voice
                 cout << "Empty Ctor clsManufactory" << endl;
             #endif // CDtor_voice
