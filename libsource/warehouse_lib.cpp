@@ -401,13 +401,16 @@ void EraseVector(vector<thread>& _pool) {
         const string& clsSKU::Name() const { return name; }         // ¬озвращает const-ссылку на название номенклатурной единицы складского учета
         const string& clsSKU::Measure() const { return measure; }   // ¬озвращает const-ссылку на единицу натурального измерени€
         string clsSKU::AccMethod() const {                          // ¬озвращает принцип учета запасов в
-            if(acct==FIFO) return "FIFO";                           // виде текстовой строки
-            else if (acct==LIFO) return "LIFO";
-                 else return "AVERAGE";
+//            if(acct==FIFO) return "FIFO";                           // виде текстовой строки
+//            else if (acct==LIFO) return "LIFO";
+//                 else return "AVERAGE";
+            return AccountTXT[acct];
         } // AccMethod
         string clsSKU::Permission() const {         // ¬озвращает флаг разрешени€/запрещени€ отгрузок в одном периоде
             return ProhibitedTXT[static_cast<size_t>(indr)];
         }   // Permission
+        bool clsSKU::PermissionBool() const { return indr; } // ¬озвращает флаг разрешени€/запрещени€ отгрузок
+
         string clsSKU::AutoPurchase() const {       // ¬озвращает флаг авторасчета/ ручного расчета закупок
             return PurchaseCalcTXT[pcalc];
         }   // AutoPurchase
@@ -901,6 +904,12 @@ void EraseVector(vector<thread>& _pool) {
             if(i >= stock.size()) { return EmpStr; };
             vector<clsSKU>::const_iterator cit = stock.cbegin()+i;
             return cit->Permission();
+        }
+        bool clsStorage::PermissionBool(size_t i) const {
+        /** ¬озвращает разрешение на отгрузку и закупку дл€ i-го SKU в виде значени€ типа bool **/
+            if(i >= stock.size()) { return false; };
+            vector<clsSKU>::const_iterator cit = stock.cbegin()+i;
+            return cit->PermissionBool();
         }
         string clsStorage::AutoPurchase(size_t i) const {
         /** ¬озвращает признак авторасчета закупок дл€ i-го SKU в виде текстовой строки **/
