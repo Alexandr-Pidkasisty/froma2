@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 /****************************************************************************************************/
 
     string outdir = V_DIR_OUTPUTDATA;
-    cout << "Вывод массивов в CSV-файлы в папку " << outdir << endl;
+    cout << "Экспорт CSV-файлов в папку " << outdir << endl;
 
     /** warehouse **/
 

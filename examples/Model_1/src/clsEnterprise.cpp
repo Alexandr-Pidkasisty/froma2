@@ -1000,20 +1000,23 @@ flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимос
         return false;                           // и выходим с false
     };
     clsImpex* Data = new clsImpex(NameCount, pNames, pData, PrCount, flg);  // Создаем объект и читаем в него данные
+    delete[] pNames;                            // Удаляем временный массив с именами
+    delete[] pData;                             // Удаляем временный массив с данными
     if(Data->is_Empty()) {                      // Если вектор не создан, то
-        delete[] pNames;                        // удаляем временный массив с именами
-        delete[] pData;                         // удаляем временный массив с данными
         return false;                           // и выходим с false
     };
     filename.push_back('_');                    // Добавляем к имени файла символ разделителя
     filename.append(DBLR_ind());                // Добавляем признак типа вещественного числа
     filename +=".csv";                          // Добавление расширения файла
-    ofstream output(filename);  // Открывем файл на запись
-    Data->csvExport(output);    // Записываем данные в файл
-    output.close();             // Закрываем файл
-    delete[] pNames;            // удаляем временный массив с именами
-    delete[] pData;             // удаляем временный массив с данными
-    delete Data;                // Удаляем объект
+    ofstream output(filename, std::ofstream::trunc);    // Открывем файл на запись
+    if(output.is_open()) {                              // Если файл открыт, то
+        Data->csvExport(output);                        // Записываем данные в файл
+        output.close();                                 // Закрываем файл
+    } else {
+        delete Data;
+        return false;
+    }
+    delete Data;                                // Удаляем объект
     return true;
 }   // clsEnterprise::Export_Storage
 
@@ -1043,25 +1046,28 @@ bool clsEnterprise::Export_Manufactory(string filename, const ChoiseData& _arr, 
     strNameMeas* pNames = (Manufactory->*fnames)();     // Получаем указатель на массив ресурсов
     if(!pNames) return false;                           // Если массив с именами пуст, то выход с false
     strItem* pData = (Manufactory->*fdata)();           // Получаем указатель на массив с данными
-    if(!pData) {                                        // Если массив с данными пуст, то
-        if(pNames) delete[] pNames;                     // удаляем всмомогательный массив с именами
-        return false;                                   // и выходим с false
+    if(!pData) {                                // Если массив с данными пуст, то
+        if(pNames) delete[] pNames;             // удаляем всмомогательный массив с именами
+        return false;                           // и выходим с false
     };
     clsImpex* Data = new clsImpex(NameCount, pNames, pData, PrCount, flg);  // Создаем объект и читаем в него данные
+    delete[] pNames;                            // Удаляем временный массив с именами
+    delete[] pData;                             // Удаляем временный массив с данными
     if(Data->is_Empty()) {                      // Если вектор не создан, то
-        delete[] pNames;                        // удаляем временный массив с именами
-        delete[] pData;                         // удаляем временный массив с данными
         return false;                           // и выходим с false
     };
     filename.push_back('_');                    // Добавляем символ разделителя
     filename.append(DBLR_ind());                // Добавляем признак типа вещественного числа
     filename +=".csv";                          // Добавление расширения файла
-    ofstream output(filename);  // Открывем файл на запись
-    Data->csvExport(output);    // Записываем данные в файл
-    output.close();             // Закрываем файл
-    delete[] pNames;            // удаляем временный массив с именами
-    delete[] pData;             // удаляем временный массив с данными
-    delete Data;                // Удаляем объект
+    ofstream output(filename, std::ofstream::trunc);    // Открывем файл на запись
+    if(output.is_open()) {                              // Если файл открыт, то
+        Data->csvExport(output);                        // Записываем данные в файл
+        output.close();                                 // Закрываем файл
+    } else {
+        delete Data;
+        return false;
+    }
+    delete Data;                                // Удаляем объект
     return true;
 }   // clsEnterprise::Export_Manufactory
 

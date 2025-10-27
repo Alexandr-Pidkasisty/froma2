@@ -90,12 +90,12 @@ _defdata - значение по умолчанию. Допускается в качестве параметров &_data и _de
 /**                                 Структура strImportConfig                                      **/
 /****************************************************************************************************/
 
-const string confdir = V_DIR_CONFIG;
+const string confdir = V_DIR_CONFIG;            // Константа V_DIR_CONFIG определен в файле pathes.h
 const string Configure_filename = "config.cfg"; // Имя конфигурационного файла
 
-//"../examples/Model_1/config/config.cfg";  // Имя конфигурационного файла
-const string NoFileName = "nofile";         // Имя для отсутствующего файла
-const string indir = V_DIR_INPUTDATA;       // Путь к импортируемым файлам
+//"../examples/Model_1/config/config.cfg";      // Имя конфигурационного файла
+const string NoFileName = "nofile";             // Имя для отсутствующего файла
+const string indir = V_DIR_INPUTDATA;           // Путь к импортируемым файлам
 
 struct strImportConfig {
 /** Структурный тип для сохранения/ чтения конфигурационного файла для импорта **/
