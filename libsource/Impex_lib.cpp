@@ -86,10 +86,6 @@ const nmBPTypes::strItem data[], const size_t dcount, nmBPTypes::ReportData flg)
         reset();                                    // сбрасываем состояние объекта
 }   // Ctor with parametr
 
-clsImpex::~clsImpex()
-{
-}   // Dtor
-
 clsImpex::clsImpex(const clsImpex& other) {
 /** Конструктор копирования **/
     m_rowcount = other.m_rowcount;
@@ -187,15 +183,16 @@ names[] с наименованиями строк, names[] - массив с наименованиями строк и единиц
         return false;                   // Если массивы не существуют, то выход
     m_rowcount = ncount + 1;            // Количество строк в матрице
     m_colcount = dcount + 2;            // Количество столбцов в матрице
-    vector<std::string> frow;           // Вспомогательный вектор для строки
-    m_data.reserve(m_rowcount);                 // Резервируем память основному массиву
-    frow.reserve(m_colcount);                   // Резервируем память вспомогательному массиву
-    frow.push_back(nmPrntSetup::c_TableName);   // Добавление заголовка "Наименование"
-    frow.push_back(nmPrntSetup::c_TableMeas);   // Добавление заголовка "Ед.измерения"
-    for(size_t j{}; j<dcount; j++)
-        frow.push_back(std::to_string(j));      // Добавление номера периода
-    m_data.push_back(std::move(frow));          // Переносим вспомогателный вектор в элемент основного вектора
-    frow.~vector();                             // Уничтожаем вспомогательный вектор
+    {                                   // Блок стейтмента для ограничения видимости вспомогательного вектора
+        vector<std::string> frow;                   // Вспомогательный вектор для строки
+        m_data.reserve(m_rowcount);                 // Резервируем память основному массиву
+        frow.reserve(m_colcount);                   // Резервируем память вспомогательному массиву
+        frow.push_back(nmPrntSetup::c_TableName);   // Добавление заголовка "Наименование"
+        frow.push_back(nmPrntSetup::c_TableMeas);   // Добавление заголовка "Ед.измерения"
+        for(size_t j{}; j<dcount; j++)
+            frow.push_back(std::to_string(j));      // Добавление номера периода
+        m_data.push_back(std::move(frow));          // Переносим вспомогателный вектор в элемент основного вектора
+    }                                   // Конец блока стейтмента, Вспомогательный вектор уничтожается
     for(size_t i{}; i<ncount; i++) {            // Цикл по строкам
         vector<std::string> row;                // Вспомогательный вектор для строки
         row.reserve(m_colcount);                // Резервируем память

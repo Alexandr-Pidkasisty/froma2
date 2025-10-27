@@ -76,7 +76,6 @@ class clsImpex
                                                     // data[] - одномерный массив,аналог двумерной матрицы размером
                                                     // ncount*dcount с данными; dcount - число столбцов матрицы;
                                                     // flg - флаг, определяющий тип данных: volume, price или value
-        ~clsImpex();                                // Деструктор
         clsImpex(const clsImpex& other);            // Конструктор копирования
         clsImpex(clsImpex&& other);                 // Конструктор перемещения
         void swap(clsImpex& other) noexcept;        // Функция обмена значениями между объектами
