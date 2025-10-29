@@ -241,22 +241,13 @@ class clsEnterprise : public clsBaseProject {
 
         /** Export - методы **/
 
-        bool Export_Storage(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
-        const ReportData& flg) const; /** Метод записывает массив поставок, остатков или отгрузок со склада
-        готовой продукции (СГП) или склада сырья и материалов (ССМ) в csv-файл с именем filename. Параметры:
-        _dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ; _arr - выбор данных: "purchase" -
-        поставки, "balance" - остатки, "shipment" - отгрузки; flg - тип выводимой в файл информации: volume
-        - в натуральном, value - в стоимостном, price - в ценовом измерении. В качестве разделителя между
-        полями используется символ _ch по умолчанию (';'). **/
-
-        bool Export_Manufactory(string filename, const ChoiseData& _arr, const ReportData& flg) const;
-        /** Метод записывает массив поставок сырья, незавершенного произ-ва или отгрузок продукции в csv-файл
-        с именем filename. Параметры: _arr - выбор данных: "purchase" - поставки, "balance" - остатки, "shipment"
-        - отгрузки; flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price
-        - в ценовом измерении. В качестве разделителя между полями используется символ _ch по умолчанию (';').
-        ВНИМАНИЕ!!! При вызове метода с параметрами _arr = purchase, установка флага в price или value приведет
-        к записи в файл нулевых данных, т.к. функция GetRMPurchPlan обнуляет поля price и value в создаваемом
-        массиве. **/
+        bool Export_Data(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
+        const ReportData& flg) const; /** Метод записывает массив поставок, остатков или отгрузок со склада готовой
+        продукции (СГП), склада сырья и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры:
+        _dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор
+        данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип
+        выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
+        В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
 
     protected:
         /** Заголовки таблиц в отчетах **/

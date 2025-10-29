@@ -974,31 +974,50 @@ rowmatstock или любой другой - ССМ) **/
 
 /** Export - методы **/
 
-bool clsEnterprise::Export_Storage(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
-    const ReportData& flg) const {
-/** Метод записывает массив поставок, остатков или отгрузок со склада готовой продукции (СГП) или склада сырья
-и материалов (ССМ) в csv-файл с именем filename. Параметры: _dep - флаг выбора склада: "warehouse" - СГП,
-"rowmatstock" - ССМ; _arr - выбор данных: "purchase" - поставки, "balance" - остатки, "shipment" - отгрузки;
-flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом
-измерении. В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
+bool clsEnterprise::Export_Data(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
+    const ReportData& flg) const { /** Метод записывает массив поставок, остатков или отгрузок со склада готовой
+продукции (СГП), склада сырья и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры:
+_dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор
+данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип
+выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
+В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
+    strItem* (clsStorage::*fSdata)() const;     // Определяем указатель на внутреннюю функцию класса clsStorage
     clsStorage* val = nullptr;                  // Вспомогательный указатель
-    if(_dep == warehouse) val = Warehouse;      // Выбор склада: СГП
-    else val = RawMatStock;                     // или ССМ
-    if(!val) return false;                      // Проверка существования склада
-    size_t NameCount = val->Size();             // Количество SKU в складе
-    if(NameCount == sZero) return false;        // Если склад пустой, то выход с false
-    strNameMeas* pNames = val->GetNameMeas();   // Получаем указатель на новый массив с названием ресурса и ед. измерения
-    if(!pNames) return false;                   // Если массив пустой, то выход с false
-    strItem* (clsStorage::*f)() const;          // Определяем указатель на внутреннюю функцию класса clsStorage
-    if((_arr==purchase) || (_arr==balance))             // Назначение указателю функции:
-        if(_arr==purchase) f = &clsStorage::GetPure;    // возврата указателя на массив поступлений на склад
-        else f = &clsStorage::GetBal;                   // возврата указателя на массив остатков на складе
-    else f = &clsStorage::GetShip;                      // возврата указателя на массив отгрузок со склада
-    strItem* pData = (val->*f)();                       // Получаем указатель на содаваемый временный массив с данными
-    if(!pData) {                                // Если массив пустой, то
-        if(pNames) delete[] pNames;             // удаляем всмомогательный массив с именами
-        return false;                           // и выходим с false
+    strItem* (clsManufactory::*fMdata)() const; // Определяем указатель на внутреннюю функцию класса clsManufactory
+    const size_t (clsManufactory::*fMcount) () const;    // Тип указателя на функцию возврата числа ресурсов/продуктов
+    strNameMeas* (clsManufactory::*fMnames)() const;     // Тип указателя на функцию возврата названий ресурсов/продуктов
+    if(_dep == manufactory) {
+        if(!Manufactory) return false;                   // Проверка существования производства
+        if((_arr==balance) || (_arr==shipment)) {
+            fMcount = &clsManufactory::GetProdCount;            // указываем на функцию возврата числа продуктов
+            fMnames = &clsManufactory::GetProductDescription;   // указываем на функцию возврата описания продуктов;
+            if(_arr==balance)                                   // в случае незавершенного производства указываем на функцию
+                fMdata = &clsManufactory::GetTotalBalance;      // возврата массива с незавершенным производством
+            else fMdata = &clsManufactory::GetTotalProduct;     // иначе возврата массива с готовой продукцией
+        } else {                                                // Иначе указываем на функции
+            fMcount = &clsManufactory::GetRMCount;              // возврата числа позиций сырья и материалов
+            fMnames = &clsManufactory::GetRawMatDescription;    // возврата указателя на новый массив описания сырья и материалов
+            fMdata = &clsManufactory::GetRMPurchPlan;           // возврата указателя на новый массив поступлений сырья
+        }
+    } else {
+        if(_dep == warehouse) val = Warehouse;  // Выбор склада: СГП
+        else val = RawMatStock;                 // или ССМ
+        if(!val) return false;                  // Проверка существования склада
+        if((_arr==purchase) || (_arr==balance))                 // Назначение указателю функции:
+            if(_arr==purchase) fSdata = &clsStorage::GetPure;   // возврата указателя на массив поступлений на склад
+            else fSdata = &clsStorage::GetBal;                  // возврата указателя на массив остатков на складе
+        else fSdata = &clsStorage::GetShip;                     // возврата указателя на массив отгрузок со склада
+    }
+
+    size_t NameCount = (_dep == manufactory) ? ((Manufactory->*fMcount)()) : (val->Size());
+    strNameMeas* pNames = (_dep == manufactory) ? ((Manufactory->*fMnames)()) : (val->GetNameMeas());
+    if(!pNames) return false;                                   // Если массив с именами пуст, то выход с false
+    strItem* pData = (_dep == manufactory) ? ((Manufactory->*fMdata)()) : ((val->*fSdata)());
+    if(!pData) {                                                // Если массив с данными пуст, то
+        delete[] pNames;                                        // удаляем всмомогательный массив с именами
+        return false;                                           // и выходим с false
     };
+
     clsImpex* Data = new clsImpex(NameCount, pNames, pData, PrCount, flg);  // Создаем объект и читаем в него данные
     delete[] pNames;                            // Удаляем временный массив с именами
     delete[] pData;                             // Удаляем временный массив с данными
@@ -1018,58 +1037,7 @@ flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимос
     }
     delete Data;                                // Удаляем объект
     return true;
-}   // clsEnterprise::Export_Storage
-
-bool clsEnterprise::Export_Manufactory(string filename, const ChoiseData& _arr, const ReportData& flg) const {
-/** Метод записывает массив поставок сырья, незавершенного произ-ва или отгрузок продукции в csv-файл
-с именем filename. Параметры: _arr - выбор данных: "purchase" - поставки, "balance" - остатки, "shipment"
-- отгрузки; flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price
-- в ценовом измерении. В качестве разделителя между полями используется символ _ch по умолчанию (';').
-ВНИМАНИЕ!!! При вызове метода с параметрами _arr = purchase, установка флага в price или value приведет
-к записи в файл нулевых данных, т.к. функция GetRMPurchPlan обнуляет поля price и value в создаваемом массиве. **/
-    if(!Manufactory) return false;                      // Проверка существования производства
-    strItem* (clsManufactory::*fdata)() const;          // Тип указателя на функцию возврата массива с данными
-    const size_t (clsManufactory::*fcount) () const;    // Тип указателя на функцию возврата числа ресурсов
-    strNameMeas* (clsManufactory::*fnames)() const;     // Тип указателя на функцию возврата названий ресурсов
-    if((_arr==balance) || (_arr==shipment)) {           // В случае незавершенного производства или готовой продукции
-        fcount = &clsManufactory::GetProdCount;         // указываем на функцию возврата числа продуктов
-        fnames = &clsManufactory::GetProductDescription;// указываем на функцию возврата описания продуктов;
-        if(_arr==balance)                               // в случае незавершенного производства указываем на функцию
-            fdata = &clsManufactory::GetTotalBalance;   // возврата массива с незавершенным производством
-        else fdata = &clsManufactory::GetTotalProduct;  // иначе возврата массива с готовой продукцией
-    } else {                                            // Иначе указываем на функции
-        fcount = &clsManufactory::GetRMCount;           // возврата числа позиций сырья и материалов
-        fnames = &clsManufactory::GetRawMatDescription; // возврата указателя на новый массив описания сырья и материалов
-        fdata = &clsManufactory::GetRMPurchPlan;        // возврата указателя на новый массив поступлений сырья
-    };
-    size_t NameCount = (Manufactory->*fcount)();        // Получаем число ресурсов
-    strNameMeas* pNames = (Manufactory->*fnames)();     // Получаем указатель на массив ресурсов
-    if(!pNames) return false;                           // Если массив с именами пуст, то выход с false
-    strItem* pData = (Manufactory->*fdata)();           // Получаем указатель на массив с данными
-    if(!pData) {                                // Если массив с данными пуст, то
-        if(pNames) delete[] pNames;             // удаляем всмомогательный массив с именами
-        return false;                           // и выходим с false
-    };
-    clsImpex* Data = new clsImpex(NameCount, pNames, pData, PrCount, flg);  // Создаем объект и читаем в него данные
-    delete[] pNames;                            // Удаляем временный массив с именами
-    delete[] pData;                             // Удаляем временный массив с данными
-    if(Data->is_Empty()) {                      // Если вектор не создан, то
-        return false;                           // и выходим с false
-    };
-    filename.push_back('_');                    // Добавляем символ разделителя
-    filename.append(DBLR_ind());                // Добавляем признак типа вещественного числа
-    filename +=".csv";                          // Добавление расширения файла
-    ofstream output(filename, std::ofstream::trunc);    // Открывем файл на запись
-    if(output.is_open()) {                              // Если файл открыт, то
-        Data->csvExport(output);                        // Записываем данные в файл
-        output.close();                                 // Закрываем файл
-    } else {
-        delete Data;
-        return false;
-    }
-    delete Data;                                // Удаляем объект
-    return true;
-}   // clsEnterprise::Export_Manufactory
+}   // clsEnterprise::Export_Data
 
 /******************************** Секция protected **************************************************/
 
