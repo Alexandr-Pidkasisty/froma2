@@ -323,7 +323,7 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
 
-    cout << "Готово. Массивы экспортированы в файлы" << endl;
+    cout << "Готово. Данные экспортированы" << endl;
     cout << "Copyright (c) 2025 Пидкасистый Александр Павлович" << endl;
     delete Company;                 // Удаляем экземпляр объекта - проект
     return EXIT_SUCCESS;
