@@ -22,7 +22,7 @@ src у элементов с одинаковым индексом. count - размер массивов **/
 }   // strItemMerge
 
 template <typename T>
-inline void inData(T &_data, const T _defdata) {
+void inData(T &_data, const T _defdata) {
 /** Метод вводит данные пользователя. При отсутствии данных, подставляются значения по умолчанию.
 Параметры: &_data - ссылка на вводимые пользователем данные, _defdata - значение по
 умолчанию. Допускается в качестве параметров &_data и _defdata использовать имя одной и той же
@@ -37,6 +37,17 @@ inline void inData(T &_data, const T _defdata) {
     }
     cin.ignore(numeric_limits<streamsize>::max(), ch); // Очищаем буфер ввода
 }   // inData
+
+string FullFName(string _dir, string _fname) {
+/** Метод возвращает полное имя файла. Параметры: _dir - путь к файлу, который может быть добавлен к его имени,
+_fname - имя файла. Если имя файла уже содержит путь, т.е. является полным, то путь не добавляется. Иначе метод
+возвращает полное имя файла, состоящее из пути и имени. **/
+    size_t found = _fname.find('/');    // Ищем вхождение символа "/" в имени файла
+    if (found != std::string::npos) {   // Если символ "/" найден, то имени файла уже содержится путь
+        return _fname;                  // Возвращаем имя файла без изменения
+    }
+    return _dir.append(_fname);         // Соединям путь и имя файла и возвращаем полное имя файла
+}   // clsEnterprise::FullFName
 
 /****************************************************************************************************/
 /**                                 Структура strImportConfig                                      **/
@@ -975,12 +986,13 @@ rowmatstock или любой другой - ССМ) **/
 /** Export - методы **/
 
 bool clsEnterprise::Export_Data(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
-    const ReportData& flg) const { /** Метод записывает массив поставок, остатков или отгрузок со склада готовой
-продукции (СГП), склада сырья и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры:
-_dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор
-данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип
-выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
-В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
+    const ReportData& flg) const {
+/** Метод записывает массив поставок, остатков или отгрузок со склада готовой продукции (СГП), склада сырья
+и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры: _dep - флаг выбора склада:
+"warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор данных: "purchase" -
+поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип выводимой в файл
+информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении. В качестве разделителя
+между полями используется символ _ch по умолчанию (';'). **/
     strItem* (clsStorage::*fSdata)() const;     // Определяем указатель на внутреннюю функцию класса clsStorage
     clsStorage* val = nullptr;                  // Вспомогательный указатель
     strItem* (clsManufactory::*fMdata)() const; // Определяем указатель на внутреннюю функцию класса clsManufactory
@@ -1043,10 +1055,11 @@ _dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory"
 
 /** Import - методы **/
 
-bool clsEnterprise::Import_About(const string filename) {
+bool clsEnterprise::Import_About(const string _filename) {
 /** Метод читает информацию из файла с описанием проекта и формирует поля Title и Descript класса
 clsBaseProject. **/
-    ifstream input(indir+filename);                 // Открываем файл с именем filename на чтение
+    string filename = FullFName(indir, _filename);  // Формируем полное имя файла
+    ifstream input(filename);                       // Открываем файл с именем filename на чтение
     if(input.is_open()) {                           // Если файл открыт:
         stringstream ss;                            // Вспомогательный строковый поток
         const size_t Charlimit = nmRePrint::smblcunt+nmRePrint::uThree; // Задаем максимальную длину строки
@@ -1089,14 +1102,15 @@ clsBaseProject. **/
     else return false;
 }   // Import_About
 
-bool clsEnterprise::ImportSingleArray(const string filename, const char _ch, size_t hcols, size_t hrows,\
+bool clsEnterprise::ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows,\
     ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
 /** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
 RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта,
 names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
 _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
 "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
-    ifstream input(indir+filename);             // Связываем файл с потоком на чтение
+    string filename = FullFName(indir, _filename);  // Формируем полное имя файла
+    ifstream input(filename);                       // Связываем файл с потоком на чтение
     const char ch = _ch;                        // Выбираем разделитель
     clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
     input.close();                              // Закрываем файл с исходными данными
@@ -1117,15 +1131,16 @@ _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип 
     return true;
 }   // clsEnterprise::ImportSingleArray
 
-bool clsEnterprise::Import_Recipes(const string filename, const char _ch, size_t hcols, size_t hrows) {
+bool clsEnterprise::Import_Recipes(const string _filename, const char _ch, size_t hcols, size_t hrows) {
 /** Метод читает информацию из файлов с именами, содержащими вначале filename и заканчивающимися на _i, где
 i- номер рецептуры. В качестве разделителя используется символ _ch. Метод заполняет вектор рецептур Recipe. **/
+    string filename = FullFName(indir, _filename);      // Формируем полное имя файла
     Recipe.reserve(ProdCount);                          // Резервируем память для элементов вектора
     string file;                                        // Временная переменная для имени файла
     ifstream rec;                                       // Поток для чтения из файла
     clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
     for(size_t i{}; i<ProdCount; i++) {
-        file = indir + filename + '_' + to_string(i) + ".csv";  // Формируем имя файла с рецептурой
+        file = filename + '_' + to_string(i) + ".csv";  // Формируем имя файла с рецептурой
         rec.open(file);                                 // Связываем поток с файлом
         if(!Data->Import(rec, _ch)) {                   // Импортируем данные из файла. Если импорт не удался,
             rec.close();                                // то закрываем файл;

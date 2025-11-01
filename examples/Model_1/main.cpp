@@ -149,14 +149,19 @@ int main(int argc, char* argv[]) {
 /**                           Формирование и вывод отчетов                                         **/
 /****************************************************************************************************/
 
-    cout << "Формирую отчет... ";
+
     string ReportName = V_DIR_REPORTS;                      // Устанавливаем полный путь до файла отчета
     ReportName.append("Model_1");                           // Добавляем имя отчета
     ReportName.push_back('_');                              // Добавляем символ разделителя
     ReportName.append(DBLR_ind());                          // Добавляем признак типа вещественного числа
-    Company->SetRName(ReportName);  // Устанавливаем имя файла отчета
-    Company->SetDevice(file);       // Устанавливаем устройство для вывода отчета
-    Company->Report();              // Общая информация о проекте выводится в отчет
+    cout << "Введите имя файла отчета без расширения [" << ReportName << "]: ";
+    inData<string>(ReportName, ReportName);                 // Читаем имя файла в переменную ReportName
+
+    Company->SetRName(ReportName);                          // Устанавливаем имя файла отчета
+    Company->SetDevice(file);                               // Устанавливаем устройство для вывода отчета
+
+    cout << "Формирую отчет... ";
+    Company->Report();                                      // Общая информация о проекте выводится в отчет
 
     Company->StockSettingsView(warehouse);                  // Индивидуальные настройки для позиций СГП
     Company->StockSettingsView(rowmatstock);                // Индивидуальные настройки для позиций ССМ
@@ -194,120 +199,125 @@ int main(int argc, char* argv[]) {
 /****************************************************************************************************/
 
     string outdir = V_DIR_OUTPUTDATA;
+    cout << "Введите папку для экспорта CSV-файлов [" << outdir << "]: ";
+    inData<string>(outdir, outdir);                 // Читаем имя папки в переменную outdir
     cout << "Экспорт CSV-файлов в папку " << outdir << endl;
 
     /** warehouse **/
 
-    if(!Company->Export_Data(outdir + "f_ws_volume", warehouse, shipment, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_ws_volume"), warehouse, shipment, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_ws_price", warehouse, shipment, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_ws_price"), warehouse, shipment, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_ws_value", warehouse, shipment, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_ws_value"), warehouse, shipment, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wb_volume", warehouse, balance, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wb_volume"), warehouse, balance, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wb_price", warehouse, balance, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wb_price"), warehouse, balance, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wb_value", warehouse, balance, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wb_value"), warehouse, balance, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wp_volume", warehouse, purchase, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wp_volume"), warehouse, purchase, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wp_price", warehouse, purchase, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wp_price"), warehouse, purchase, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_wp_value", warehouse, purchase, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_wp_value"), warehouse, purchase, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
 
     /** rowmatstock **/
-    if(!Company->Export_Data(outdir + "f_rs_volume", rowmatstock, shipment, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rs_volume"), rowmatstock, shipment, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rs_price", rowmatstock, shipment, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rs_price"), rowmatstock, shipment, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rs_value", rowmatstock, shipment, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rs_value"), rowmatstock, shipment, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rb_volume", rowmatstock, balance, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rb_volume"), rowmatstock, balance, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rb_price", rowmatstock, balance, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rb_price"), rowmatstock, balance, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rb_value", rowmatstock, balance, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rb_value"), rowmatstock, balance, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rp_volume", rowmatstock, purchase, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rp_volume"), rowmatstock, purchase, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rp_price", rowmatstock, purchase, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rp_price"), rowmatstock, purchase, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_rp_value", rowmatstock, purchase, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_rp_value"), rowmatstock, purchase, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
 
     /** manufactory **/
-    if(!Company->Export_Data(outdir + "f_mp_volume", manufactory, purchase, volume)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_mp_volume"), manufactory, purchase, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_ms_volume", manufactory, shipment, volume)) {   // Выводим таблицы
+    /** Записывать массивы f_mp_price и f_mp_value не имеет смысла, т.к. эти поля в получаемом массиве обнулены **/
+    /** Записывать массивы f_mb_volume, f_mb_price и f_mb_value не имеет смысла, т.к. по исходным данным остатки будут нулевыми **/
+
+    if(!Company->Export_Data(FullFName(outdir, "f_ms_volume"), manufactory, shipment, volume)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_ms_price", manufactory, shipment, price)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_ms_price"), manufactory, shipment, price)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
     };
-    if(!Company->Export_Data(outdir + "f_ms_value", manufactory, shipment, value)) {   // Выводим таблицы
+    if(!Company->Export_Data(FullFName(outdir, "f_ms_value"), manufactory, shipment, value)) {   // Выводим таблицы
         cout << "Экспорт исходных данных не удачен\n";              // Если экспорт неудачен, то
         delete Company;                                             // удаляем объет,
         return EXIT_FAILURE;                                        // выходим из программы с кодом неудачного завершения
