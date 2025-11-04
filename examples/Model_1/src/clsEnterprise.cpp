@@ -21,22 +21,46 @@ src у элементов с одинаковым индексом. count - размер массивов **/
     }
 }   // strItemMerge
 
-template <typename T>
-void inData(T &_data, const T _defdata) {
-/** Метод вводит данные пользователя. При отсутствии данных, подставляются значения по умолчанию.
-Параметры: &_data - ссылка на вводимые пользователем данные, _defdata - значение по
+bool inData(string &_data, const string _defdata) {
+/** Метод вводит строковые данные пользователя. При отсутствии данных, подставляются значения по
+умолчанию. Параметры: &_data - ссылка на вводимые пользователем данные, _defdata - значение по
 умолчанию. Допускается в качестве параметров &_data и _defdata использовать имя одной и той же
-переменной, например inData(x, x), поскольку второй параметр передается в функцию как копия. **/
+переменной, например inData(x, x), поскольку второй параметр передается в функцию как копия. Метод
+возвращает true в случае, если значение по умолчанию было отлично от NoFileName и новое значение
+равно NoFileName; в противном случае метод возвращает false. **/
     const char ch = '\n';               // Символ переноса строки
     if (std::cin.peek() == ch) {        // Проверка, что следующий символ перевода строки, если "ДА", то
         _data = _defdata;               // присваиваем значение по умолчанию
-    } else if(!(std::cin >> _data)) {   // Если ввод неудачный, то
-        cout << "Ошибка ввода. Будет присвоено значение " << _defdata << ch;      // сообщаем об ошибке,
-        cin.clear();                    // сбрасываем флаг ошибки
-        _data = _defdata;               // и присваиваем значение по умолчанию
-    }
+    } else                              // Иначе пытаемся прочесть данные
+        if(!(std::cin >> _data)) {      // Если ввод неудачный, то
+            cout << "Ошибка ввода. Будет присвоено значение " << _defdata << ch;      // сообщаем об ошибке,
+            cin.clear();                // сбрасываем флаг ошибки
+            _data = _defdata;           // и присваиваем значение по умолчанию
+        }
     cin.ignore(numeric_limits<streamsize>::max(), ch); // Очищаем буфер ввода
-}   // inData
+    if((_defdata != NoFileName) && (_data == NoFileName))
+        return true;
+    return false;
+}   // bool inData
+
+template<typename T, class=std::enable_if_t<is_ch_or_size_t_or_double_v<T>>>
+void inData(T &_data, const T _defdata) {
+/** Метод вводит данные пользователя. Предназначен для данных, определяемых условием на типы данных
+is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по умолчанию. Параметры:
+&_data - ссылка на вводимые пользователем данные, _defdata - значение по умолчанию. Допускается в
+качестве параметров &_data и _defdata использовать имя одной и той же переменной, например inData(x, x),
+поскольку второй параметр передается в функцию как копия. **/
+    const char ch = '\n';               // Символ переноса строки
+    if (std::cin.peek() == ch) {        // Проверка, что следующий символ перевода строки, если "ДА", то
+        _data = _defdata;               // присваиваем значение по умолчанию
+    } else                              // Иначе пытаемся прочесть данные
+        if(!(std::cin >> _data)) {      // Если ввод неудачный, то
+            cout << "Ошибка ввода. Будет присвоено значение " << _defdata << ch;      // сообщаем об ошибке,
+            cin.clear();                // сбрасываем флаг ошибки
+            _data = _defdata;           // и присваиваем значение по умолчанию
+        }
+    cin.ignore(numeric_limits<streamsize>::max(), ch); // Очищаем буфер ввода
+}   // void inData
 
 string FullFName(string _dir, string _fname) {
 /** Метод возвращает полное имя файла. Параметры: _dir - путь к файлу, который может быть добавлен к его имени,
@@ -273,12 +297,14 @@ void strImportConfig::Entry() {
     inData(filename_Shipment, filename_Shipment);
     cout << " имя файла с объемами производства, необязательно. Для пропуска введите nofile [" \
         << filename_Production << "]: ";
-    inData(filename_Production, filename_Production);
+    if(inData(filename_Production, filename_Production))
+        SetToAuto(warehouse);
     cout << " имя файла с ценами закупок на ССМ  [" << filename_Purchase << "]: ";
     inData(filename_Purchase, filename_Purchase);
     cout << " имя файла с объемами закупок на ССМ, необязательно. Для пропуска введите nofile [" \
         << filename_Purchase_V << "]: ";
-    inData(filename_Purchase_V, filename_Purchase_V);
+    if(inData(filename_Purchase_V, filename_Purchase_V))
+        SetToAuto(rowmatstock);
     cout << " префикс для имён файлов с рецептурами [" << filenameprefix_Recipes << "]: ";
     inData(filenameprefix_Recipes, filenameprefix_Recipes);
     cout << " символ разделителя между полями в CSV_файлах [" << _ch << "]: ";
@@ -352,6 +378,20 @@ void strImportConfig::Show() {
     cout << " флаг разрешения поступлений и отгрузок с ССМ в одном периоде: " << ProhibitedTXT[P_indr] << endl;
 }   // strImportConfig::Show
 
+//void strImportConfig::Show_S_Settings() {
+//    cout << "Show_S_Settings" << endl;
+//    for(size_t i{}; i<SsetCount; i++) {
+//        cout << (S_settings+i)->perm << "; " << (S_settings+i)->calc << "; " << (S_settings+i)->share << endl;
+//    }
+//}   // strImportConfig::Show_S_Settings
+//
+//void strImportConfig::Show_P_Settings() {
+//    cout << "Show_P_Settings" << endl;
+//    for(size_t i{}; i<PsetCount; i++) {
+//        cout << (P_settings+i)->perm << "; " << (P_settings+i)->calc << "; " << (P_settings+i)->share << endl;
+//    }
+//}   // strImportConfig::Show_P_Settings
+
 void strImportConfig::Configure() {
 /** Метод читает конфигурацию импорта и, при необходимости редактирует её с последующим
 сохранением в конфигурационном файле с именем, содержащимся в переменной Configure_filename**/
@@ -422,6 +462,24 @@ bool strImportConfig::SetShpSettings(const strSettings* _S_settings, const size_
     if(temp) delete[] temp;                                 // Удаляем вспомогательный массив
     return true;
 }   // strImportConfig::SetPurSettings
+
+void strImportConfig::SetToAuto(const SelectDivision& _dep) {
+/** Устанавливает поля calc массива P_settings или S_settings в состояние calc (авторасчет поступлений).
+Выбор массива определяется флагом _dep: rowmatstock - для массива P_settings, warehouse - для массива
+S_settings **/
+    strSettings* tmp;                       // Вспомогательный указатель
+    size_t tcount;                          // Вспомогательная переменная
+    if(_dep == rowmatstock) {               // Если выбран ССМ, то
+        tmp = P_settings;                   // Вспомогательный указатель устанавливаем на P_settings
+        tcount = PsetCount;                 // и вспомогательной переменной присваиваем PsetCount
+    } else {                                // Иначе отрабатываем S_settings и SsetCount
+        tmp = S_settings;
+        tcount = SsetCount;
+    }
+    if((!tmp) || (tcount == sZero)) return; // Если массив не существует Или его размер равен нулю, то выход
+    for(size_t i{}; i<tcount; i++)          // Иначе сбрасываем поля calc
+        (tmp+i)->calc = calc;               // в автоматический режим расчета
+}   // strImportConfig::SetToAuto
 
 /****************************************************************************************************/
 /**             Класс clsEnterprise. Наследник класса проекта clsBaseProject                       **/
@@ -654,9 +712,9 @@ bool clsEnterprise::Import_Data() {
     };
     /** Формируем массивы с индивидуальными настройками **/
     if(P_settings) delete[] P_settings;     // Если массив существует, то удаляем его
-    P_settings = (ImConfig.filename_Purchase_V == NoFileName) ? nullptr : ImConfig.GetPurSettings();
+    P_settings = ImConfig.GetPurSettings(); // и формируем новый массив
     if(S_settings) delete[] S_settings;     // Если массив существует, то удаляем его
-    S_settings = (ImConfig.filename_Production == NoFileName) ? nullptr : ImConfig.GetShpSettings();
+    S_settings = ImConfig.GetShpSettings(); // и формируем новый массив
     ImConfig.SaveToFile(Configure_filename);// Сохраняем конфигурацию в файл
     return true;
 }   // clsEnterprise::Import_Data
@@ -739,6 +797,15 @@ void clsEnterprise::StockEditSettings(SelectDivision stk) {
         else std::swap(tmp_stttings, P_settings);
         if(tmp_stttings) delete[] tmp_stttings;
     }
+    /** Временно **/
+//    cout << "########################################################" << endl;
+//    strImportConfig ImConfig_1;
+//    ImConfig_1.ReadFromFile(Configure_filename);
+//    ImConfig_1.Show_S_Settings();
+//    ImConfig_1.Show_P_Settings();
+//    cout << "########################################################" << endl;
+//    ImConfig.ReadFromFile(Configure_filename))
+
 }   // clsEnterprise::StockEditSettings
 
 bool clsEnterprise::StockCalculate(const SelectDivision& _dep, size_t thr) {

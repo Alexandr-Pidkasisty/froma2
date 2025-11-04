@@ -37,6 +37,8 @@
 #include "common_values.hpp"                // Некоторые функции
 #include "Impex_module.h"                   // Импорт исходных данных из файлов
 #include "pathes.h"                         // Пути к файлам
+#include <typeinfo>
+#include <string>
 
 const size_t w1 = 25, w2 = 12, w3 = 15;     // Размеры полей в отчетах
 const size_t precis = 4;                    // Количество знаков после запятой в отчетах
@@ -80,11 +82,25 @@ void strItemReplace(size_t count, strItem* dstn, strItem* src, ReportData flg);
 /** Функция заменяет значения полей, выбранных флагом flg в массиве dstn значениями полей из массива
 src у элементов с одинаковым индексом **/
 
-template <typename T>
-void inData(T &_data, const T _defdata); /** Метод вводит данные пользователя. При отсутствии
-данных, подставляются значения по умолчанию. Параметры: &_data - ссылка на вводимые пользователем данные,
-_defdata - значение по умолчанию. Допускается в качестве параметров &_data и _defdata использовать имя
-одной и той же переменной, например inData(x, x), поскольку второй параметр передается в функцию как копия. **/
+bool inData(string &_data, const string _defdata);
+/** Метод вводит строковые данные пользователя. При отсутствии данных, подставляются значения по
+умолчанию. Параметры: &_data - ссылка на вводимые пользователем данные, _defdata - значение по
+умолчанию. Допускается в качестве параметров &_data и _defdata использовать имя одной и той же
+переменной, например inData(x, x), поскольку второй параметр передается в функцию как копия. Метод
+возвращает true в случае, если значение по умолчанию было отлично от NoFileName и новое значение
+равно NoFileName; в противном случае метод возвращает false. **/
+
+template<typename T>
+constexpr bool is_ch_or_size_t_or_double_v =
+    std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, double>::value;
+
+template<typename T, class=std::enable_if_t<is_ch_or_size_t_or_double_v<T>>>
+void inData(T &_data, const T _defdata);
+/** Метод вводит данные пользователя. Предназначен для данных, определяемых условием на типы данных
+is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по умолчанию. Параметры:
+&_data - ссылка на вводимые пользователем данные, _defdata - значение по умолчанию. Допускается в
+качестве параметров &_data и _defdata использовать имя одной и той же переменной, например inData(x, x),
+поскольку второй параметр передается в функцию как копия. **/
 
 string FullFName(string _dir, string _fname);  /** Метод возвращает полное имя файла. Параметры: _dir -
 путь к файлу, который может быть добавлен к его имени, _fname - имя файла. Если имя файла уже содержит путь,
@@ -95,6 +111,7 @@ string FullFName(string _dir, string _fname);  /** Метод возвращает полное имя ф
 /**                                 Структура strImportConfig                                      **/
 /****************************************************************************************************/
 
+using namespace nmEnterprise;
 const string confdir = V_DIR_CONFIG;            // Константа V_DIR_CONFIG определен в файле pathes.h
 const string Configure_filename = "config.cfg"; // Имя конфигурационного файла
 
@@ -145,14 +162,15 @@ struct strImportConfig {
     strSettings* GetShpSettings() const;                // Возвращает указатель на новую копию массива S_settings
     bool SetPurSettings(const strSettings* _P_settings, const size_t pcount);   // Копирует массив _P_settings в массив P_settings
     bool SetShpSettings(const strSettings* _S_settings, const size_t scount);   // Копирует массив _S_settings в массив S_settings
-
+    void SetToAuto(const SelectDivision& _dep); /** Устанавливает поля calc массива P_settings или S_settings в
+        состояние calc (авторасчет поступлений). Выбор массива определяется флагом _dep: rowmatstock - для массива
+        P_settings, warehouse - для массива S_settings **/
 };  // strImportConfig
 
 /****************************************************************************************************/
 /**             Класс clsEnterprise. Наследник класса проекта clsBaseProject                       **/
 /****************************************************************************************************/
 
-using namespace nmEnterprise;
 class clsEnterprise : public clsBaseProject {
 /** Объединяющий класс для всего предприятия - оболочка для классов clsStorage, clsManufactory и
 шин передачи данных между объектами этих классов **/

@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     ReportName.push_back('_');                              // Добавляем символ разделителя
     ReportName.append(DBLR_ind());                          // Добавляем признак типа вещественного числа
     cout << "Введите имя файла отчета без расширения [" << ReportName << "]: ";
-    inData<string>(ReportName, ReportName);                 // Читаем имя файла в переменную ReportName
+    inData(ReportName, ReportName);                 // Читаем имя файла в переменную ReportName
 
     Company->SetRName(ReportName);                          // Устанавливаем имя файла отчета
     Company->SetDevice(file);                               // Устанавливаем устройство для вывода отчета
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 
     string outdir = V_DIR_OUTPUTDATA;
     cout << "Введите папку для экспорта CSV-файлов [" << outdir << "]: ";
-    inData<string>(outdir, outdir);                 // Читаем имя папки в переменную outdir
+    inData(outdir, outdir);                 // Читаем имя папки в переменную outdir
     cout << "Экспорт CSV-файлов в папку " << outdir << endl;
 
     /** warehouse **/
