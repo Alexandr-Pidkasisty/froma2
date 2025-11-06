@@ -86,8 +86,8 @@ strImportConfig::strImportConfig() {
     filename_Purchase_V = EmpStr;
     filenameprefix_Recipes = EmpStr;
     _ch = ';';
-    HeadCols = sZero;
-    HeadRows = sZero;
+    HeadCols = sTwo;
+    HeadRows = sOne;
     _cur = RUR;
     _amethod = FIFO;
     P_Share = dZero;
@@ -133,8 +133,8 @@ strImportConfig::strImportConfig(strImportConfig &&obj) {
     filename_Purchase_V = EmpStr;
     filenameprefix_Recipes = EmpStr;
     _ch = ';';
-    HeadCols = sZero;
-    HeadRows = sZero;
+    HeadCols = sTwo;
+    HeadRows = sOne;
     _cur = RUR;
     _amethod = FIFO;
     P_Share = dZero;
@@ -328,29 +328,32 @@ void strImportConfig::Entry() {
     if(t_cur > sTwo) t_cur = sZero;
     _amethod = static_cast<AccountingMethod>(t_cur);
     double ps_tmp;          // Вспомогательная переменная
-    if((filename_Production == NoFileName) || (filename_Production == EmpStr)) {
+    if(((filename_Production == NoFileName) || (filename_Production == EmpStr)) && (!S_settings)) {
         cout << " запас продуктов на складе СГП, доля от отгрузок [" << S_Share << "]: ";
         inData(ps_tmp, S_Share.Get<double>());
         S_Share = ps_tmp;
     }
-    if((filename_Purchase_V == NoFileName) || (filename_Purchase_V == EmpStr)) {
+    if(((filename_Purchase_V == NoFileName) || (filename_Purchase_V == EmpStr)) && (!P_settings)) {
         cout << " запас ресурсов на складе ССМ, доля от отгрузок [" << P_Share << "]: ";
         inData(ps_tmp, P_Share.Get<double>());
         P_Share = ps_tmp;
     }
-    cout << " флаг разрешения поступлений и отгрузок с СГП в одном периоде, PROHIBITED=0, ALLOWED=1 ["\
-        << S_indr << "]: ";
-    inData(t_cur, static_cast<size_t>(S_indr));
-    if(t_cur <=1)
-        S_indr = static_cast<bool>(t_cur);
-    else S_indr = true;
-    cout << " флаг разрешения поступлений и отгрузок с ССМ в одном периоде, PROHIBITED=0, ALLOWED=1 ["\
-        << P_indr << "]: ";
-//    cin >> t_cur;
-    inData(t_cur, static_cast<size_t>(P_indr));
-    if(t_cur <=1)
-        P_indr = static_cast<bool>(t_cur);
-    else P_indr = true;
+    if(!S_settings) {
+        cout << " флаг разрешения поступлений и отгрузок с СГП в одном периоде, PROHIBITED=0, ALLOWED=1 ["\
+            << S_indr << "]: ";
+        inData(t_cur, static_cast<size_t>(S_indr));
+        if(t_cur <=1)
+            S_indr = static_cast<bool>(t_cur);
+        else S_indr = true;
+    }
+    if(!P_settings) {
+        cout << " флаг разрешения поступлений и отгрузок с ССМ в одном периоде, PROHIBITED=0, ALLOWED=1 ["\
+            << P_indr << "]: ";
+        inData(t_cur, static_cast<size_t>(P_indr));
+        if(t_cur <=1)
+            P_indr = static_cast<bool>(t_cur);
+        else P_indr = true;
+    }
     strImportConfig::Show();
 }   // strImportConfig::Entry
 
@@ -374,23 +377,7 @@ void strImportConfig::Show() {
     cout << " число строк с заголовками в CSV_файлах: " << HeadRows << endl;
     cout << " домашняя валюта проекта: " << nmBPTypes::CurrencyTXT[_cur] << endl;
     cout << " принцип учета запасов: " << AccountTXT[_amethod] << endl;
-    cout << " флаг разрешения поступлений и отгрузок с СГП в одном периоде: " << ProhibitedTXT[S_indr] << endl;
-    cout << " флаг разрешения поступлений и отгрузок с ССМ в одном периоде: " << ProhibitedTXT[P_indr] << endl;
 }   // strImportConfig::Show
-
-//void strImportConfig::Show_S_Settings() {
-//    cout << "Show_S_Settings" << endl;
-//    for(size_t i{}; i<SsetCount; i++) {
-//        cout << (S_settings+i)->perm << "; " << (S_settings+i)->calc << "; " << (S_settings+i)->share << endl;
-//    }
-//}   // strImportConfig::Show_S_Settings
-//
-//void strImportConfig::Show_P_Settings() {
-//    cout << "Show_P_Settings" << endl;
-//    for(size_t i{}; i<PsetCount; i++) {
-//        cout << (P_settings+i)->perm << "; " << (P_settings+i)->calc << "; " << (P_settings+i)->share << endl;
-//    }
-//}   // strImportConfig::Show_P_Settings
 
 void strImportConfig::Configure() {
 /** Метод читает конфигурацию импорта и, при необходимости редактирует её с последующим
@@ -676,10 +663,6 @@ bool clsEnterprise::Import_Data() {
         ShipShare = ImConfig.S_Share;
         ImConfig.filename_Production = NoFileName;
     }
-    cout << "Флаг разрешающий/ запрещающий автоматический рассчёт объемов производства: " << \
-        PurchaseCalcTXT[mancalc] << endl;
-    cout << "Запас продукции на СГП в долях от объемов отгрузки: " << fixed << setprecision(sTwo)\
-        << ShipShare << endl;
     if(!ImportSingleArray(ImConfig.filename_Purchase, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     price, Purchase, RMNames, tmp1, RMCount)) {
         return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
@@ -702,11 +685,6 @@ bool clsEnterprise::Import_Data() {
         for(size_t i{}; i<(RMCount*PrCount); i++)   // Рассчитываем поля volume массива Purchase
             (Purchase+i)->value = (Purchase+i)->volume * (Purchase+i)->price;
     }
-    // Вводим Инфорацию об объемах закупок и отображаем флаг расчета закупок
-    cout << "Флаг разрешающий/ запрещающий автоматический рассчёт объемов закупок: " << \
-        PurchaseCalcTXT[purcalc] << endl;
-    cout << "Запас ресурсов на ССМ в долях от объемов отгрузки: " << fixed << setprecision(sTwo)\
-        << PurchShare << endl;
     if(!Import_Recipes(ImConfig.filenameprefix_Recipes, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows)) {
         return false;   // Вводим Инфорацию о рецептурах. Если не введено, выходим из программы с false
     };
@@ -797,15 +775,6 @@ void clsEnterprise::StockEditSettings(SelectDivision stk) {
         else std::swap(tmp_stttings, P_settings);
         if(tmp_stttings) delete[] tmp_stttings;
     }
-    /** Временно **/
-//    cout << "########################################################" << endl;
-//    strImportConfig ImConfig_1;
-//    ImConfig_1.ReadFromFile(Configure_filename);
-//    ImConfig_1.Show_S_Settings();
-//    ImConfig_1.Show_P_Settings();
-//    cout << "########################################################" << endl;
-//    ImConfig.ReadFromFile(Configure_filename))
-
 }   // clsEnterprise::StockEditSettings
 
 bool clsEnterprise::StockCalculate(const SelectDivision& _dep, size_t thr) {
@@ -1087,7 +1056,6 @@ bool clsEnterprise::Export_Data(string filename, const SelectDivision& _dep, con
             else fSdata = &clsStorage::GetBal;                  // возврата указателя на массив остатков на складе
         else fSdata = &clsStorage::GetShip;                     // возврата указателя на массив отгрузок со склада
     }
-
     size_t NameCount = (_dep == manufactory) ? ((Manufactory->*fMcount)()) : (val->Size());
     strNameMeas* pNames = (_dep == manufactory) ? ((Manufactory->*fMnames)()) : (val->GetNameMeas());
     if(!pNames) return false;                                   // Если массив с именами пуст, то выход с false
@@ -1096,7 +1064,6 @@ bool clsEnterprise::Export_Data(string filename, const SelectDivision& _dep, con
         delete[] pNames;                                        // удаляем всмомогательный массив с именами
         return false;                                           // и выходим с false
     };
-
     clsImpex* Data = new clsImpex(NameCount, pNames, pData, PrCount, flg);  // Создаем объект и читаем в него данные
     delete[] pNames;                            // Удаляем временный массив с именами
     delete[] pData;                             // Удаляем временный массив с данными

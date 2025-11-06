@@ -28,7 +28,7 @@
 /****************************************************************************************************/
 /****************************************************************************************************/
 
-#define cmeth thrd
+#define cmeth thrd                  // Выбираем типа вычислений
 
 #include <iostream>                 // Ввод и вывод на экран
 #include <string>                   // Работа со строками
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     ReportName.push_back('_');                              // Добавляем символ разделителя
     ReportName.append(DBLR_ind());                          // Добавляем признак типа вещественного числа
     cout << "Введите имя файла отчета без расширения [" << ReportName << "]: ";
-    inData(ReportName, ReportName);                 // Читаем имя файла в переменную ReportName
+    inData(ReportName, ReportName);                         // Читаем имя файла в переменную ReportName
 
     Company->SetRName(ReportName);                          // Устанавливаем имя файла отчета
     Company->SetDevice(file);                               // Устанавливаем устройство для вывода отчета

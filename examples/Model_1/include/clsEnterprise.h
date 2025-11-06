@@ -36,9 +36,7 @@
 #include "manufact_module.h"                // Подключаем класс производства clsManufactory
 #include "common_values.hpp"                // Некоторые функции
 #include "Impex_module.h"                   // Импорт исходных данных из файлов
-#include "pathes.h"                         // Пути к файлам
-#include <typeinfo>
-#include <string>
+#include "pathes.h"                         // Пути к файлам конфигурации, отчета, входных и выходных данных
 
 const size_t w1 = 25, w2 = 12, w3 = 15;     // Размеры полей в отчетах
 const size_t precis = 4;                    // Количество знаков после запятой в отчетах
@@ -115,7 +113,6 @@ using namespace nmEnterprise;
 const string confdir = V_DIR_CONFIG;            // Константа V_DIR_CONFIG определен в файле pathes.h
 const string Configure_filename = "config.cfg"; // Имя конфигурационного файла
 
-//"../examples/Model_1/config/config.cfg";      // Имя конфигурационного файла
 const string NoFileName = "nofile";             // Имя для отсутствующего файла
 const string indir = V_DIR_INPUTDATA;           // Путь к импортируемым файлам
 
