@@ -1140,7 +1140,7 @@ bool clsEnterprise::ImportSingleArray(const string _filename, const char _ch, si
     ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
 /** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
 RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта,
-names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
+_names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
 _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
 "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
     string filename = FullFName(indir, _filename);  // Формируем полное имя файла
@@ -1155,11 +1155,13 @@ _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип 
     ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
     RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
     strItem* tmpdata;                           // Временная переменная-указатель
+    size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
+    size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
     if((flg==volume) || (flg==price))           // Получаем указатель на искомый массив с данными
-        if(flg==volume) tmpdata = Data->GetstrItem(hrows, RowCount, hcols, ColCount+hrows, volume);
-        else tmpdata = Data->GetstrItem(hrows, RowCount, hcols, ColCount+hrows, price);
-    else tmpdata = Data->GetstrItem(hrows, RowCount, hcols, ColCount+hrows, value);
-    _names = Data->GetNames(hrows, RowCount, sZero, hrows);   // Получаем указатель на названия
+        if(flg==volume) tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, volume);
+        else tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, price);
+    else tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, value);
+    _names = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne); // Получаем указатель на названия
     delete Data;                                // Удаляем объект для импорта
     std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
     return true;
@@ -1187,9 +1189,10 @@ i- номер рецептуры. В качестве разделителя используется символ _ch. Метод заполн
         string _meas = (ProdNames+i)->measure;          // Получаем название единицы измерения продукта
         size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
         size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
-        strNameMeas* _rnames = Data->GetNames(hrows, _rcount, sZero, hrows);// Ук. на массив с именами и ед. измерения сырья в рецептуре
-        MeasRestore(RMNames, _rnames, RMCount, _rcount);                    // Восстанавливаем ед. измерения сырья
-        decimal* _recipeitem = Data->GetDecimal(hrows, _rcount, hcols, hcols); // Получаем рецептуру продукта
+        size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
+        strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);// Ук. на массив с именами и ед. измерения сырья в рецептуре
+        MeasRestore(RMNames, _rnames, RMCount, _rcount);                        // Восстанавливаем ед. измерения сырья
+        decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, hcols);   // Получаем рецептуру продукта
         Recipe.emplace_back(_name, _meas, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
         delete[] _rnames;                               // Удаляем вспомогательный массив
         delete[] _recipeitem;                           // Удаляем вспомогательный массив
@@ -1197,7 +1200,7 @@ i- номер рецептуры. В качестве разделителя используется символ _ch. Метод заполн
     };
     delete Data;
     return true;
-}   // Import_Recipes
+}   // clsEnterprise::Import_Recipes
 
 /** Методы редактирования **/
 
