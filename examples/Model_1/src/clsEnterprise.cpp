@@ -312,8 +312,7 @@ void strImportConfig::Entry() {
     cout << " число столбцов с заголовками в CSV_файлах [" << HeadCols << "]: ";
     inData(HeadCols, HeadCols);
     if(HeadCols < sTwo) {
-        cout << " число столбцов с заголовками не может быть менее двух\n";
-        exit(EXIT_FAILURE); // Завершение программы с кодом EXIT_FAILURE
+        throw "Ошибка ввода: число столбцов с заголовками не может быть менее двух";
     }
     cout << " число строк с заголовками в CSV_файлах [" << HeadRows << "]: ";
     inData(HeadRows, HeadRows);
@@ -331,15 +330,21 @@ void strImportConfig::Entry() {
     inData(t_cur, static_cast<size_t>(_amethod));
     if(t_cur > sTwo) t_cur = sZero;
     _amethod = static_cast<AccountingMethod>(t_cur);
-    double ps_tmp;          // Вспомогательная переменная
+    double ps_tmp;                  // Вспомогательная переменная
+    const double doubZero = 0.0;
+    const char* wrongshare = "Ошибка ввода: запас не может быть отрицательным";
     if(((filename_Production == NoFileName) || (filename_Production == EmpStr)) && (!S_settings)) {
         cout << " запас продуктов на складе СГП, доля от отгрузок [" << S_Share << "]: ";
         inData(ps_tmp, S_Share.Get<double>());
+        if(ps_tmp < doubZero)
+            throw wrongshare;
         S_Share = ps_tmp;
     }
     if(((filename_Purchase_V == NoFileName) || (filename_Purchase_V == EmpStr)) && (!P_settings)) {
         cout << " запас ресурсов на складе ССМ, доля от отгрузок [" << P_Share << "]: ";
         inData(ps_tmp, P_Share.Get<double>());
+        if(ps_tmp < doubZero)
+            throw wrongshare;
         P_Share = ps_tmp;
     }
     if(!S_settings) {
@@ -645,7 +650,13 @@ bool clsEnterprise::Import_Data() {
 /** Агрегированный метод импорта. Включает методы конфигурирования импорта, редактирования и сохранения
 конфигурации в файл; а также методы импорта данных **/
     strImportConfig ImConfig;                               // Переменная для хранения конфигурации
-    ImConfig.Configure();                                   // Читаем/ редактируем конфигурацию
+    try {
+        ImConfig.Configure();                               // Читаем/ редактируем конфигурацию
+    }
+    catch(const char* error_message) {                      // Если получено исключение, то
+        cout << error_message << endl;                      // Выводим сообщение об ошибке
+        return false;                                       // и завершаем работу метода с false
+    }
     Cur = ImConfig._cur;                                    // Вводим валюту проекта
     Amethod = ImConfig._amethod;                            // Вводим принцип учета запасов
     if(!Import_About(ImConfig.filename_About)) {            // Вводим название и описание проекта
