@@ -311,6 +311,10 @@ void strImportConfig::Entry() {
     inData(_ch, _ch);
     cout << " число столбцов с заголовками в CSV_файлах [" << HeadCols << "]: ";
     inData(HeadCols, HeadCols);
+    if(HeadCols < sTwo) {
+        cout << " число столбцов с заголовками не может быть менее двух\n";
+        exit(EXIT_FAILURE); // Завершение программы с кодом EXIT_FAILURE
+    }
     cout << " число строк с заголовками в CSV_файлах [" << HeadRows << "]: ";
     inData(HeadRows, HeadRows);
     cout << " домашняя валюта проекта, ";

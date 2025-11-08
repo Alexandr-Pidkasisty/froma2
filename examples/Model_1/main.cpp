@@ -42,7 +42,6 @@ using namespace std;
 
 enum Clc_type{seq = sZero, fut, thrd};              // Сепаратор выбора типа вычислений: последовательные,
                                                     // в асинхронных потоках или синхронных
-
 int main(int argc, char* argv[]) {
 
     setlocale(LC_ALL, "Russian");                   // Установка русского языка для вывода
