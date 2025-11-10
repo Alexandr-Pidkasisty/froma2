@@ -490,8 +490,8 @@ clsEnterprise::clsEnterprise() {
     Amethod = FIFO;
     purcalc = calc;
     mancalc = calc;
-    PurchShare = cShare;
-    ShipShare = cShare;
+    PurchShare = dZero;
+    ShipShare = dZero;
     Purch_indr = true;
     Ship_indr = true;
     ProdCount = sZero;
@@ -589,8 +589,8 @@ clsEnterprise::clsEnterprise(clsEnterprise&& other) {
     Amethod = FIFO;
     purcalc = calc;
     mancalc = calc;
-    PurchShare = cShare;
-    ShipShare = cShare;
+    PurchShare = dZero;
+    ShipShare = dZero;
     Purch_indr = true;
     Ship_indr = true;
     ProdCount = sZero;

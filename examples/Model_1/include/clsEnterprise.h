@@ -44,8 +44,6 @@ const size_t num_strings = 20;              // Количество строк, выводимых на эк
 
 const unsigned int ProgressWide = 75u;      // Ширина индикатора прогресса
 
-const decimal cShare = 0.1;                 // Запас ресурсов/ продуктов на складе по умолчанию
-
 struct strSettings {                        // Структура индивидуальных настроек для склада
     decimal share;                          // Запас ресурсов на складе, доля от отгрузок
     PurchaseCalc calc;                      // Флаг авто/ ручного расчета поступлений на склад
