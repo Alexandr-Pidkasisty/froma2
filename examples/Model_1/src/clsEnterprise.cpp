@@ -544,7 +544,7 @@ void clsEnterprise::EraseVector(vector<clsRecipeItem>& Recipe) {
     vector<clsRecipeItem>().swap(Recipe);    // Приводим вектор в состояние по умолчанию
 }   // EraseVector
 
-clsEnterprise::clsEnterprise(const clsEnterprise& other) {
+clsEnterprise::clsEnterprise(const clsEnterprise& other): clsBaseProject(other) {
 /** Конструктор копирования **/
     PrCount = other.PrCount;
     Cur = other.Cur;
@@ -582,7 +582,7 @@ clsEnterprise::clsEnterprise(const clsEnterprise& other) {
     Recipe = other.Recipe;
 }   //Copy ctor
 
-clsEnterprise::clsEnterprise(clsEnterprise&& other) {
+clsEnterprise::clsEnterprise(clsEnterprise&& other): clsBaseProject(move(other)) {
 /** Конструктор перемещения **/
     PrCount = sZero;
     Cur = RUR;
