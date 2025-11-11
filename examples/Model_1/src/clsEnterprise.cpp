@@ -483,8 +483,8 @@ S_settings **/
 
 /********************************** Секция public ***************************************************/
 
-clsEnterprise::clsEnterprise() {
-/** Конструктор по умолчанию **/
+clsEnterprise::clsEnterprise(): clsBaseProject() {
+/** Конструктор по умолчанию перегружает конструктор предка **/
     PrCount = sZero;
     Cur = RUR;
     Amethod = FIFO;
