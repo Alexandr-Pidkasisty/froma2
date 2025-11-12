@@ -199,10 +199,11 @@ class clsEnterprise : public clsBaseProject {
         strSettings* P_settings;        // Указатель на массив с индивидуальными настройками ССМ размером RMCount
         strSettings* S_settings;        // Указатель на массив с индивидуальными настройками СГП размером ProdCount
 
+        void EraseVector(vector<clsRecipeItem>& Recipe);        // Метод для полной очистки вектора с рецептурами
+
     public:
         clsEnterprise();                                        // Конструктор по умолчанию
-        virtual void swap(clsEnterprise& other) noexcept;       // Функция обмена значениями между объектами
-        void EraseVector(vector<clsRecipeItem>& Recipe);        // Метод для полной очистки вектора с рецептурами
+        void swap(clsEnterprise& other) noexcept;               // Функция обмена значениями между объектами
         clsEnterprise(const clsEnterprise& other);              // Конструктор копирования
         clsEnterprise(clsEnterprise&& other);                   // Конструктор перемещения
         clsEnterprise& operator=(const clsEnterprise& other);   // Оператор присваивания копированием
@@ -210,14 +211,16 @@ class clsEnterprise : public clsBaseProject {
         virtual ~clsEnterprise();                               // Деструктор
 
         /** Import - методы **/
-        bool Import_Data();     /** Агрегированный метод импорта **/
+        bool Import_Data();     /** Агрегированный метод импорта. Включает методы конфигурирования импорта,
+        редактирования и сохранения конфигурации в файл; а также методы импорта данных **/
 
         /** Создание и расчет Склада готовой продукции (СГП)  **/
-        bool SetWarehouse();    /** Метод создания склада готовой продукции (СГП) и ввода параметров. **/
+        bool SetWarehouse();    /** Метод создания склада готовой продукции (СГП) и ввода в него данных. **/
 
-        void StockEditSettings(SelectDivision stk); /** Метод редактирует настройки учета склада (СГП или ССМ)
-        для каждого SKU: номер, название и ед. измерения SKU, флаг авторасчета закупок, флаг разрешения на
-        отгрузку и закупку в одном периоде и норматив запаса на складе. **/
+        void StockEditSettings(SelectDivision stk); /** Метод редактирует индивидуальные настройки учета
+        номенклатурных единиц на выбранном складе (СГП или ССМ). Для каждого SKU возможно изменение данных:
+        флаг авторасчета закупок, флаг разрешения на отгрузку и закупку в одном периоде и норматив запаса
+        на складе. Настройки сохраняются в объекте "склад" и конфигурационном файле. **/
 
         bool StockCalculate(const SelectDivision& _dep, size_t thr); /** Метод рассчитывает требуемый объем
         закупок/поступлений на склад для тех SKU, у которых выставлен разрешающий такой расчет флаг. Выбор
