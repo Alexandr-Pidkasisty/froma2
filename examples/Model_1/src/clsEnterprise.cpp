@@ -558,20 +558,21 @@ clsEnterprise::clsEnterprise(const clsEnterprise& other): clsBaseProject(other) 
     ProdCount = other.ProdCount;
     RMCount = other.RMCount;
     size_t prdtemp = ProdCount*PrCount;
+    size_t rawtemp = RMCount*PrCount;
     if(other.Shipment) { Shipment = new(nothrow) strItem[prdtemp]; } else Shipment = nullptr;
     if(Shipment) { var_cpy(Shipment, other.Shipment, prdtemp); };
     if(other.Production) { Production = new(nothrow) strItem[prdtemp]; } else Production = nullptr;
     if(Production) { var_cpy(Production, other.Production, prdtemp); };
-    if(other.ProdNames) { ProdNames = new(nothrow) strNameMeas[prdtemp]; } else ProdNames = nullptr;
-    if(ProdNames) { var_cpy(ProdNames, other.ProdNames, prdtemp); };
-    if(other.Consumpt) { Consumpt = new(nothrow) strItem[prdtemp]; } else Consumpt = nullptr;
-    if(Consumpt) { var_cpy(Consumpt, other.Consumpt, prdtemp); };
-    if(other.Purchase) { Purchase = new(nothrow) strItem[prdtemp]; } else Purchase = nullptr;
-    if(Purchase) { var_cpy(Purchase, other.Purchase, prdtemp); };
-    if(other.PriceBus) { PriceBus = new(nothrow) decimal[prdtemp]; } else Purchase = nullptr;
-    if(Purchase) { var_cpy(Purchase, other.Purchase, prdtemp); };
-    if(other.RMNames) { RMNames = new(nothrow) strNameMeas[prdtemp]; } else RMNames = nullptr;
-    if(RMNames) { var_cpy(RMNames, other.RMNames, prdtemp); };
+    if(other.ProdNames) { ProdNames = new(nothrow) strNameMeas[ProdCount]; } else ProdNames = nullptr;
+    if(ProdNames) { var_cpy(ProdNames, other.ProdNames, ProdCount); };
+    if(other.Consumpt) { Consumpt = new(nothrow) strItem[rawtemp]; } else Consumpt = nullptr;
+    if(Consumpt) { var_cpy(Consumpt, other.Consumpt, rawtemp); };
+    if(other.Purchase) { Purchase = new(nothrow) strItem[rawtemp]; } else Purchase = nullptr;
+    if(Purchase) { var_cpy(Purchase, other.Purchase, rawtemp); };
+    if(other.PriceBus) { PriceBus = new(nothrow) decimal[rawtemp]; } else PriceBus = nullptr;
+    if(PriceBus) { var_cpy(PriceBus, other.PriceBus, rawtemp); };
+    if(other.RMNames) { RMNames = new(nothrow) strNameMeas[RMCount]; } else RMNames = nullptr;
+    if(RMNames) { var_cpy(RMNames, other.RMNames, RMCount); };
     if(other.Warehouse) { Warehouse = new clsStorage(*other.Warehouse); } else Warehouse = nullptr;
     if(other.Manufactory) { Manufactory = new clsManufactory(*other.Manufactory); } else Manufactory = nullptr;
     if(other.RawMatStock) { RawMatStock = new clsStorage(*other.RawMatStock); } else RawMatStock = nullptr;
@@ -582,7 +583,7 @@ clsEnterprise::clsEnterprise(const clsEnterprise& other): clsBaseProject(other) 
     Recipe = other.Recipe;
 }   //Copy ctor
 
-clsEnterprise::clsEnterprise(clsEnterprise&& other): clsBaseProject(move(other)) {
+clsEnterprise::clsEnterprise(clsEnterprise&& other) {
 /** Конструктор перемещения **/
     PrCount = sZero;
     Cur = RUR;
