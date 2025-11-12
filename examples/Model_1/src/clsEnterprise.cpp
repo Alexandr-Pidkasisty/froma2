@@ -583,31 +583,8 @@ clsEnterprise::clsEnterprise(const clsEnterprise& other): clsBaseProject(other) 
     Recipe = other.Recipe;
 }   //Copy ctor
 
-clsEnterprise::clsEnterprise(clsEnterprise&& other) {
+clsEnterprise::clsEnterprise(clsEnterprise&& other):clsEnterprise() {
 /** Конструктор перемещения **/
-    PrCount = sZero;
-    Cur = RUR;
-    Amethod = FIFO;
-    purcalc = calc;
-    mancalc = calc;
-    PurchShare = dZero;
-    ShipShare = dZero;
-    Purch_indr = true;
-    Ship_indr = true;
-    ProdCount = sZero;
-    Shipment = nullptr;
-    Production = nullptr;
-    ProdNames = nullptr;
-    RMCount = sZero;
-    Consumpt = nullptr;
-    Purchase = nullptr;
-    PriceBus = nullptr;
-    RMNames = nullptr;
-    Warehouse = nullptr;
-    Manufactory = nullptr;
-    RawMatStock = nullptr;
-    P_settings = nullptr;
-    S_settings = nullptr;
     swap(other);
 }   // Move Ctor
 
