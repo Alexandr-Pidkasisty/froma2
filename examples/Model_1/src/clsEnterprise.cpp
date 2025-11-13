@@ -390,20 +390,20 @@ void strImportConfig::Show() {
 
 void strImportConfig::Configure() {
 /** Метод читает конфигурацию импорта и, при необходимости редактирует её с последующим
-сохранением в конфигурационном файле с именем, содержащимся в переменной Configure_filename**/
+сохранением в конфигурационном файле с именем, содержащимся в переменной cfg_file**/
     char Answer = 'N';
-    if(ReadFromFile(Configure_filename)) {                      // Читаем конфигурацию из файла. Если удачно, то
+    if(ReadFromFile(cfg_file)) {                      // Читаем конфигурацию из файла. Если удачно, то
         strImportConfig::Show();                                // выводим конфигурацию на экран;
         cout << "Редактировать конфигурацию? [Y/N]";            // предлагаем ее скорректировать;
         cin >> Answer;                                          // получаем ответ
         cin.ignore();                                           // Очищаем буфер cin
         if(Answer != 'Y') return;                               // При любом неположительном ответе выходим
         strImportConfig::Entry();                               // Иначе редактируем конфигурацию
-        strImportConfig::SaveToFile(Configure_filename);        // и сохраняем новую конфигурацию в файл
+        strImportConfig::SaveToFile(cfg_file);        // и сохраняем новую конфигурацию в файл
         return;
     };
     strImportConfig::Entry();                                   // Редактируем конфигурацию
-    strImportConfig::SaveToFile(Configure_filename);            // Сохраняем новую конфигурацию в файл
+    strImportConfig::SaveToFile(cfg_file);            // Сохраняем новую конфигурацию в файл
     return;
 }   // strImportConfig::Configure
 
@@ -686,7 +686,7 @@ bool clsEnterprise::Import_Data() {
     P_settings = ImConfig.GetPurSettings(); // и формируем новый массив
     if(S_settings) delete[] S_settings;     // Если массив существует, то удаляем его
     S_settings = ImConfig.GetShpSettings(); // и формируем новый массив
-    ImConfig.SaveToFile(Configure_filename);// Сохраняем конфигурацию в файл
+    ImConfig.SaveToFile(cfg_file);// Сохраняем конфигурацию в файл
     return true;
 }   // clsEnterprise::Import_Data
 
@@ -756,13 +756,13 @@ void clsEnterprise::StockEditSettings(SelectDivision stk) {
         }
         strImportConfig ImConfig;                                   // Временная переменная
         typedef bool (strImportConfig::*TypeSetSettings)(const strSettings*, const size_t); // Определение типа
-        if(ImConfig.ReadFromFile(Configure_filename)) {             // Читаем конфигурационный файл, если удачно
+        if(ImConfig.ReadFromFile(cfg_file)) {             // Читаем конфигурационный файл, если удачно
             TypeSetSettings f;                                      // Вспомогательная переменная для функции
             if(stk == warehouse) f = &strImportConfig::SetShpSettings;  // Выбираем функцию
             else f = &strImportConfig::SetPurSettings;
             (ImConfig.*f)(tmp_stttings, pcount);                    // сохраняем в конфигурации массив настроек
-            bool res = ImConfig.SaveToFile(Configure_filename);     // и сохраняем конфигурацию в файл
-            if(!res) cout << "Не удалось сохранить конфигурацию в файл " << Configure_filename << endl;
+            bool res = ImConfig.SaveToFile(cfg_file);     // и сохраняем конфигурацию в файл
+            if(!res) cout << "Не удалось сохранить конфигурацию в файл " << cfg_file << endl;
         }
         if(stk == warehouse) std::swap(tmp_stttings, S_settings);   // Обмениваемся состоянием
         else std::swap(tmp_stttings, P_settings);

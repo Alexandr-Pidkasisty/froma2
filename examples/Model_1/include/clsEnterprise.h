@@ -109,6 +109,7 @@ string FullFName(string _dir, string _fname);  /** Метод возвращает полное имя ф
 
 using namespace nmEnterprise;
 const string confdir = V_DIR_CONFIG;            // Константа V_DIR_CONFIG определен в файле pathes.h
+extern string cfg_file;                         // Объявление переменной из main.cpp
 const string Configure_filename = "config.cfg"; // Имя конфигурационного файла
 
 const string NoFileName = "nofile";             // Имя для отсутствующего файла
