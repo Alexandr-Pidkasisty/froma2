@@ -118,7 +118,6 @@ class clsProgress_shell {
             maxcounter(_maxcounter),
             stepcount(_stepcount) {
             pbar = _pbar;
-//            Exit.store(false);
         };  // Ctor
 
         void Set_shell(T* _pbar, const int _maxcounter=100, const int _stepcount=1) {
@@ -133,14 +132,6 @@ class clsProgress_shell {
         дл€ имплементации в цикл вычислений в поток при многопоточном вычислении. **/
             counter.fetch_add(stepcount, memory_order_relaxed);
         }   // Counter_inc
-
-//        void Counter_inc(bool _Exit) {
-//        /** ћетод увеличивает значение счетчика на заданную величину. ћетод предназначен
-//        дл€ имплементации в цикл вычислений в поток при многопоточном вычислении. ѕараметры:
-//        _Exit - флаг остановки работы метода Progress_indicate**/
-//            counter.fetch_add(stepcount, memory_order_relaxed);
-//            Exit.store(_Exit, memory_order_relaxed);
-//        }   // Counter_inc(...)
 
         void Progress_indicate() {
         /** ћетод вывода индикатора прогресс-бара в основной поток при многопоточном вычислении. **/
@@ -157,7 +148,6 @@ class clsProgress_shell {
                 };
             }
             pbar->Update(maxcounter);                           // ¬ыводим максимальное значение индикатора прогресса
-//            Exit.store(false, memory_order_relaxed);
         }   // Progress_indicate
 
         void Counter_reset() {
