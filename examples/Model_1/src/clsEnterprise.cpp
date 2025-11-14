@@ -330,20 +330,20 @@ void strImportConfig::Entry() {
     inData(t_cur, static_cast<size_t>(_amethod));
     if(t_cur > sTwo) t_cur = sZero;
     _amethod = static_cast<AccountingMethod>(t_cur);
-    double ps_tmp;                  // Вспомогательная переменная
-    const double doubZero = 0.0;
+    decimal ps_tmp;                  // Вспомогательная переменная
+//    const double doubZero = 0.0;
     const char* wrongshare = "Ошибка ввода: запас не может быть отрицательным";
     if(((filename_Production == NoFileName) || (filename_Production == EmpStr)) && (!S_settings)) {
         cout << " запас продуктов на складе СГП, доля от отгрузок [" << S_Share << "]: ";
-        inData(ps_tmp, S_Share.Get<double>());
-        if(ps_tmp < doubZero)
+        inData(ps_tmp, ps_tmp);
+        if(ps_tmp < dZero)
             throw wrongshare;
         S_Share = ps_tmp;
     }
     if(((filename_Purchase_V == NoFileName) || (filename_Purchase_V == EmpStr)) && (!P_settings)) {
         cout << " запас ресурсов на складе ССМ, доля от отгрузок [" << P_Share << "]: ";
-        inData(ps_tmp, P_Share.Get<double>());
-        if(ps_tmp < doubZero)
+        inData(ps_tmp, ps_tmp);
+        if(ps_tmp < dZero)
             throw wrongshare;
         P_Share = ps_tmp;
     }
@@ -1202,7 +1202,7 @@ bool clsEnterprise::SKUEdt(clsStorage* stock, const size_t num) {
 (SKU). Параметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock, num -
 номер редактируемой номенклатурной позиции. **/
     size_t choise;                              // Вспомогательная переменная для ввода флагов
-    double ps_tmp;                              // Вспомогательная переменная для ввода запаса
+    decimal ps_tmp;                              // Вспомогательная переменная для ввода запаса
     PurchaseCalc tcalc = (stock == Warehouse) ? mancalc : purcalc;          // Контрольное значение
     if(num > (stock->Size()-sOne)) {                                        // Валидация номера SKU
         cout << "Номер номенклатурной позиции указан неверно. Он не должен быть больше " <<\
