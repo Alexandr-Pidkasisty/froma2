@@ -1725,7 +1725,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             size_t lim = Manuf.size();                  // Верхняя граница опустимого значения индекса
             if(bg>=lim) return;                         // Валидация нижней границы индекса
             if(en>=lim) en = lim;                       // Валидация верхней границы индекса
-            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
+//            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i = bg; i<en; i++) {
                 clsManufactItem* p = (Manuf.data()+i);  // Вспомогательный указатель уснанавливаем на элемент вектора
                 if(p->GetPrCount() != PrCount)          // Если длительности проекта не совпадают, то
@@ -1916,7 +1916,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(bg>=lim) return false;                       // Валидация нижней границы индекса
             if(en>=lim) en = lim;                           // Валидация верхней границы индекса
             bool check = true;                              // Индикатор успешности операции
-            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
+//            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i = bg; i<en; i++)  {                 // Цикл по всем единичным производствам
                 check = check && (Manuf.data()+i)->CalculateItem(); // Расчет незаверш. пр-ва и готовой продукции в i-элементе
                 (pshell) ? pshell->Counter_inc() : (void)([](){return;});           // Вызываем счетчик
