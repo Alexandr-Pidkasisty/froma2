@@ -1167,6 +1167,15 @@ stringstream& operator>>(stringstream& ss, LongReal& value) {
     return ss;
 }   // operator>>
 
+istream& operator>>(istream& is, LongReal& value) {
+/** Перегрузка оператора ввода информации из потока istream **/
+    string buff;        // Вспомогательная переменная
+    is >> buff;         // Читаем с терминала в buff
+    LongReal tmp(buff); // Создаем экземпляр класса LongReal
+    value.swap(tmp);    // Обмениваемся состояниями с value
+    return is;          // Возвращаем ссылку на поток
+}   // operator>>
+
 LongReal fabs(const LongReal& x) {
 /** Возвращает модуль числа x **/
     LongReal res(x);    // Копируем число
