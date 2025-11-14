@@ -38,33 +38,30 @@
 #include "Impex_module.h"                   // Импорт исходных данных из файлов
 #include "pathes.h"                         // Пути к файлам конфигурации, отчета, входных и выходных данных
 
-const size_t w1 = 25, w2 = 12, w3 = 15;     // Размеры полей в отчетах
-const size_t precis = 4;                    // Количество знаков после запятой в отчетах
-const size_t num_strings = 20;              // Количество строк, выводимых на экран методом showSKUsettings
-
-const unsigned int ProgressWide = 75u;      // Ширина индикатора прогресса
-
-struct strSettings {                        // Структура индивидуальных настроек для склада
-    decimal share;                          // Запас ресурсов на складе, доля от отгрузок
-    PurchaseCalc calc;                      // Флаг авто/ ручного расчета поступлений на склад
-    bool perm;                              // Флаг разрешения на поступления и отгрузки со склада в том же периоде
-    bool StF(ofstream &_outF) {
-    /** Метод сериализации состояния объекта в файл **/
-        if(!SEF(_outF, share)) return false;
-        if(!SEF(_outF,  calc)) return false;
-        if(!SEF(_outF,  perm)) return false;
-        return true;
-	}   // StF
-    bool RfF(ifstream &_inF) {
-    /** Метод десериализации состояния объекта из файла **/
-        if(!DSF(_inF, share)) return false;
-        if(!DSF(_inF,  calc)) return false;
-        if(!DSF(_inF,  perm)) return false;
-        return true;
-	}   // RfF
-};  // strSettings
-
 namespace nmEnterprise {
+    struct strSettings {            // Структура индивидуальных настроек для склада
+        decimal share;              // Запас ресурсов на складе, доля от отгрузок
+        PurchaseCalc calc;          // Флаг авто/ ручного расчета поступлений на склад
+        bool perm;                  // Флаг разрешения на поступления и отгрузки со склада в том же периоде
+        bool StF(ofstream &_outF) {
+        /** Метод сериализации состояния объекта в файл **/
+            if(!SEF(_outF, share)) return false;
+            if(!SEF(_outF,  calc)) return false;
+            if(!SEF(_outF,  perm)) return false;
+            return true;
+        }   // StF
+        bool RfF(ifstream &_inF) {
+        /** Метод десериализации состояния объекта из файла **/
+            if(!DSF(_inF, share)) return false;
+            if(!DSF(_inF,  calc)) return false;
+            if(!DSF(_inF,  perm)) return false;
+            return true;
+        }   // RfF
+};  // strSettings
+    const size_t w1 = 25, w2 = 12, w3 = 15;     // Размеры полей в отчетах
+    const size_t precis = 4;                    // Количество знаков после запятой в отчетах
+    const size_t num_strings = 20;              // Количество строк, выводимых на экран методом showSKUsettings
+    const unsigned int ProgressWide = 75u;      // Ширина индикатора прогресса
     enum SelectDivision{warehouse = sZero, manufactory, rowmatstock};   // Флаг выбора: СГП, производство, склад сырья
     enum ManufData{manpurchase = 11, manbalance, manshipment, recipe};  // Флаг выбора: потребность в сырье, баланс, отгрузки, рецептуры
 } // namespace nmEnterprise
@@ -88,7 +85,7 @@ bool inData(string &_data, const string _defdata);
 
 template<typename T>
 constexpr bool is_ch_or_size_t_or_double_v =
-    std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, double>::value;
+    std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, decimal>::value;
 
 template<typename T, class=std::enable_if_t<is_ch_or_size_t_or_double_v<T>>>
 void inData(T &_data, const T _defdata);
@@ -103,17 +100,16 @@ string FullFName(string _dir, string _fname);  /** Метод возвращает полное имя ф
 т.е. является полным, то путь не добавляется. Иначе метод возвращает полное имя файла, состоящее из пути
 и имени. **/
 
-/****************************************************************************************************/
-/**                                 Структура strImportConfig                                      **/
-/****************************************************************************************************/
-
 using namespace nmEnterprise;
-const string confdir = V_DIR_CONFIG;            // Константа V_DIR_CONFIG определен в файле pathes.h
-extern string cfg_file;                         // Объявление переменной из main.cpp
-const string Configure_filename = "config.cfg"; // Имя конфигурационного файла
+const string confdir = V_DIR_CONFIG;            // Макрос V_DIR_CONFIG определен в файле pathes.h
+extern string cfg_file;                         // Объявление переменной из main.cpp. Имя конфигурационного файла
 
 const string NoFileName = "nofile";             // Имя для отсутствующего файла
 const string indir = V_DIR_INPUTDATA;           // Путь к импортируемым файлам
+
+/****************************************************************************************************/
+/**                                 Структура strImportConfig                                      **/
+/****************************************************************************************************/
 
 struct strImportConfig {
 /** Структурный тип для сохранения/ чтения конфигурационного файла для импорта **/
