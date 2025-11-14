@@ -1251,7 +1251,6 @@ void EraseVector(vector<thread>& _pool) {
             size_t lim = stock.size();          // Верхняя граница опустимого значения индекса
             if(bg>=lim) return Lack;            // Валидация нижней границы индекса
             if(en>=lim) en = lim;               // Валидация верхней границы индекса
-            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
             for(size_t i = bg; i<en; i++) {
                 if(Calculation_Exit.load(memory_order_relaxed)) {                   // Если установлен флаг останова,
                     (pshell) ? pshell->Counter_max() : (void)([](){return;});       // то максимизируем счетчик
@@ -1345,7 +1344,7 @@ void EraseVector(vector<thread>& _pool) {
                 if((Lack+i)->lack>epsln)                // Если обнаружен дефицит, то
                     return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
             return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
-       }    // Calculate2
+       }    // Calculate_future
 
         TLack clsStorage::Calculate_thread() {
         /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
@@ -1395,7 +1394,7 @@ void EraseVector(vector<thread>& _pool) {
                 if((Lack+i)->lack>epsln)                // Если обнаружен дефицит, то
                     return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
             return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
-       }    // Calculate3
+       }    // Calculate_thread
 
         bool clsStorage::StF(ofstream &_outF)  {
         /** Метод имплементации записи в файловую переменную текущего экземпляра класса (метод сериализации).
