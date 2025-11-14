@@ -59,7 +59,7 @@ using namespace std;
     typedef double decimal;     ¬ещественные числа представлены типом double
     typedef LongReal decimal;   ¬ещественные числа представлены типом LongReal  **/
 
-typedef LongReal decimal;
+typedef double decimal;
 
 /** “ип индикатора прогресса. ѕсевдоним "type_progress" может принимать разные значени€ в зависимости
     от используемого класса прогресс-индикатора. ¬ модуле progress_module.hpp описан прогресс-индикатор дл€
