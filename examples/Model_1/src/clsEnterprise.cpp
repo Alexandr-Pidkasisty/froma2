@@ -368,7 +368,7 @@ void strImportConfig::Entry() {
 
 void strImportConfig::Show() {
 /** Метод Отображает текущую конфигурацию на экране **/
-    cout << "ТЕКУЩАЯ КОНФИГУРАЦИЯ ИМПОРТА\n";
+    cout << "ТЕКУЩАЯ КОНФИГУРАЦИЯ ИМПОРТА (" << cfg_file << ")\n";
     cout << " имя файла с описанием проекта: " << filename_About << endl;
     cout << " имя файла с отгрузками из СГП в натуральном выражении: " << filename_Shipment << endl;
     if(filename_Production == NoFileName)
@@ -393,16 +393,16 @@ void strImportConfig::Configure() {
 сохранением в конфигурационном файле с именем, содержащимся в переменной cfg_file**/
     char Answer = 'N';
     if(ReadFromFile(cfg_file)) {                      // Читаем конфигурацию из файла. Если удачно, то
-        strImportConfig::Show();                                // выводим конфигурацию на экран;
-        cout << "Редактировать конфигурацию? [Y/N]";            // предлагаем ее скорректировать;
-        cin >> Answer;                                          // получаем ответ
-        cin.ignore();                                           // Очищаем буфер cin
-        if(Answer != 'Y') return;                               // При любом неположительном ответе выходим
-        strImportConfig::Entry();                               // Иначе редактируем конфигурацию
+        strImportConfig::Show();                      // выводим конфигурацию на экран;
+        cout << "Редактировать конфигурацию? [Y/N]";  // предлагаем ее скорректировать;
+        cin >> Answer;                                // получаем ответ
+        cin.ignore();                                 // Очищаем буфер cin
+        if(Answer != 'Y') return;                     // При любом неположительном ответе выходим
+        strImportConfig::Entry();                     // Иначе редактируем конфигурацию
         strImportConfig::SaveToFile(cfg_file);        // и сохраняем новую конфигурацию в файл
         return;
     };
-    strImportConfig::Entry();                                   // Редактируем конфигурацию
+    strImportConfig::Entry();                         // Редактируем конфигурацию
     strImportConfig::SaveToFile(cfg_file);            // Сохраняем новую конфигурацию в файл
     return;
 }   // strImportConfig::Configure
@@ -541,7 +541,7 @@ void clsEnterprise::swap(clsEnterprise& other) noexcept {
 
 void clsEnterprise::EraseVector(vector<clsRecipeItem>& Recipe) {
 /** Метод для полной очистки вектора **/
-    vector<clsRecipeItem>().swap(Recipe);    // Приводим вектор в состояние по умолчанию
+    vector<clsRecipeItem>().swap(Recipe);               // Приводим вектор в состояние по умолчанию
 }   // EraseVector
 
 clsEnterprise::clsEnterprise(const clsEnterprise& other): clsBaseProject(other) {
@@ -943,7 +943,7 @@ bool clsEnterprise::SetRawMatStock() {
             RawMatStock->SetPermission(i, (P_settings+i)->perm);    // разрешение на отгрузку и поступление в одном периоде
         }
     } else {                                        // Если же массив не существует, то используем общие настройки:
-        for(size_t i{}; i<RMCount; i++) {         // для каждого продукта ССМ устанавливаем
+        for(size_t i{}; i<RMCount; i++) {           // для каждого продукта ССМ устанавливаем
             RawMatStock->SetShare(i, PurchShare);       // норматив запаса
             RawMatStock->SetAutoPurchase(i, purcalc);   // флаг автоматического расчета поступлений
             RawMatStock->SetPermission(i, Purch_indr);  // разрешение на отгрузку и поступление в одном периоде
@@ -970,7 +970,6 @@ void clsEnterprise::ReportView(const SelectDivision& _rep, const int _arr, const
 shipment - массив отгрузок). Параметр flg - тип выводимой информации: volume - в натуральном, value - в стоимостном,
 price - в ценовом измерении **/
     bool (clsEnterprise::*f) (clsStorage* obj, const int, const ReportData) const;  // Указатель на функцию
-//    Typerepfun f;                                           // Вспомогательный указатель на функцию типа Typerepfun
     if((_rep == warehouse) || (_rep == rowmatstock)) {      // Если выбран СГП или ССМ, то
         f = &clsEnterprise::Report_Storage_to_dev;          // указатель направляем на функцию Report_Storage_to_dev
         if(_rep == warehouse)
@@ -1202,7 +1201,7 @@ bool clsEnterprise::SKUEdt(clsStorage* stock, const size_t num) {
 (SKU). Параметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock, num -
 номер редактируемой номенклатурной позиции. **/
     size_t choise;                              // Вспомогательная переменная для ввода флагов
-    decimal ps_tmp;                              // Вспомогательная переменная для ввода запаса
+    decimal ps_tmp;                             // Вспомогательная переменная для ввода запаса
     PurchaseCalc tcalc = (stock == Warehouse) ? mancalc : purcalc;          // Контрольное значение
     if(num > (stock->Size()-sOne)) {                                        // Валидация номера SKU
         cout << "Номер номенклатурной позиции указан неверно. Он не должен быть больше " <<\
@@ -1434,7 +1433,7 @@ void clsEnterprise::Report_Recipe() const {
                     for(size_t j=sZero; j<(w1+w2+w3+2); j++) {*os << '-'; };
                     MyRep0->Print();                        // Если отчет сформирован, то печатаем его,
                 };
-                if(Rdevice == file) ofs.close();        // Закрываем файл, если это был файловый поток
+                if(Rdevice == file) ofs.close();            // Закрываем файл, если это был файловый поток
                 if(MyRep0) delete MyRep0;
     }
 }   // clsEnterprise::Report_Recipe
@@ -1486,7 +1485,7 @@ volume - в натуральном, value - в стоимостном, price - в ценовом измерении. Если
         if(pData) delete[] pData;
         if(MyRep1) delete MyRep1;
         return checkrez;
-    } else                                                                  // Назначение указателю функции:
+    } else                                                          // Назначение указателю функции:
         if(_arr == manbalance) {
             fs = &clsManufactory::GetTotalBalance;      // возврата указателя на массив остатков в производстве
             swork = aBalance;
@@ -1495,9 +1494,9 @@ volume - в натуральном, value - в стоимостном, price - в ценовом измерении. Если
                 fs = &clsManufactory::GetTotalProduct;  // возврата указателя на массив отгрузок из производства
                 swork = aShipment;
             } else return false;
-    strItem* pData = (Manufactory->*fs)();                                  // Получаем указатель на массив с данными
+    strItem* pData = (Manufactory->*fs)();                          // Получаем указатель на массив с данными
     if(!pData) return false;
-    const size_t ProdCount = Manufactory->GetProdCount();                   // Получаем число продуктов
+    const size_t ProdCount = Manufactory->GetProdCount();           // Получаем число продуктов
     strNameMeas* ProdNames = Manufactory->GetProductDescription();  // Получаем массив с именами и ед.измерения всех продуктов
     nmRePrint::clsRePrint<strItem, strNameMeas>* MyRep2 = new nmRePrint::clsRePrint<strItem, strNameMeas>(w1, w2, w3);
     MyRep2->SetHeadings(rTableName, rTableMeas, rByVolume, rByPrice, rByValue);         // Меняем заголовки таблицы
