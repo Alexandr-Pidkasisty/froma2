@@ -198,6 +198,22 @@ class clsEnterprise : public clsBaseProject {
 
         void EraseVector(vector<clsRecipeItem>& Recipe);        // Метод для полной очистки вектора с рецептурами
 
+        /** Import - методы **/
+        bool Import_About(const string filename);   /** Метод читает информацию из файла с описанием
+        проекта и формирует поля Title и Descript класса clsBaseProject. **/
+
+        bool ImportSingleArray(const string filename, const char _ch, size_t hcols, size_t hrows,\
+        ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+        /** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
+        RowCount - ссылка число номенклатурных позиций (ресурсов или продуктов), ColCount - ссылка на число периодов
+        проекта, names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
+        _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
+        "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
+
+        bool Import_Recipes(const string filename, const char _ch, size_t hcols, size_t hrows); /** Метод
+        читает информацию из файлов с именами, содержащими вначале filename и заканчивающимися на _i, где i- номер
+        рецептуры. В качестве разделителя используется символ _ch. Метод заполняет вектор рецептур Recipe. **/
+
     public:
         clsEnterprise();                                        // Конструктор по умолчанию
         void swap(clsEnterprise& other) noexcept;               // Функция обмена значениями между объектами
@@ -284,20 +300,8 @@ class clsEnterprise : public clsBaseProject {
         const string aRecipe2    = "Расход на ";
 
         /** Import - методы **/
-        virtual bool Import_About(const string filename);   /** Метод читает информацию из файла с описанием
-        проекта и формирует поля Title и Descript класса clsBaseProject. **/
 
-        virtual bool ImportSingleArray(const string filename, const char _ch, size_t hcols, size_t hrows,\
-        ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
-        /** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
-        RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта,
-        names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
-        _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
-        "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
 
-        virtual bool Import_Recipes(const string filename, const char _ch, size_t hcols, size_t hrows); /** Метод
-        читает информацию из файлов с именами, содержащими вначале filename и заканчивающимися на _i, где i- номер
-        рецептуры. В качестве разделителя используется символ _ch. Метод заполняет вектор рецептур Recipe. **/
 
         /** Методы редактирования **/
 
