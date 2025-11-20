@@ -138,7 +138,7 @@ struct strImportConfig {
     strImportConfig(const strImportConfig&);            // Конструктор копирования
     strImportConfig(strImportConfig&&);                 // Конструктор перемещения
     strImportConfig& operator=(const strImportConfig&); // Оператор присваивания копированием
-    strImportConfig& operator=(strImportConfig&&);      // Оператор присваивания копированием
+    strImportConfig& operator=(strImportConfig&&);      // Оператор присваивания перемещением
     ~strImportConfig();                                 // Деструктор
 
     bool SaveToFile(const string _filename);    // Запись конфигурации в файл
@@ -249,23 +249,23 @@ class clsEnterprise : public clsBaseProject {
 
         /** Методы для визуального контроля и отчетов **/
         void ReportView(const SelectDivision& _rep, const int _arr, const ReportData flg) const; /** Функция выводит
-        выбранный отчет. Параметры: _rep - выбранный центр затрат (warehouse - СГП, manufactory - производство,
+        выбранный отчет. Параметры: _rep - выбранное подразделение (warehouse - СГП, manufactory - производство,
         rowmatstock- ССМ), _arr -  тип данных (purchase - массив поступлений. balance - массив остатков, shipment -
         массив отгрузок). Параметр flg - тип выводимой информации: volume - в натуральном, value - в стоимостном,
         price - в ценовом измерении **/
 
-        void StockSettingsView(const SelectDivision& _rep); /** Функция выводит индивидульные настройки склада.
-        Параметры: _rep - выбранный центр затрат (warehouse - СГП, rowmatstock или любой другой - ССМ) **/
+        void StockSettingsView(const SelectDivision& _rep); /** Функция выводит индивидуальные настройки склада.
+        Параметры: _rep - выбранное подразделение (warehouse - СГП, rowmatstock или любой другой - ССМ) **/
 
         /** Export - методы **/
 
         bool Export_Data(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
         const ReportData& flg) const; /** Метод записывает массив поставок, остатков или отгрузок со склада готовой
         продукции (СГП), склада сырья и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры:
-        _dep - флаг выбора склада: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор
-        данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип
-        выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
-        В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
+        _dep - флаг выбора подразделения: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr
+        - выбор данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки;
+        flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом
+        измерении. В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
 
     protected:
         /** Заголовки таблиц в отчетах **/
