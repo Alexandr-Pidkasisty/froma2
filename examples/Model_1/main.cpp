@@ -158,50 +158,58 @@ int main(int argc, char* argv[]) {
     cout << "Введите имя файла отчета без расширения [" << ReportName << "]: ";
     inData(ReportName, ReportName);                         // Читаем имя файла в переменную ReportName
 
-    Company->SetRName(ReportName);                          // Устанавливаем имя файла отчета
-    Company->SetDevice(file);                               // Устанавливаем устройство для вывода отчета
+    Company->SetDevice(file);                                   // Устанавливаем устройство для вывода отчета
+    if (Company->SetRName(ReportName)) {                        // Устанавливаем имя файла отчета
+        cout << "Формирую отчет... ";
+        Company->Report();                                      // Общая информация о проекте выводится в отчет
 
-    cout << "Формирую отчет... ";
-    Company->Report();                                      // Общая информация о проекте выводится в отчет
+        Company->StockSettingsView(warehouse);                  // Индивидуальные настройки для позиций СГП
+        Company->StockSettingsView(rowmatstock);                // Индивидуальные настройки для позиций ССМ
 
-    Company->StockSettingsView(warehouse);                  // Индивидуальные настройки для позиций СГП
-    Company->StockSettingsView(rowmatstock);                // Индивидуальные настройки для позиций ССМ
+        Company->ReportView(warehouse, shipment, volume);       // Выводим объемы продаж в натуральном измерении
+        Company->ReportView(warehouse, balance, volume);        // Выводим остатки в натуральном измерении
+        Company->ReportView(warehouse, purchase, volume);       // Выводим объемы поступлений в натуральном измерении
 
-    Company->ReportView(warehouse, shipment, volume);       // Выводим объемы продаж в натуральном измерении
-    Company->ReportView(warehouse, balance, volume);        // Выводим остатки в натуральном измерении
-    Company->ReportView(warehouse, purchase, volume);       // Выводим объемы поступлений в натуральном измерении
+        Company->ReportView(manufactory, manshipment, volume);  // Выводим объемы отгрузки на СГП в натуральном выражении
+        Company->ReportView(manufactory, recipe, volume);       // Выводим рецептуры
+        Company->ReportView(manufactory, manpurchase, volume);  // Выводим потребность в сырье и материалах
 
-    Company->ReportView(manufactory, manshipment, volume);  // Выводим объемы отгрузки на СГП в натуральном выражении
-    Company->ReportView(manufactory, recipe, volume);       // Выводим рецептуры
-    Company->ReportView(manufactory, manpurchase, volume);  // Выводим потребность в сырье и материалах
+        Company->ReportView(rowmatstock, shipment, volume);     // Выводим объемы поставок сырья и материалов из ССМ в производство
+        Company->ReportView(rowmatstock, shipment, value);      // Выводим стоимость поставок сырья и материалов из ССМ в производство
+        Company->ReportView(rowmatstock, shipment, price);      // Выводим удельную стоимость поставок сырья и материалов из ССМ в производство
 
-    Company->ReportView(rowmatstock, shipment, volume);     // Выводим объемы поставок сырья и материалов из ССМ в производство
-    Company->ReportView(rowmatstock, shipment, value);      // Выводим стоимость поставок сырья и материалов из ССМ в производство
-    Company->ReportView(rowmatstock, shipment, price);      // Выводим удельную стоимость поставок сырья и материалов из ССМ в производство
+        Company->ReportView(rowmatstock, balance, volume);      // Выводим остатки в натуральном измерении
+        Company->ReportView(rowmatstock, balance, value);       // Выводим остатки в стоимостном измерении
+        Company->ReportView(rowmatstock, balance, price);       // Выводим остатки в удельном стоимостном измерении
 
-    Company->ReportView(rowmatstock, balance, volume);      // Выводим остатки в натуральном измерении
-    Company->ReportView(rowmatstock, balance, value);       // Выводим остатки в стоимостном измерении
-    Company->ReportView(rowmatstock, balance, price);       // Выводим остатки в удельном стоимостном измерении
+        Company->ReportView(rowmatstock, purchase, volume);     // Выводим остатки в натуральном измерении
+        Company->ReportView(rowmatstock, purchase, value);      // Выводим остатки в стоимостном измерении
+        Company->ReportView(rowmatstock, purchase, price);      // Выводим остатки в удельном стоимостном измерении
 
-    Company->ReportView(rowmatstock, purchase, volume);     // Выводим остатки в натуральном измерении
-    Company->ReportView(rowmatstock, purchase, value);      // Выводим остатки в стоимостном измерении
-    Company->ReportView(rowmatstock, purchase, price);      // Выводим остатки в удельном стоимостном измерении
+        Company->ReportView(manufactory, manshipment, value);   // Полная себестоимость продукции, поступающая из производства на СГП
+        Company->ReportView(manufactory, manshipment, price);   // Удельная себестоимость продукции, поступающая из производства на СГП
 
-    Company->ReportView(manufactory, manshipment, value);   // Полная себестоимость продукции, поступающая из производства на СГП
-    Company->ReportView(manufactory, manshipment, price);   // Удельная себестоимость продукции, поступающая из производства на СГП
+        Company->ReportView(warehouse, balance, value);         // Выводим остатки в стоимостном измерении
+        Company->ReportView(warehouse, shipment, value);        // Выводим объемы продаж в стоимостном измерении
 
-    Company->ReportView(warehouse, balance, value);         // Выводим остатки в стоимостном измерении
-    Company->ReportView(warehouse, shipment, value);        // Выводим объемы продаж в стоимостном измерении
-
-    cout << "Готово. Отчет выведен в файл " << ReportName << ".txt" << endl;
+        cout << "Готово. Отчет выведен в файл " << ReportName << ".txt" << endl;
+    } else
+        cout << "Ошибка вывода отчета: указанная папка не существует" << endl;
 
 /****************************************************************************************************/
-/**                                                Вывод csv-файлов                                **/
+/**                                    Экспорт csv-файлов                                          **/
 /****************************************************************************************************/
 
     string outdir = V_DIR_OUTPUTDATA;
     cout << "Введите папку для экспорта CSV-файлов [" << outdir << "]: ";
     inData(outdir, outdir);                 // Читаем имя папки в переменную outdir
+    struct stat sb;                         // Переменная для записи методанных о файле
+    if (stat(outdir.c_str(), &sb) != 0) {   // Если папка для вывода csv-файлов не существует, то
+        cout << "Ошибка вывода csv-файлов: указанная папка не существует\n";
+        delete Company;
+        cout << "Copyright (c) 2025 Пидкасистый Александр Павлович" << endl;
+        return EXIT_FAILURE;                // выходим из программы с кодом неудачного завершения
+    }
     cout << "Экспорт CSV-файлов в папку " << outdir << endl;
 
     /** warehouse **/
