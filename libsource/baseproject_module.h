@@ -34,6 +34,7 @@
 #include <iostream>         // Заголовочный файл с классами, функциями и переменными для организации ввода-вывода
 #include <fstream>          // Заголовочный файл для организации ввода/ вывода в файл на диске
 #include <string>           // Заголовочный файл с классами, функциями и переменными для работы со строками
+#include <sys/stat.h>       // Использование функции stat
 #include "common_values.hpp"
 #include "serialization_module.hpp"
 
@@ -69,7 +70,7 @@ class clsBaseProject
         void SetComment(const string* _comment, const size_t& _count);  // Метод ввода описания проекта
         void SetFName(const string _filename);          // Метод ввода имени файла для сериализации и десериализации
         void SetFName(const string _filename, const string _ext);       // Ввод имени файла и его расширения
-        void SetRName(const string _filename);          // Метод ввода имени файла для отчета
+        bool SetRName(const string _filename);          // Метод ввода имени файла для отчета
         void SetDevice(const Tdev& val);                // Метод устанавливает выходное устройство для отчета
         virtual void Reset();                           // Метод сбрасывает всю информацию
         void Report() const;                            // Метод вывода отчета на выбранное устройство

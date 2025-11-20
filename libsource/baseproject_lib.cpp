@@ -40,7 +40,9 @@ namespace nmlocalBP {
 
     string makefilename(const string _name, const string ext) {
     /** Метод формирует имя файла для сериализации/ отчета по умолчанию, Параметр _name - полное имя исполняемого файла
-    (вместе с его раположением) находится в переменной argv[0] в параметрах метода main **/
+    (вместе с его раположением) находится, например, в переменной argv[0] в параметрах метода main. Ищет в имени файла
+    расширение .exe, и если находит, то заменяет его расширением из переменной ext, если не находит, то просто добавляет
+    расширение из переменной ext к имени файла. **/
         string fname=_name;                 // Вспомогательная переменная
         size_t pos;                         // Переменная для позиции, начиная с которой меняем полное имя файла
         const int cFour = 4;
@@ -155,9 +157,16 @@ void clsBaseProject::SetFName(const string _filename, const string _ext) {
     FName = _filename + _ext;
 }   // SetFName
 
-void clsBaseProject::SetRName(const string _filename) {
-/** Метод ввода имени файла для отчета **/
-    RName = makefilename(_filename, ".txt");
+bool clsBaseProject::SetRName(const string _filename) {
+/** Метод ввода имени файла для отчета и проверки существования папки для его вывода. Возвращает
+true, если папка существует, иначе возвращает false **/
+    const int iZero = 0;
+    struct stat sb;                             // Структура, в которую записываются метаданные о файле
+    RName = makefilename(_filename, ".txt");    // Формируем полное имя файла (с путем)
+    string path = RName.substr(iZero, RName.find_last_of("/\\"));   // Выделяем путь из имени файла
+    if (stat(path.c_str(), &sb) != iZero)       // Проверяем существование пути, если не существует
+        return false;                           // то выходим с false
+    return true;
 }   // SetRName
 
 void clsBaseProject::SetDevice(const Tdev& val) {
@@ -186,11 +195,12 @@ void clsBaseProject::Report() const {
     if(Rdevice == file) {
         if(RName == EmpStr) return;                     // Если имя файла пустое, то выход
         ofstream out(RName);                            // Откроем файл для вывода
-        if(out.is_open())                               // Если файл открыт, то
+        if(out.is_open()) {                             // Если файл открыт, то
             reportstream(out);                          // Выводим в поток информацию
-        out.close();                                    // и закрываем файл
-        return;
+            out.close();                                // и закрываем файл
+        }
     }
+    return;
 }   // Report()
 
 bool clsBaseProject::SaveToFile(const string _filename) {
