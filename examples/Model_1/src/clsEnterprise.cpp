@@ -367,7 +367,7 @@ void strImportConfig::Entry() {
 }   // strImportConfig::Entry
 
 void strImportConfig::Show() {
-/** Метод Отображает текущую конфигурацию на экране **/
+/** Метод отображает текущую конфигурацию на экране **/
     cout << "ТЕКУЩАЯ КОНФИГУРАЦИЯ ИМПОРТА (" << cfg_file << ")\n";
     cout << " имя файла с описанием проекта: " << filename_About << endl;
     cout << " имя файла с отгрузками из СГП в натуральном выражении: " << filename_Shipment << endl;
@@ -390,7 +390,7 @@ void strImportConfig::Show() {
 
 void strImportConfig::Configure() {
 /** Метод читает конфигурацию импорта и, при необходимости редактирует её с последующим
-сохранением в конфигурационном файле с именем, содержащимся в переменной cfg_file**/
+сохранением в конфигурационном файле с именем, содержащимся в переменной cfg_file **/
     char Answer = 'N';
     if(ReadFromFile(cfg_file)) {                      // Читаем конфигурацию из файла. Если удачно, то
         strImportConfig::Show();                      // выводим конфигурацию на экран;
@@ -965,7 +965,7 @@ bool clsEnterprise::RMCostTransmition() {
 /** Методы для визуального контроля и отчетов **/
 
 void clsEnterprise::ReportView(const SelectDivision& _rep, const int _arr, const ReportData flg) const {
-/** Функция выводит выбранный отчет. Параметры: _rep - выбранный центр затрат (warehouse - СГП, manufactory
+/** Функция выводит выбранный отчет. Параметры: _rep - выбранное подразделение (warehouse - СГП, manufactory
 - производство, rowmatstock- ССМ), _arr -  тип данных (purchase - массив поступлений. balance - массив остатков,
 shipment - массив отгрузок). Параметр flg - тип выводимой информации: volume - в натуральном, value - в стоимостном,
 price - в ценовом измерении **/
@@ -983,7 +983,7 @@ price - в ценовом измерении **/
 }   // clsEnterprise::ReportView
 
 void clsEnterprise::StockSettingsView(const SelectDivision& _rep) {
-/** Функция выводит индивидульные настройки склада. Параметры: _rep - выбранный склад (warehouse - СГП,
+/** Функция выводит индивидуальные настройки склада. Параметры: _rep - выбранный склад (warehouse - СГП,
 rowmatstock или любой другой - ССМ) **/
     clsStorage* stock;                  // Вспомогательный указатель
     std::ofstream ofs;                  // Вспомогательная переменная для вывода отчета в файл
@@ -1016,11 +1016,11 @@ rowmatstock или любой другой - ССМ) **/
 bool clsEnterprise::Export_Data(string filename, const SelectDivision& _dep, const ChoiseData& _arr, \
     const ReportData& flg) const {
 /** Метод записывает массив поставок, остатков или отгрузок со склада готовой продукции (СГП), склада сырья
-и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры: _dep - флаг выбора склада:
-"warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr - выбор данных: "purchase" -
-поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки; flg - тип выводимой в файл
-информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении. В качестве разделителя
-между полями используется символ _ch по умолчанию (';'). **/
+и материалов (ССМ) или с Производства в csv-файл с именем filename. Параметры:
+_dep - флаг выбора подразделения: "warehouse" - СГП, "rowmatstock" - ССМ, "manufactory" - Производство; _arr
+- выбор данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки;
+flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом
+измерении. В качестве разделителя между полями используется символ _ch по умолчанию (';'). **/
     strItem* (clsStorage::*fSdata)() const;     // Определяем указатель на внутреннюю функцию класса clsStorage
     clsStorage* val = nullptr;                  // Вспомогательный указатель
     strItem* (clsManufactory::*fMdata)() const; // Определяем указатель на внутреннюю функцию класса clsManufactory
