@@ -217,13 +217,14 @@ class clsEnterprise : public clsBaseProject {
         /** Методы редактирования **/
         bool SKUEdt(clsStorage* stock, const size_t num);
         /**  Метод редактирования введенной ранее информации: редактирование номенклатурной позиции (SKU).
-        Параметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock. **/
+        Параметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock), num - номер редактируемой
+        номенклатурной позиции. **/
 
         /** Методы для визуального контроля и отчетов **/
         void showSKUsettings(ostream& os, clsStorage* stock) const; /** Метод вывода в выходной поток
         настроек учета на складе для каждого SKU: номер, название и ед. измерения SKU, флаг авторасчета закупок,
-        флаг разрешения на отгрузку и закупку в одном периоде и норматив запаса на складе, Параметры: os - поток
-        для вывода, stock - указатель на конкернтый склад(Warehouse или RawMatStock. **/
+        флаг разрешения на отгрузку и закупку в одном периоде и норматив запаса на складе. Параметры: os - поток
+        для вывода, stock - указатель на конкернтый склад(Warehouse или RawMatStock). **/
 
         bool Report_Storage(clsStorage* obj, const int _arr, const ReportData flg) const;   /** Метод для
         вывода на экран отчетов по Объекту типа clsStorage (Warehouse или RawMatStock). Параметр obj - экземпляр
@@ -232,7 +233,7 @@ class clsEnterprise : public clsBaseProject {
         volume - в натуральном, value - в стоимостном, price - в ценовом измерении. Если значение _arr не относится
         к перечисляемому типу из модуля warehouse_module.h enum ChoiseData{purchase = sZero, balance, shipment},
         то отчет не выводится: другие значения _arr предназначены для других методов. Используется в методе
-        Dev_Report_Storage **/
+        Report_Storage_to_dev **/
 
         bool Report_Storage_to_dev(clsStorage* obj, const int _arr, const ReportData flg) const; /** Метод
         направляет отчет, созданный методом Report_Storage на выбранное устройство: "пустое" устройство, экран или
@@ -242,7 +243,7 @@ class clsEnterprise : public clsBaseProject {
         void Report_Recipe() const; /** Метод для вывода в отчет рецептур всех продуктов **/
 
         bool Report_Manufactory(const int _arr, const ReportData flg) const; /** Метод для вывода на экран
-        отчетов по производсту. Доступные массивы: _arr = manpurchase, массив  потребности в сырье и материалах;
+        отчетов по производству. Доступные массивы: _arr = manpurchase, массив  потребности в сырье и материалах;
         _arr = manbalance, массив c балансами незавершенного производства для всех продуктов; _arr = manshipment,
         массив отгрузок на СГП; _arr = recipe, рецептуры продуктов. flg - тип выводимой информации: volume - в
         натуральном, value - в стоимостном, price - в ценовом измерении. Если значение _arr не относится к

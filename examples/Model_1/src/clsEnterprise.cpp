@@ -1198,7 +1198,7 @@ i- номер рецептуры. ¬ качестве разделител€ используетс€ символ _ch. ћетод заполн
 
 bool clsEnterprise::SKUEdt(clsStorage* stock, const size_t num) {
 /**  ћетод редактировани€ введенной ранее информации: редактирование номенклатурной позиции
-(SKU). ѕараметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock, num -
+(SKU). ѕараметры: stock - указатель на конкернтый склад (Warehouse или RawMatStock), num -
 номер редактируемой номенклатурной позиции. **/
     size_t choise;                              // ¬спомогательна€ переменна€ дл€ ввода флагов
     decimal ps_tmp;                             // ¬спомогательна€ переменна€ дл€ ввода запаса
@@ -1257,8 +1257,8 @@ void clsEnterprise::reportstream(ostream& os) const {
 void clsEnterprise::showSKUsettings(ostream& os, clsStorage* stock) const {
 /** ћетод вывода в выходной поток настроек учета на складе дл€ каждого SKU: номер, название и
 ед. измерени€ SKU, флаг авторасчета закупок, флаг разрешени€ на отгрузку и закупку в одном периоде
-и норматив запаса на складе, ѕараметры: os - поток дл€ вывода, stock - указатель на конкернтый склад
-(Warehouse или RawMatStock. **/
+и норматив запаса на складе. ѕараметры: os - поток дл€ вывода, stock - указатель на конкернтый склад
+(Warehouse или RawMatStock). **/
 //    cin.ignore(numeric_limits < streamsize > ::max(),'\n');
     size_t stock_count = stock->Size();             // ѕолучаем количество SKU
     strNameMeas* tmpNames = stock->GetNameMeas();   // ѕолучаем указатель на вновь созданный массив имен
