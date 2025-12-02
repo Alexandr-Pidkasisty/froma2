@@ -315,7 +315,7 @@ class clsStorage {       /** Склад ресурсов для нескольких номенклатурных позици
         clsStorage& operator=(const clsStorage&);   // Оператор присваивания копированием
         clsStorage& operator=(clsStorage&&);        // Оператор присваивания перемещением
 
-        ~clsStorage();  // Деструктор
+        virtual ~clsStorage();                  // Деструктор
 
         /** Get-методы **/
 
@@ -369,6 +369,9 @@ class clsStorage {       /** Склад ресурсов для нескольких номенклатурных позици
 
         void Set_progress_shell(clsProgress_shell<type_progress>* val);
             /** Функция присваивает указателю pshell адрес объекта val **/
+
+        void Set_progress_message(string&& _message);
+            /** Функция устанавливает новое значение сообщения во время вывода индикатора **/
 
         void SetCount(const size_t _n);
             /** Устанавливаем количество периодов проекта**/

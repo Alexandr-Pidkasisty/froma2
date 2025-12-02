@@ -1609,6 +1609,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             pshell = val;
         }   // Set_progress_shell
 
+        void clsManufactory::Set_progress_message(string&& _message) {
+        /** Функция устанавливает новое значение сообщения во время вывода индикатора **/
+            if(pshell) pshell->SetMessage(move(_message));
+        }   // Set_progress_message
+
         void clsManufactory::SetCurrency(const Currency& _cur) {
         /** Устанавливаем основную валюту проекта **/
              hmcur = _cur;

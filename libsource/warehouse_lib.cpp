@@ -991,6 +991,11 @@ void EraseVector(vector<thread>& _pool) {
             pshell = val;
         }   // Set_progress_shell
 
+        void clsStorage::Set_progress_message(string&& _message) {
+        /** Функция устанавливает новое значение сообщения во время вывода индикатора **/
+            if(pshell) pshell->SetMessage(move(_message));
+        }   // Set_progress_message
+
         void clsStorage::SetCount(const size_t _n) {PrCount = _n; }     // Устанавливаем количество периодов проекта
 
         void clsStorage::SetName(size_t i, const string& _name) {
