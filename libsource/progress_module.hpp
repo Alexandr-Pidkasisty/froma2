@@ -66,7 +66,7 @@ https://codereview.stackexchange.com/questions/186535/progress-bar-in-c **/
         }   // clsprogress_bar::write
 
     public:
-        clsprogress_bar(ostream &_os, int const line_width, string _message, const char symbol='.', const int _mx=100):
+        clsprogress_bar(ostream &_os, int const line_width, string&& _message, const char symbol='.', const int _mx=100):
             os(_os),
             bar_width(line_width-overhead),                                     // Расчет ширины индикатора
             message(std::move(_message)),
@@ -99,6 +99,11 @@ https://codereview.stackexchange.com/questions/186535/progress-bar-in-c **/
         }   // Set_maxcount
 
         int Getmaxcount() { return maxcount; }  // Возвращает Максимальное число итераций
+
+        void Set_message(string&& _message) {
+        /** Устанавливает новое значение сообщения во время вывода индикатора **/
+            message = std::move(_message);
+        }   // Set_message
 
 };  // clsprogress_bar
 
@@ -168,6 +173,11 @@ class clsProgress_shell {
 
         int Getmaxcounter() { return maxcounter; }  // Возвращает Максимальное число итераций
         int Getstepcount() { return stepcount; }    // Возвращает Шаг итерации
+
+        void SetMessage(string&& _message) {
+        /** Устанавливает новое значение сообщения во время вывода индикатора **/
+            pbar->Set_message(std::move(_message));
+        }   // SetMessage
 
 };  // clsProgress_shell
 
