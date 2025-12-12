@@ -1406,37 +1406,39 @@ void EraseVector(vector<thread>& _pool) {
         Параметры: &_outF - экземпляр класса ofstream для записи данных **/
             size_t stocksize = stock.size();        // Записываем в переменную количество элементов вектора
             size_t capac = stock.capacity();        // Записываем в переменную текущий размер (емкость) вектора
-            if(stocksize == sZero) return false;    // Если вектор пустой, то выход и возврат false
-            if(!SEF(_outF, PrCount)) return false;        // Сохраняем количество периодов
-            if(!SEF(_outF, hmcur)) return false;          // Сохраняем основную валюту проекта
-            if(!SEF(_outF, acct)) return false;           // Сохраняем принцип учета
-            if(!SEF(_outF, capac)) return false;          // Сохраняем емкость вектора в файл
-            if(!SEF(_outF, stocksize)) return false;      // Сохраняем количество элементов вектора в файл
-//            for(size_t i=sZero; i<stocksize; i++) {     // Сохраняем массив экземпляров типа clsSKU
-//                stock.at(i).StF(_outF);
-//            };
+            if(!SEF(_outF, PrCount)) return false;      // Сохраняем количество периодов
+            if(!SEF(_outF, hmcur)) return false;        // Сохраняем основную валюту проекта
+            if(!SEF(_outF, acct)) return false;         // Сохраняем принцип учета
+            if(!SEF(_outF, capac)) return false;        // Сохраняем емкость вектора в файл
+            if(!SEF(_outF, stocksize)) return false;    // Сохраняем количество элементов вектора в файл
+            if(stocksize == sZero) return true;         // Если вектор пуст, то выход с true
             for(vector<clsSKU>::iterator it = stock.begin(); it < stock.end(); it++)
-                if(!it->StF(_outF)) return false;         // Сохраняем массив экземпляров типа clsSKU
-            return true;                                  // Возвращаем true
+                if(!it->StF(_outF)) return false;       // Сохраняем массив экземпляров типа clsSKU
+            return true;                                // Возвращаем true
         }   // StF
 
         bool clsStorage::RfF(ifstream &_inF) {
         /** Метод имплементации чтения из файловой переменной текущего экземпляра класса (метод десериализации).
         Параметры: &_inF - экземпляр класса ifstream для чтения данных **/
+            clsStorage temp;            // Временный объект
             size_t stocksize;           // Временная переменная с числом элементов вектора
             size_t capac;               // Временная переменная с объемом памяти вектора
-            if(!DSF(_inF, PrCount)) return false;         // Читаем количество периодов
-            if(!DSF(_inF, hmcur)) return false;           // Читаем основную валюту проекта
-            if(!DSF(_inF, acct)) return false;            // Читаем принцип учета
-            if(!DSF(_inF, capac)) return false;           // Читаем емкость вектора
-            if(!DSF(_inF, stocksize)) return false;       // Читаем количество элементов вектора
-            if(capac == sZero) return false;
-            stock.reserve(capac);       // Резервируем память для вектора
+            if(!DSF(_inF, temp.PrCount)) return false;  // Читаем количество периодов
+            if(!DSF(_inF, temp.hmcur)) return false;    // Читаем основную валюту проекта
+            if(!DSF(_inF, temp.acct)) return false;     // Читаем принцип учета
+            if(!DSF(_inF, capac)) return false;         // Читаем емкость вектора
+            if(!DSF(_inF, stocksize)) return false;     // Читаем количество элементов вектора
+            if(stocksize == sZero) {    // Если вектор был пуст, то его не восстанавливаем
+                swap(temp);             // Обмениваем состояние с временной переменной
+                return true;            // и выходим с true
+            }
+            temp.stock.reserve(capac);  // Резервируем память для вектора
             for(size_t i=sZero; i<stocksize; i++) {
-                stock.emplace_back(PrCount, "", "", acct, true, calc, dZero);   // Создаем элемент непосредственно в векторе
-                if(!stock.back().RfF(_inF)) return false;                       // Вызываем метод десериализации этого элемента
+                temp.stock.emplace_back(temp.PrCount, "", "", temp.acct, true, calc, dZero);   // Создаем элемент непосредственно в векторе
+                if(!temp.stock.back().RfF(_inF)) return false;   // Вызываем метод десериализации этого элемента
             };
-            return true;                    // Возвращаем true
+            swap(temp);                 // Обмениваем состояние с временной переменной
+            return true;                // Возвращаем true
         }   // RfF
 
 # undef DEBUG           // отменить макрос информации об инструменте DEBUG
