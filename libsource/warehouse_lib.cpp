@@ -927,6 +927,11 @@ void EraseVector(vector<thread>& _pool) {
             return *(nmBPTypes::CurrencyTXT+hmcur);
         }   // HomeCurrency
 
+        const size_t clsStorage::GetHomeCurrency() const {
+        /** ¬озвращает основную валюту проекта в виде значени€ пол€ hmcur **/
+            return hmcur;
+        }   // GetHomeCurrency
+
         string clsStorage::Accounting() const {         // ¬озвращает принцип учета в виде текстовой строки
             return *(AccountTXT+acct);
         }   // Accounting
@@ -1075,7 +1080,7 @@ void EraseVector(vector<thread>& _pool) {
             if(!_unit) return false;    // ¬алидаци€ параметров
             size_t i=sZero;             // —четчик
             for(vector<clsSKU>::iterator it = stock.begin(); it < stock.end(); it++) {  // ѕо каждому складу загружаем цены,
-               if(!it->SetPurPrice((_unit+PrCount*i), PrCount)) return false;   // ели загрузка не удалась, то выход с false
+               if(!it->SetPurPrice((_unit+PrCount*i), PrCount)) return false;   // если загрузка не удалась, то выход с false
                i++;
             };
             return true;
