@@ -1146,16 +1146,17 @@ _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип 
     };
     ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
     RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-    strItem* tmpdata;                           // Временная переменная-указатель
+    strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
+    strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
     size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
     size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-    if((flg==volume) || (flg==price))           // Получаем указатель на искомый массив с данными
-        if(flg==volume) tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, volume);
-        else tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, price);
-    else tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, value);
-    _names = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne); // Получаем указатель на названия
+    tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
+    tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
     delete Data;                                // Удаляем объект для импорта
     std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
+    std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
+    if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
+    if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
     return true;
 }   // clsEnterprise::ImportSingleArray
 
