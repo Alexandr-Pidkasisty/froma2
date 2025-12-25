@@ -1183,9 +1183,10 @@ i- номер рецептуры. В качестве разделителя используется символ _ch. Метод заполн
         size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
         size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
         size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
+        size_t maxCol = _duration-sOne+hcols;
         strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);// Ук. на массив с именами и ед. измерения сырья в рецептуре
         MeasRestore(RMNames, _rnames, RMCount, _rcount);                        // Восстанавливаем ед. измерения сырья
-        decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, hcols);   // Получаем рецептуру продукта
+        decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);  // Получаем рецептуру продукта
         Recipe.emplace_back(_name, _meas, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
         delete[] _rnames;                               // Удаляем вспомогательный массив
         delete[] _recipeitem;                           // Удаляем вспомогательный массив
