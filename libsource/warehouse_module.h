@@ -283,14 +283,14 @@ class clsStorage {       /** Склад ресурсов для нескольких номенклатурных позици
             функции типа const strItem* (clsSKU::*)() const (GetPurchase - указатель на функцию, возвращающую массив
             с закупками, GetBalance - с остатками, GetShipment - с отгрузками). **/
 
-        void _setdataitem(size_t i, const auto val, void (clsSKU::*f)(const auto val));
-            /** 2024.11.01 Для SKU с индексом i метод устанавливает новые: наименование, единицу измерения,
-            разрешение на отгрузку и закупку в одном и том же периоде, флаг авторасчета/ ручного расчета
-            закупок, норматив запаса ресурсов. const auto val - новый устанавливаемый параметр. Для наименования
-            и ед.измерения тип const string&; для разрешение на отгрузку и закупку const bool; для флага
-            авторасчета const PurchaseCalc; для норматива остатков const decimal (вещественное число).
-            Используется в методах: clsStorage::SetName, clsStorage::SetMeasure, clsStorage::SetPermission,
-            clsStorage::SetAutoPurchase, clsStorage::SetShare. **/
+        template <typename T, typename U = T>
+        void _setdataitem(size_t i, const T val, void (clsSKU::*f)(const U val));
+            /** Для SKU с индексом i метод устанавливает новые: наименование, единицу измерения, разрешение на
+            отгрузку и закупку в одном и том же периоде, флаг авторасчета/ ручного расчета закупок, норматив
+            запаса ресурсов. val - новый устанавливаемый параметр. Для наименования и ед.измерения тип const string&;
+            для разрешение на отгрузку и закупку const bool; для флага авторасчета const PurchaseCalc; для норматива
+            остатков const decimal (вещественное число). Используется в методах: clsStorage::SetName,
+            clsStorage::SetMeasure, clsStorage::SetPermission, clsStorage::SetAutoPurchase, clsStorage::SetShare. **/
 
         TLack Calculate(size_t bg, size_t en);
             /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в

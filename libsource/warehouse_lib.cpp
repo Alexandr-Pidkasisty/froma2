@@ -754,16 +754,23 @@ void EraseVector(vector<thread>& _pool) {
             return temp;
         }   // getresult
 
-        void clsStorage::_setdataitem(size_t i, const auto val, void (clsSKU::*f)(const auto)) {
-        /** 2024.11.01 Для SKU с индексом i метод устанавливает новые: наименование, единицу измерения,
-        разрешение на отгрузку и закупку в одном и том же периоде, флаг авторасчета/ ручного расчета
-        закупок, норматив запаса сырья. const auto val - новый устанавливаемый параметр. Для наименования
-        и ед.измерения тип const string&; для разрешение на отгрузку и закупку const bool; для флага
-        авторасчета const PurchaseCalc; для норматива const decimal (вещественное число). **/
+        template <typename T, typename U = T>
+        void clsStorage::_setdataitem(size_t i, const T val, void (clsSKU::*f)(const U val)) {
+        /** Для SKU с индексом i метод устанавливает новые: наименование, единицу измерения, разрешение на
+        отгрузку и закупку в одном и том же периоде, флаг авторасчета/ ручного расчета закупок, норматив
+        запаса ресурсов. val - новый устанавливаемый параметр. Для наименования и ед.измерения тип const string&;
+        для разрешение на отгрузку и закупку const bool; для флага авторасчета const PurchaseCalc; для норматива
+        остатков const decimal (вещественное число). Используется в методах: clsStorage::SetName,
+        clsStorage::SetMeasure, clsStorage::SetPermission, clsStorage::SetAutoPurchase, clsStorage::SetShare. **/
             if(i >= stock.size()) return;                   // Валидация параметра
             vector<clsSKU>::iterator it = stock.begin()+i;  // Устанавливаем итератор на i-й элемент
             ((*it).*f)(val);                                // Вызываем нужную функцию С аргументом нужного типа
         }   // _setdataitem
+        template void clsStorage::_setdataitem(size_t, const string&, void (clsSKU::*f)(const string& val));
+        template void clsStorage::_setdataitem(size_t, const bool, void (clsSKU::*f)(const bool val));
+        template void clsStorage::_setdataitem(size_t, const PurchaseCalc, void (clsSKU::*f)(const PurchaseCalc val));
+        template void clsStorage::_setdataitem(size_t, const decimal, void (clsSKU::*f)(const decimal val));
+
 
         clsStorage::clsStorage() {
         /** Пустой конструктор. **/
