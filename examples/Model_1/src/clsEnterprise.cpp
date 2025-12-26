@@ -43,7 +43,7 @@ bool inData(string &_data, const string _defdata) {
     return false;
 }   // bool inData
 
-template<typename T, class=std::enable_if_t<is_ch_or_size_t_or_double_v<T>>>
+template<typename T, class>
 void inData(T &_data, const T _defdata) {
 /** Метод вводит данные пользователя. Предназначен для данных, определяемых условием на типы данных
 is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по умолчанию. Параметры:
