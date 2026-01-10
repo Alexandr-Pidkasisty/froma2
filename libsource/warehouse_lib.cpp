@@ -754,7 +754,7 @@ void EraseVector(vector<thread>& _pool) {
             return temp;
         }   // getresult
 
-        template <typename T, typename U = T>
+        template <typename T, typename U>
         void clsStorage::_setdataitem(size_t i, const T val, void (clsSKU::*f)(const U val)) {
         /** Для SKU с индексом i метод устанавливает новые: наименование, единицу измерения, разрешение на
         отгрузку и закупку в одном и том же периоде, флаг авторасчета/ ручного расчета закупок, норматив

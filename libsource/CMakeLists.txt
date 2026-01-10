@@ -1,6 +1,6 @@
 set(LIBRARY_NAME "froma2")	# Переменная с именем библиотеки
 project("${LIBRARY_NAME}"	# Название, версия, описание, язык программирования
-	VERSION 1.0.12
+	VERSION 1.0.13
 	DESCRIPTION "Direct costing modeling software library"
 	LANGUAGES CXX)
 # Добавляем файлы в проект статической библиотеки froma2
