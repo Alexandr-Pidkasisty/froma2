@@ -892,8 +892,8 @@ void EraseVector(vector<thread>& _pool) {
 //            return stock.at(i).Measure();
         }
 
-        strNameMeas* clsStorage::GetNameMeas() {    // Функция создана 25.03.2024
-        /** Метод возвращает указатель на вновь создаваемый массив типа strNameMeas с названием сыоья и
+        strNameMeas* clsStorage::GetNameMeas() const {    // Функция создана 25.03.2024
+        /** Метод возвращает указатель на вновь создаваемый массив типа strNameMeas с названием сырья и
         единицами измерения для всех позиций **/
             size_t RMCount = stock.size();                          // Получаем количество позиций сырья и материалов
             if(RMCount == sZero) return nullptr;                    // Если ноль, то выход с nullptr

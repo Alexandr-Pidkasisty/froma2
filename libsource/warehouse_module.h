@@ -323,7 +323,7 @@ class clsStorage {       /** —клад ресурсов дл€ нескольких номенклатурных позици
         size_t Size() const;                    // ¬озвращает размер вектора, равный количеству SKU
         const string& Name(size_t i) const;     // ¬озвращает Ќаименование SKU дл€ элемента с индексом i
         const string& Measure(size_t i) const;  // ¬озвращает ≈диницу измерени€ SKU дл€ элемента с индексом i
-        strNameMeas* GetNameMeas();             /** ћетод возвращает указатель на вновь создаваемый массив
+        strNameMeas* GetNameMeas() const;             /** ћетод возвращает указатель на вновь создаваемый массив
         типа strNameMeas с названием ресурсов и единицами измерени€ дл€ всех позиций **/
 
         string Permission(size_t i) const;
