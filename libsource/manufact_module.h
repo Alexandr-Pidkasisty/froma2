@@ -531,6 +531,9 @@ class clsManufactory {
         void Set_progress_message(string&& _message);
             /** Функция устанавливает новое значение сообщения во время вывода индикатора **/
 
+        void Set_progress_maxcount(const int _mx);
+            /** Функция устанавливает новое значение максимального числа итераций для индикатора прогресса **/
+
         void SetCurrency(const Currency&);                  /** Устанавливаем основную валюту проекта **/
 
         bool SetManufItem(const string &_name, const string &_measure, const size_t _duration, const size_t _rcount,\

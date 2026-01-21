@@ -1614,6 +1614,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             if(pshell) pshell->SetMessage(move(_message));
         }   // Set_progress_message
 
+        void clsManufactory::Set_progress_maxcount(const int _mx) {
+        /** ‘ункци€ устанавливает новое значение максимального числа итераций дл€ индикатора прогресса **/
+            if(pshell) pshell->Set_maxcount(_mx);
+        }   // clsManufactory::Set_progress_maxcount
+
         void clsManufactory::SetCurrency(const Currency& _cur) {
         /** ”станавливаем основную валюту проекта **/
              hmcur = _cur;
