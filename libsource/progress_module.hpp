@@ -176,12 +176,15 @@ class clsProgress_shell {
 
         void SetMessage(string&& _message) {
         /** Устанавливает новое значение сообщения во время вывода индикатора **/
+            if(!pbar) return;   // Проверка на существование объекта Прогресс-бар
             pbar->Set_message(std::move(_message));
         }   // SetMessage
 
         void Set_maxcount(const int _mx) {
         /** Устанавливает новое значение максимального числа итераций **/
-            pbar->Set_maxcount(_mx);
+            if(!pbar) return;   // Проверка на существование объекта Прогресс-бар
+            pbar->Set_maxcount(_mx);    // Устанавливаем поле clsprogress_bar::maxcount
+            maxcounter = _mx;           // Устанавливаем поле clsProgress_shell::maxcounter
         }   // Set_maxcount
 
 };  // clsProgress_shell
