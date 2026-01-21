@@ -179,6 +179,11 @@ class clsProgress_shell {
             pbar->Set_message(std::move(_message));
         }   // SetMessage
 
+        void Set_maxcount(const int _mx) {
+        /** Устанавливает новое значение максимального числа итераций **/
+            pbar->Set_maxcount(_mx);
+        }   // Set_maxcount
+
 };  // clsProgress_shell
 
 #endif // FROMA2_PROGRESS_MODULE_HPP
