@@ -1008,6 +1008,11 @@ void EraseVector(vector<thread>& _pool) {
             if(pshell) pshell->SetMessage(move(_message));
         }   // Set_progress_message
 
+        void clsStorage::Set_progress_maxcount(const int _mx) {
+        /** ‘ункци€ устанавливает новое значение максимального числа итераций дл€ индикатора прогресса **/
+            if(pshell) pshell->Set_maxcount(_mx);
+        }   // clsStorage::Set_progress_maxcount
+
         void clsStorage::SetCount(const size_t _n) {PrCount = _n; }     // ”станавливаем количество периодов проекта
 
         void clsStorage::SetName(size_t i, const string& _name) {
