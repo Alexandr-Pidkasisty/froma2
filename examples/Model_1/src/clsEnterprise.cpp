@@ -830,24 +830,35 @@ bool clsEnterprise::SetManufactory() {
 /** Метод создания производства и ввода параметров **/
     if((PrCount==sZero) || (RMCount==sZero) || (!RMNames)) return false;                        // Валидация параметров
     clsManufactory* temp = new(nothrow) clsManufactory(PrCount, RMCount, RMNames, ProdCount);   // Выделяем память
-    if(!temp) {                                                 // Если память не выделена
-        return false;                                           // Выход с false
+    if(!temp) {                                             // Если память не выделена
+        return false;                                       // Выход с false
     };
-    temp->SetCurrency(Cur);                                     // Вводим наименование валюты
-    size_t i{};                                                 // Индекс продукта (временная переменная)
-    for(vector<clsRecipeItem>::const_iterator cit=Recipe.cbegin(); cit!=Recipe.cend(); cit++) {
-        bool ch = temp->SetManufItem(*cit, (Production + PrCount*i)); // Создаем единичное производство
-                                                                        // для продукта с индексом i
-        if(!ch) {                                               // Если производство не создано, то
-            delete temp;                                        // удаляем вспомогательный объект
-            return false;                                       // и выходим с false
-        };
-        i++;                                                    // Увеличиваем счётчик продуктов
-    };
-    if(Manufactory) {                                           // Если массив существовал, то
-        Manufactory->swap(*temp);                               // обмениваем указатели и
-        delete temp;                                            // удаляем вспомогательный объект
-    } else Manufactory = temp;                                  // Иначе устанавливаем указатель Warehouse на массив
+    temp->SetCurrency(Cur);                                 // Вводим наименование валюты
+    clsRecipeItem* pRec = Recipe.data();                    // Получаем указатель на данные контейнера
+    if(!pRec) {
+        delete temp;
+        return false;                                       // Если массив пуст, то выход с false
+    }
+    for(size_t i{}; i<ProdCount; i++) {
+        bool ch;
+        if((ProdNames+i)->name == (pRec+i)->GetName())      // Если имена совпдают, добавляем ед.производство
+            ch = temp->SetManufItem(*(pRec+i), (Production + PrCount*i));           // Добавляем ед. производство
+        else {                                              // Если имена НЕ совпадают, то ищем рецептуру
+            clsRecipeItem* pp = find_recipe_by_name((ProdNames+i)->name, Recipe);   // с совпадающим именем
+            if(pp)                                          // Если рецептура с подходящим именем найдена,
+                ch = temp->SetManufItem(*pp, (Production + PrCount*i));             // Добавляем ед. производство
+            else
+                ch = false;
+        }
+        if(!ch) {                                           // Если производство не создано, то
+            delete temp;                                    // удаляем вспомогательный объект
+            return false;                                   // и выходим с false
+        }
+    }   // for(size_t i{}; i<ProdCount; i++)
+    if(Manufactory) {                                       // Если массив существовал, то
+        Manufactory->swap(*temp);                           // обмениваем указатели и
+        delete temp;                                        // удаляем вспомогательный объект
+    } else Manufactory = temp;                              // Иначе устанавливаем указатель Warehouse на массив
     return true;
 }   // clsEnterprise::SetManufactory
 
@@ -1160,39 +1171,48 @@ _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип 
     return true;
 }   // clsEnterprise::ImportSingleArray
 
-bool clsEnterprise::Import_Recipes(const string _filename, const char _ch, size_t hcols, size_t hrows) {
-/** Метод читает информацию из файлов с именами, содержащими вначале filename и заканчивающимися на _i, где
-i- номер рецептуры. В качестве разделителя используется символ _ch. Метод заполняет вектор рецептур Recipe. **/
-    string filename = FullFName(indir, _filename);      // Формируем полное имя файла
-    Recipe.reserve(ProdCount);                          // Резервируем память для элементов вектора
-    string file;                                        // Временная переменная для имени файла
+bool clsEnterprise::Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows) {
+/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
+_prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
+папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
+_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
+количество строк с заголовками в файлах. **/
+    vector<clsRecipeItem> tmpRecipe;                    // Вспомогательный вектор
+    tmpRecipe.reserve(ProdCount);                       // Резервируем память для элементов вектора
     ifstream rec;                                       // Поток для чтения из файла
     clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
-    for(size_t i{}; i<ProdCount; i++) {
-        file = filename + '_' + to_string(i) + ".csv";  // Формируем имя файла с рецептурой
-        rec.open(file);                                 // Связываем поток с файлом
-        if(!Data->Import(rec, _ch)) {                   // Импортируем данные из файла. Если импорт не удался,
-            rec.close();                                // то закрываем файл;
-            delete Data;                                // удаляем экземпляр класса для импорта
-            EraseVector(Recipe);                        // приводим вектор к состоянию по умолчанию
-            return false;                               // и выходим с false
-        };
-        rec.close();                                    // Закрываем файл
-        string _name = (ProdNames+i)->name;             // Получаем название продукта
-        string _meas = (ProdNames+i)->measure;          // Получаем название единицы измерения продукта
-        size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
-        size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
-        size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
-        size_t maxCol = _duration-sOne+hcols;
-        strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);// Ук. на массив с именами и ед. измерения сырья в рецептуре
-        MeasRestore(RMNames, _rnames, RMCount, _rcount);                        // Восстанавливаем ед. измерения сырья
-        decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);  // Получаем рецептуру продукта
-        Recipe.emplace_back(_name, _meas, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
-        delete[] _rnames;                               // Удаляем вспомогательный массив
-        delete[] _recipeitem;                           // Удаляем вспомогательный массив
-        Data->reset();                                  // Сбрасываем состояние объекта до дефолтного
-    };
-    delete Data;
+    regex fmask(_prefixname + msks);                    // Маска поиска файлов
+    string pth = indir;                                 // Получаем путь к папке с рецептурами
+    pth.resize(pth.length()-sOne);                      // Удаляем последний слеш в имени папки
+    const fs::path indata{pth};                         // Папка с файлами рецептур в переменной типа fs::path
+    if(!fs::exists(indata)) return false;               // Проверяем существование папки
+    for(auto &p : fs::directory_iterator(indata)) {     // Поиск по всем файлам в папке
+        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
+        string name((p.path().filename()).string());    // Получаем имя файла в виде строки
+        if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской. Если удачно:
+            rec.open(p.path());                         // Связываем поток с файлом
+            if(!Data->Import(rec, _ch)) {               // Импортируем данные из файла. Если импорт не удался,
+                rec.close();                            // то закрываем файл;
+                delete Data;                            // удаляем экземпляр класса для импорта
+                return false;                           // и выходим с false
+            };
+            rec.close();                                // Закрываем файл
+            strNameMeas* _names = Data->GetNames(sZero, sZero, sZero, sOne);// Читаем название и ед.измерения продукта
+            size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
+            size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
+            size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
+            size_t maxCol = _duration-sOne+hcols;           // Последний столбец
+            strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Моссив с наименованиями ресурсов
+            decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);          // Получаем тех.карту ресурса
+            tmpRecipe.emplace_back(_names->name, _names->measure, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
+            delete[] _names;                            // Удаляем вспомогательный массив
+            delete[] _rnames;                           // Удаляем вспомогательный массив
+            delete[] _recipeitem;                       // Удаляем вспомогательный массив
+            Data->reset();                              // Сбрасываем состояние объекта до дефолтного
+        }
+    }   // for(auto &p...)
+    delete Data;                                        // Удаляем экземпляр класса для импорта
+    Recipe = move(tmpRecipe);                           // Перемещаем вспомогательный массив в основной
     return true;
 }   // clsEnterprise::Import_Recipes
 
@@ -1527,3 +1547,11 @@ volume - в натуральном, value - в стоимостном, price - в ценовом измерении. Если
     if(ProdNames) delete[] ProdNames;
     return checkrez;
 }   // clsEnterprise::Report_Manufactory
+
+clsRecipeItem* clsEnterprise::find_recipe_by_name(const string& _name, vector<clsRecipeItem>& vec) {
+/** Метод ищет элемент контейнера с именем _name в контейнере vec и возвращает указатель на этот элемент.
+Если совпадение не найдено, метод возвращает nulptr. **/
+    for(clsRecipeItem* p = vec.data(); p < vec.data()+vec.size(); p++)  // Цикл по всем элементами контейнера
+        if(p->GetName() == _name) return p;         // Если имена совпадают, возврат указателя на элемент
+    return nullptr;                                 // Если совпадения не найдено, возврат nullptr
+}   // clsEnterprise::find_recipe_by_name

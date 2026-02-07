@@ -31,12 +31,23 @@
 #ifndef CLSENTERPRISE_H
 #define CLSENTERPRISE_H
 
+#include <vector>
+#include <string>                           // Работа со строками
+#include <filesystem>                       // Работа с файлами и диреткориями
+#include <regex>                            // Работа с регулярнями выражениями
+
 #include "baseproject_module.h"             // Подключаем базовый класс clsBaseProject
 #include "warehouse_module.h"               // Подключаем класс склада clsStorage
 #include "manufact_module.h"                // Подключаем класс производства clsManufactory
 #include "common_values.hpp"                // Некоторые функции
 #include "Impex_module.h"                   // Импорт исходных данных из файлов
 #include "pathes.h"                         // Пути к файлам конфигурации, отчета, входных и выходных данных
+
+#define msks "_\\d{1,2}\\.csv"
+/** Маска регулярного выражения regex для поиска файлов техкарт с помощью filesystem; имена файлов должны
+содержать суффикс с символом "_" и числом от 0 до 99; имя файла должно заканчиваться на ".cvs" **/
+
+namespace fs = std::filesystem;             // Создаем короткий алиас
 
 namespace nmEnterprise {
     struct strSettings {            // Структура индивидуальных настроек для склада
@@ -210,9 +221,12 @@ class clsEnterprise : public clsBaseProject {
         _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
         "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
 
-        bool Import_Recipes(const string filename, const char _ch, size_t hcols, size_t hrows); /** Метод
-        читает информацию из файлов с именами, содержащими вначале filename и заканчивающимися на _i, где i- номер
-        рецептуры. В качестве разделителя используется символ _ch. Метод заполняет вектор рецептур Recipe. **/
+        bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows);
+        /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
+        _prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
+        папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
+        _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
+        количество строк с заголовками в файлах. **/
 
         /** Методы редактирования **/
         bool SKUEdt(clsStorage* stock, const size_t num);
@@ -250,9 +264,14 @@ class clsEnterprise : public clsBaseProject {
         перечисляемому типу из данного модуля enum ManufData{manpurchase = 11, manbalance, manshipment, recipe},
         то отчет не выводится **/
 
+        clsRecipeItem* find_recipe_by_name(const string& _name, vector<clsRecipeItem>& vec);
+        /** Метод ищет элемент контейнера с именем _name и возвращает указатель на этот элемент.
+        Если совпадение не найдено, метод возвращает nulptr. **/
+
+        virtual void swap(clsEnterprise& other) noexcept;       // Функция обмена значениями между объектами
+
     public:
         clsEnterprise();                                        // Конструктор по умолчанию
-        void swap(clsEnterprise& other) noexcept;               // Функция обмена значениями между объектами
         clsEnterprise(const clsEnterprise& other);              // Конструктор копирования
         clsEnterprise(clsEnterprise&& other);                   // Конструктор перемещения
         clsEnterprise& operator=(const clsEnterprise& other);   // Оператор присваивания копированием
