@@ -62,7 +62,7 @@ class clsBaseProject
         clsBaseProject();                                               // Конструктор по умолчанию
         virtual ~clsBaseProject();                                      // Виртуальный деструктор
         clsBaseProject(const clsBaseProject& other);                    // Конструктор копирования
-        virtual void swap(clsBaseProject& other) noexcept;              // Функция обмена значениями между объектами
+        void swap(clsBaseProject& other) noexcept;              // Функция обмена значениями между объектами
         clsBaseProject(clsBaseProject&& other);                         // Конструктор перемещения
         clsBaseProject& operator=(const clsBaseProject& other);         // Перегрузка оператора присваивания копированием
         clsBaseProject& operator=(clsBaseProject&& other);              // Перегрузка оператора присваивания перемещением

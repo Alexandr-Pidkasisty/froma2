@@ -268,11 +268,10 @@ class clsEnterprise : public clsBaseProject {
         /** Метод ищет элемент контейнера с именем _name и возвращает указатель на этот элемент.
         Если совпадение не найдено, метод возвращает nulptr. **/
 
-        virtual void swap(clsEnterprise& other) noexcept;       // Функция обмена значениями между объектами
-
     public:
         clsEnterprise();                                        // Конструктор по умолчанию
         clsEnterprise(const clsEnterprise& other);              // Конструктор копирования
+        void swap(clsEnterprise& other) noexcept;       // Функция обмена значениями между объектами
         clsEnterprise(clsEnterprise&& other);                   // Конструктор перемещения
         clsEnterprise& operator=(const clsEnterprise& other);   // Оператор присваивания копированием
         clsEnterprise& operator=(clsEnterprise&& other);        // Оператор присваивания перемещением
