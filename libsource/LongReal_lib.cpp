@@ -43,7 +43,9 @@ const Dtype  dZero =  0,
 const Etype  eZero =  0,
              eOne  =  1;
 const unsigned short int mant = std::numeric_limits<double>::max_digits10;  // Количество разрядов числа double,
-                                        // используемого при инициализации экземпляра класса LongReal
+// используемого при инициализации экземпляра класса LongReal и при выводе числа в поток ostream. Это количество
+// десятичных цифр, которое необходимо, чтобы гарантированно сохранить и восстановить число без потери точности
+// при преобразовании число double в string и обратно в число double.
 const char chZero  = '0';               // Символ нуля
 const char chPoint = '.';               // Символ десятичной точки
 const char chMinus = '-';               // Символ минус
