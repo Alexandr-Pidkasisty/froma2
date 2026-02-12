@@ -1,0 +1,8 @@
+#ifndef PATHES_H
+#define PATHES_H
+
+#define V_DIR_INPUTDATA "@DIR_INPUTDATA@/"
+#define V_DIR_OUTPUTDATA "@DIR_OUTPUTDATA@/"
+#define V_DIR_TEMP "@DIR_TEMP@/"
+
+#endif // PATHES_H
