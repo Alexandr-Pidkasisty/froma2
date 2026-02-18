@@ -20,8 +20,6 @@
 #define filename_recipe_in "recipe_in"          // Префикс для файлов с техкартами ЦЗП
 #define filename_recipe_out "recipe_out"        // Префикс для файлов с техкартами ЦЗО
 #define msks "_\\d{1,3}\\.csv"                  // Маска regex для поиска файлов техкарт с помощью filesystem
-#define filename_export_purprice "export_pur_price.csv" // Имя файла экспорта с ценами поставок
-#define filename_export_shipment "export_ship.csv"      // Имя файла экспорта с отгрузками
 
 namespace fs = std::filesystem; // Создаем короткий алиас
 
@@ -101,15 +99,8 @@ class clsCCStorageTest {
         vector<clsRecipeItem> GetOutRecipe();
         /** Возвращает контейнер с тех.картами для ЦЗО путем перемещения **/
 
-        /** Заголовки таблиц в отчетах **/
-        const string rTableName  = "Наименование";
-        const string rTableMeas  = "Ед.измерения";
-        const string rByVolume   = "В натуральном измерении";
-        const string rByPrice    = "В удельном стоимостном измерении";
-        const string rByValue    = "В стоимостном измерении";
-
     protected:
 
-};  // clsCostCenterStorage
+};  // clsCCStorageTest
 
 #endif // CLSCCSTORAGETEST_H
