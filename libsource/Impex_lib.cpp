@@ -187,9 +187,9 @@ names[] с наименованиями строк, names[] - массив с наименованиями строк и единиц
         for(size_t j{}; j<dcount; j++) {        // Цикл по столбцам
             stringstream ss;                    // Вспомогательный поток
             if((flg==nmBPTypes::ReportData::volume) || (flg==nmBPTypes::ReportData::price)) // Записываем в поток данные
-                if(flg==nmBPTypes::ReportData::volume) ss << fixed << setprecision(mant) << (data+dcount*i+j)->volume;
-                else ss << fixed << setprecision(mant) << (data+dcount*i+j)->price;
-            else ss << fixed << setprecision(mant) << (data+dcount*i+j)->value;
+                if(flg==nmBPTypes::ReportData::volume) ss << lr_precision(ex_precision) << (data+dcount*i+j)->volume;
+                else ss << lr_precision(ex_precision) << (data+dcount*i+j)->price;
+            else ss << lr_precision(ex_precision) << (data+dcount*i+j)->value;
             row.push_back(std::move(ss.str())); // Переносим в вектор элемент
         };
         m_data.push_back(std::move(row));       // Переносим вспомогателный вектор в элемент основного вектора
@@ -223,7 +223,7 @@ void clsImpex::csvExport(ofstream& ofs) const {
 /** Метод экспорта вектора в csv-файл с разделителем, заданным в переменной separator **/
     for (const vector<string>& row : m_data) {
         for(const string& value: row) {
-            ofs << value << separator;
+            ofs << lr_precision(ex_precision) << value << separator;
         }
         ofs << endl;
     };
@@ -247,14 +247,14 @@ brow - начальная строка данных, erow - конечная строка, bcol - начальный столбец
         (bcol>=m_colcount) || (ecol>=m_colcount) || (bcol>ecol)) return nullptr;    // Проверка корректности параметров
     size_t trows = erow-brow+nmBPTypes::sOne;           // Количество строк в выходном массиве
     size_t tcols = ecol-bcol+nmBPTypes::sOne;           // Количество столбцов в выходном массиве
-    decimal* dData = new(nothrow) decimal[trows*tcols];       // Выделяем память массиву
+    decimal* dData = new(nothrow) decimal[trows*tcols]; // Выделяем память массиву
     if(!dData) return nullptr;                          // Если память не выделена, то выход и возврат nullptr
     vector<vector<string>>::const_iterator citrow;      // Итератор для строк
-    vector<string>::const_iterator citcell;             // итератор для столбцов
+    vector<string>::const_iterator citcell;             // Итератор для столбцов
     size_t i=nmBPTypes::sZero;                          // Индекс строки
     for(citrow=m_data.cbegin()+brow; citrow<=m_data.cbegin()+erow; citrow++) {              // Перебор по строкам
         size_t j=nmBPTypes::sZero;                                                          // Индекс столбца
-        for(citcell=(*citrow).cbegin()+bcol; citcell<=(*citrow).cbegin()+ecol; citcell++) { // перебор по столбцам
+        for(citcell=(*citrow).cbegin()+bcol; citcell<=(*citrow).cbegin()+ecol; citcell++) { // Перебор по столбцам
             stringstream ss;                            // Вспомогательный поток строк
             ss << *citcell;                             // Читаем из матрицы в поток строк
             ss >> *(dData+tcols*i+j);                   // Экспортируем из потока в число
