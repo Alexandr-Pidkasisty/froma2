@@ -38,10 +38,16 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include <limits>               // Предельные значения фундаментальных типов
 #include "common_values.hpp"
 #include "LongReal_module.h"
 
 using namespace std;
+
+const size_t constexpr ex_precision = (std::is_same<decimal, LongReal>::value) ? manDigits : \
+    (std::numeric_limits<decimal>::max_digits10);
+/** Если в расчётах используются вещественные числа типа LongReal, то длина мантиссы равна manDigits,
+если встроенные типы, - то max_digits10. Используется в методе clsImpex::csvExport. **/
 
 /*************************************************************************************************************************/
 /**                        Класс clsImpex для импорта и экспорта информации из cvs-файлов                               **/
