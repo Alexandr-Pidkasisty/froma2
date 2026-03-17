@@ -1185,7 +1185,74 @@ LongReal fabs(const LongReal& x) {
     return res;
 }   // LongReal::fabs
 
+/*************************************************************************************************************************/
+/**                                                                                                                     **/
+/**                                               class lrstream                                                        **/
+/**                                                                                                                     **/
+/*************************************************************************************************************************/
 
+/*********************************************** struct lrstream begin ***************************************************/
+
+lrstream::lrstream(const size_t w) : N(w){}
+
+lrstream::lrstream(ostream& oss, const size_t w) : pos(&oss), N(w){}
+
+lrstream& lrstream::operator<<(const LongReal& val) {
+/** Оператор вывода в поток lrstream вещественных чисел типа LongReal **/
+    *pos << val.Get(N);
+    return *this;
+}
+
+template<typename T, class>
+lrstream& lrstream::operator<<(const T& val) {
+/** Оператор вывода в поток lrstream вещественных чисел встроенных типов: float, double и long double **/
+    pos->precision(N);
+    *pos << val;
+    return *this;
+}
+/** Специализация шаблона **/
+template lrstream& lrstream::operator<<(const float& val);
+template lrstream& lrstream::operator<<(const double& val);
+template lrstream& lrstream::operator<<(const long double& val);
+
+lrstream& lrstream::operator<<(const char val) {
+/** Оператор вывода в поток lrstream символов (для вывода символов разделителей) **/
+    *pos << val;
+    return *this;
+}
+
+ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
+/** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.
+В качестве аргумента может использоваться функция lr_exit или стандартные манипуляторы
+std::endl, std::flush и другие output-манипуляторы из заголовочного файла <ostream>
+(https://en.cppreference.com/w/cpp/io/manip.html) **/
+    return (*f)(*pos);  // Вызываем функцию и возвращаем ее значение
+}
+
+void lrstream::set_stream(ostream& oss) {
+/** Метод установки потока для вывода типа ostream **/
+    pos = &oss;
+}
+
+/********************************************** struct lrstream end *******************************************************/
+
+lrstream lr_precision(const size_t w) {
+/** Манипулятор для чисел типа LongReal, float, double и long double. Устанавливает количество
+выводимых знаков после запятой. **/
+    return lrstream(w);
+}
+
+lrstream operator <<(ostream& os, lrstream&& m) {
+/** Оператор ввода объекта типа lrstream в поток ostream. Позволяет подменить поток ostream
+потоком lrstream и принимать в поток lrstream последующие данные. **/
+    m.set_stream(os);
+    return move(m);
+}
+
+ostream& lr_exit(ostream& os) { return os; };
+/** Манипулятор для выхода из потока lrstream и возвращения в поток ostream. Вместо манипулятора
+lr_exit могут использоваться манипуляторы std::endl, std::flush и другие output-манипуляторы из
+заголовочного файла <ostream> (https://en.cppreference.com/w/cpp/io/manip.html)**/
 
 #undef Debug_voice
 

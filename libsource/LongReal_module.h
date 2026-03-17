@@ -155,4 +155,54 @@ class LongReal {
 
 };  // LongReal
 
+/*************************************************************************************************************************/
+/**                                                                                                                     **/
+/**                                               class lrstream                                                        **/
+/**                                                                                                                     **/
+/*************************************************************************************************************************/
+
+template<typename T>    // Проверка типа на соответствие float, double и long double
+constexpr bool is_std_real_v =
+    std::is_same<T, float>::value || std::is_same<T, double>::value || std::is_same<T, long double>::value;
+
+struct lrstream {
+/** Тип, реализующий "псевдопоток" для вывода в поток типа ostream чисел типа LongReal, float, double или
+long double с одним и тем же манипулятором. Манипулятор ограничивает количество знаков после запятой у
+вещественных чисел указанных типов. Может применяться в методах, где используется псевдоним decimal, при
+этом манипулятор будет единственным для всех указанных типов. Преимущество данного подхода в том, что не
+требуется промежуточная конвертация чисел LongReal в double и используется единый манипулятор для обоих типов. **/
+    ostream *pos = &cout;                       // Поток для реального вывода чисел и символов
+    const size_t N;                             // Количество знаков после запятой у вещественных чисел
+    lrstream(const size_t w);                   // Констркутор
+    lrstream(ostream& oss, const size_t w);     // Констркутор
+
+    lrstream& operator<<(const LongReal& val);  // Оператор вывода в поток lrstream вещественных чисел типа LongReal
+
+    template<typename T, class=std::enable_if_t<is_std_real_v<T>>>
+    lrstream& operator<<(const T& val);         // Оператор вывода в поток lrstream вещественных чисел встроенных типов
+
+    lrstream& operator<<(const char val);       // Оператор вывода в поток lrstream символов (для вывода разделителей)
+
+    ostream& operator<<(ostream&(*f)(ostream&));/** Оператор ввода в поток манипулятора для выхода из потока lrstream
+        в поток ostream. В качестве аргумента может использоваться функция lr_exit или стандартные манипуляторы
+        std::endl, std::flush и другие output-манипуляторы из заголовочного файла <ostream>
+        (https://en.cppreference.com/w/cpp/io/manip.html) **/
+
+    void set_stream(ostream& oss);              // Метод установки потока для вывода типа ostream
+
+};  // struct lrstream
+
+lrstream lr_precision(const size_t w);
+    /** Манипулятор для чисел типа LongReal, float, double и long double. Устанавливает количество
+    выводимых знаков после запятой. **/
+
+lrstream operator <<(ostream& os, lrstream&& m);
+    /** Оператор ввода объекта типа lrstream в поток ostream. Позволяет подменить поток ostream
+    потоком lrstream и принимать в поток lrstream последующие данные. **/
+
+ostream& lr_exit(ostream&);
+    /** Манипулятор для выхода из потока lrstream и возвращения в поток ostream. Вместо манипулятора
+    lr_exit могут использоваться манипуляторы std::endl, std::flush и другие output-манипуляторы из
+    заголовочного файла <ostream> (https://en.cppreference.com/w/cpp/io/manip.html)**/
+
 #endif // FROMA2_LONGREAL_H
