@@ -1229,10 +1229,10 @@ std::endl, std::flush и другие output-манипуляторы из заголовочного файла <ostre
     return (*f)(*pos);  // Вызываем функцию и возвращаем ее значение
 }
 
-void lrstream::set_stream(ostream& oss) {
-/** Метод установки потока для вывода типа ostream **/
-    pos = &oss;
-}
+//void lrstream::set_stream(ostream& oss) {
+///** Метод установки потока для вывода типа ostream **/
+//    pos = &oss;
+//}
 
 /********************************************** struct lrstream end *******************************************************/
 
@@ -1245,7 +1245,8 @@ lrstream lr_precision(const size_t w) {
 lrstream operator <<(ostream& os, lrstream&& m) {
 /** Оператор ввода объекта типа lrstream в поток ostream. Позволяет подменить поток ostream
 потоком lrstream и принимать в поток lrstream последующие данные. **/
-    m.set_stream(os);
+//    m.set_stream(os);
+    m.pos = &os;
     return move(m);
 }
 

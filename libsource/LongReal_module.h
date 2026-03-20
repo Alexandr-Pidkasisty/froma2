@@ -188,7 +188,7 @@ long double с одним и тем же манипул€тором. ћанипул€тор ограничивает количество 
         std::endl, std::flush и другие output-манипул€торы из заголовочного файла <ostream>
         (https://en.cppreference.com/w/cpp/io/manip.html) **/
 
-    void set_stream(ostream& oss);              // ћетод установки потока дл€ вывода типа ostream
+//    void set_stream(ostream& oss);              // ћетод установки потока дл€ вывода типа ostream
 
 };  // struct lrstream
 
