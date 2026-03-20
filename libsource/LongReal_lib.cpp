@@ -1195,7 +1195,7 @@ LongReal fabs(const LongReal& x) {
 
 lrstream::lrstream(const size_t w) : N(w){}
 
-lrstream::lrstream(ostream& oss, const size_t w) : pos(&oss), N(w){}
+//lrstream::lrstream(ostream& oss, const size_t w) : pos(&oss), N(w){}
 
 lrstream& lrstream::operator<<(const LongReal& val) {
 /** ќператор вывода в поток lrstream вещественных чисел типа LongReal **/

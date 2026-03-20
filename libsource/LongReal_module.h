@@ -174,7 +174,7 @@ long double с одним и тем же манипулятором. Манипулятор ограничивает количество 
     ostream *pos = &cout;                       // Поток для реального вывода чисел и символов
     const size_t N;                             // Количество знаков после запятой у вещественных чисел
     lrstream(const size_t w);                   // Констркутор
-    lrstream(ostream& oss, const size_t w);     // Констркутор
+//    lrstream(ostream& oss, const size_t w);     // Констркутор
 
     lrstream& operator<<(const LongReal& val);  // Оператор вывода в поток lrstream вещественных чисел типа LongReal
 
