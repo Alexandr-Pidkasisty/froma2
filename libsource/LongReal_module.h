@@ -200,6 +200,10 @@ lrstream operator <<(ostream& os, lrstream&& m);
     /** Оператор ввода объекта типа lrstream в поток ostream. Позволяет подменить поток ostream
     потоком lrstream и принимать в поток lrstream последующие данные. **/
 
+lrstream operator <<(lrstream& los, lrstream&& m);
+    /** Оператор ввода нового объекта типа lrstream в поток lrstream. Позволяет изменить мантиссу
+    выводимого числа с помощью повторного использования манипулятора lr_precision с новым значением **/
+
 ostream& lr_exit(ostream&);
     /** Манипулятор для выхода из потока lrstream и возвращения в поток ostream. Вместо манипулятора
     lr_exit могут использоваться манипуляторы std::endl, std::flush и другие output-манипуляторы из
