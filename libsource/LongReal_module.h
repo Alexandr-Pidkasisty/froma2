@@ -133,9 +133,9 @@ class LongReal {
         friend LongReal fabs(const LongReal& x);        // Взятие числа по модулю
 
         /** Перегрузка операторов ввода и вывода **/
-        friend ostream& operator<<(ostream& os, const LongReal& value);     // Оператор вывода информации в поток ostream
-        friend stringstream& operator>>(stringstream& ss, LongReal& value); // Оператор ввода информации из потока stringstream
-        friend istream& operator>>(istream& is, LongReal& value);           // Оператор ввода информации из потока cin
+        friend ostream& operator<<(ostream& os, const LongReal& value);     // Вывод числа в поток ostream как double
+        friend stringstream& operator>>(stringstream& ss, LongReal& value); // Ввод числа из потока stringstream
+        friend istream& operator>>(istream& is, LongReal& value);           // Ввод числа из потока istream
 
         /** Методы сериализации и десериализации **/
         bool StF(ofstream &_outF) const;                // Запись экземпляра класса в файловую переменную

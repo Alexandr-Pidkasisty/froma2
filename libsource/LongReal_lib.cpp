@@ -1152,13 +1152,10 @@ bool LongReal::ReadFromFile(const string _filename) {
     }   // DSF
 
 ostream& operator<<(ostream& os, const LongReal& value) {
-/** Перегрузка оператора вывода числа в поток ostream **/
-//    os << value.getstream();
-//    string tmp = value.getstream().str(); // Выводим число, как string
-    double tmp;
-    value.getstream() >> tmp;               // Выводим число, как double
-//    os << fixed << setprecision(mant) << tmp;
-    os << tmp;
+/** Перегрузка оператора вывода числа в поток ostream с промежуточной конвертацией в double.  **/
+    double tmp;                 // Вспомогательная переменная
+    value.getstream() >> tmp;   // Конвертируем число в double
+    os << tmp;                  // Выводим double в поток
 	return os;
 }   // operator<<
 
