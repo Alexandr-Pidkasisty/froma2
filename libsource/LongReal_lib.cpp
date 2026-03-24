@@ -1190,9 +1190,10 @@ LongReal fabs(const LongReal& x) {
 
 /*********************************************** struct lrstream begin ***************************************************/
 
-lrstream::lrstream(const size_t w) : N(w){}
-
-//lrstream::lrstream(ostream& oss, const size_t w) : pos(&oss), N(w){}
+lrstream::lrstream(const size_t w) : N(w){
+/** Конструктор **/
+    pos->precision(N);
+}
 
 lrstream& lrstream::operator<<(const LongReal& val) {
 /** Оператор вывода в поток lrstream вещественных чисел типа LongReal **/
@@ -1202,8 +1203,7 @@ lrstream& lrstream::operator<<(const LongReal& val) {
 
 template<typename T, class>
 lrstream& lrstream::operator<<(const T& val) {
-/** Оператор вывода в поток lrstream вещественных чисел встроенных типов: float, double и long double **/
-    pos->precision(N);
+/** Оператор вывода в поток lrstream используемых величин встроенных типов **/
     *pos << val;
     return *this;
 }
@@ -1211,12 +1211,7 @@ lrstream& lrstream::operator<<(const T& val) {
 template lrstream& lrstream::operator<<(const float& val);
 template lrstream& lrstream::operator<<(const double& val);
 template lrstream& lrstream::operator<<(const long double& val);
-
-lrstream& lrstream::operator<<(const char val) {
-/** Оператор вывода в поток lrstream символов (для вывода символов разделителей) **/
-    *pos << val;
-    return *this;
-}
+template lrstream& lrstream::operator<<(const char& val);
 
 ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
 /** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.
@@ -1225,11 +1220,6 @@ std::endl, std::flush и другие output-манипуляторы из заголовочного файла <ostre
 (https://en.cppreference.com/w/cpp/io/manip.html) **/
     return (*f)(*pos);  // Вызываем функцию и возвращаем ее значение
 }
-
-//void lrstream::set_stream(ostream& oss) {
-///** Метод установки потока для вывода типа ostream **/
-//    pos = &oss;
-//}
 
 /********************************************** struct lrstream end *******************************************************/
 
@@ -1242,8 +1232,8 @@ lrstream lr_precision(const size_t w) {
 lrstream operator <<(ostream& os, lrstream&& m) {
 /** Оператор ввода объекта типа lrstream в поток ostream. Позволяет подменить поток ostream
 потоком lrstream и принимать в поток lrstream последующие данные. **/
-//    m.set_stream(os);
     m.pos = &os;
+    m.pos->precision(m.N);
     return move(m);
 }
 
@@ -1251,6 +1241,7 @@ lrstream operator <<(lrstream& los, lrstream&& m) {
 /** Оператор ввода нового объекта типа lrstream в поток lrstream. Позволяет подменить прежний
 поток со старым значением длины мантиссы новым потоком с новым значением длины мантиссы **/
     m.pos = los.pos;
+    m.pos->precision(m.N);
     return move(m);
 }
 
