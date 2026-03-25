@@ -162,9 +162,7 @@ class LongReal {
 /*************************************************************************************************************************/
 
 template<typename T>                            // Проверка на соответствие используемым встроенным типам
-constexpr bool is_std_used_v =
-    std::is_same<T, float>::value || std::is_same<T, double>::value || std::is_same<T, long double>::value\
-    || std::is_same<T, char>::value;
+constexpr bool is_std_used_v = std::is_arithmetic<T>::value;
 
 struct lrstream {
 /** Тип, реализующий "псевдопоток" для вывода в поток типа ostream чисел типа LongReal, float, double или
