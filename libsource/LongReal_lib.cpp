@@ -566,7 +566,7 @@ size_t LongReal::Size() const {
     return (sizeof(size_t) + sizeof(Stype) + sizeof(Etype) + sizeof(Dtype)* NumCount);
 }   // LongReal::Size
 
-template <typename T>
+template <typename T, class>
 /** Возвращает число в форме string, long double, double или float **/
 T LongReal::Get() const {
     T tmp;
@@ -1202,16 +1202,17 @@ lrstream& lrstream::operator<<(const LongReal& val) {
 }
 
 template<typename T, class>
-lrstream& lrstream::operator<<(const T& val) {
+lrstream& lrstream::operator<<(const T val) {
 /** Оператор вывода в поток lrstream используемых величин встроенных типов **/
     *pos << val;
     return *this;
 }
 /** Специализация шаблона **/
-template lrstream& lrstream::operator<<(const float& val);
-template lrstream& lrstream::operator<<(const double& val);
-template lrstream& lrstream::operator<<(const long double& val);
-template lrstream& lrstream::operator<<(const char& val);
+template lrstream& lrstream::operator<<(const float val);
+template lrstream& lrstream::operator<<(const double val);
+template lrstream& lrstream::operator<<(const long double val);
+template lrstream& lrstream::operator<<(const char val);
+template lrstream& lrstream::operator<<(const char* val);
 
 ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
 /** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.

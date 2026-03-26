@@ -63,6 +63,10 @@ enum Scale{NANO=-9, MICRO=-6, MILL=-3, KILO = 3, MEGA=6, GIGA=9}; // Для повышен
 /**                                                                                                                     **/
 /*************************************************************************************************************************/
 
+template<typename T> constexpr bool are_types_for_get_v =
+    std::is_floating_point<T>::value ||
+    std::is_same<T, std::string>::value;
+
 class LongReal {
 /** Класс для хранения и совершения арифметических операций с длинными вещественными числами. **/
     private:
@@ -103,7 +107,7 @@ class LongReal {
 
         /** Методы Get **/
         size_t Size() const;                    // Метод возвращает размер объекта в байтах
-        template <typename T>
+        template<typename T, class=std::enable_if_t<are_types_for_get_v<T>>>
         T Get() const;                          // Возвращает число в форме string, long double, double или float
         string Get(size_t _n) const;            // Возвращает число в форме string с заданным количеством знаков после точки
         string EGet(size_t n) const;            // Возвращает число в форме string в виде .ddddEn (мантисса со степенью)
@@ -161,8 +165,11 @@ class LongReal {
 /**                                                                                                                     **/
 /*************************************************************************************************************************/
 
-template<typename T>                            // Проверка на соответствие используемым встроенным типам
-constexpr bool is_std_used_v = std::is_arithmetic<T>::value;
+template<typename T> constexpr bool are_types_for_lrstream_v =
+    std::is_floating_point<T>::value ||
+    std::is_same<std::remove_const_t<std::remove_pointer_t<T>>, char>::value;
+/** Условие соответствия типам: float, double, long double, char, char*, const char, const char*. При этом,
+параметры могут быть как lvalue, так и rvalue. (https://cplusplus.com/reference/type_traits) **/
 
 struct lrstream {
 /** Тип, реализующий "псевдопоток" для вывода в поток типа ostream чисел типа LongReal, float, double или
@@ -176,8 +183,8 @@ long double с одним и тем же манипулятором. Манипулятор ограничивает количество 
 
     lrstream& operator<<(const LongReal& val);  // Оператор вывода в поток lrstream вещественных чисел типа LongReal
 
-    template<typename T, class=std::enable_if_t<is_std_used_v<T>>>
-    lrstream& operator<<(const T& val);     // Оператор вывода в поток lrstream используемых величин встроенных типов
+    template<typename T, class=std::enable_if_t<are_types_for_lrstream_v<T>>>
+    lrstream& operator<<(const T val);     // Оператор вывода в поток lrstream используемых величин встроенных типов
 
     ostream& operator<<(ostream&(*f)(ostream&));/** Оператор ввода в поток манипулятора для выхода из потока lrstream
         в поток ostream. В качестве аргумента может использоваться функция lr_exit или стандартные манипуляторы
