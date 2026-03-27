@@ -1202,7 +1202,7 @@ lrstream& lrstream::operator<<(const LongReal& val) {
 }
 
 template<typename T, class>
-lrstream& lrstream::operator<<(const T val) {
+lrstream& lrstream::operator<<(T val) {
 /** Оператор вывода в поток lrstream используемых величин встроенных типов **/
     *pos << val;
     return *this;
@@ -1213,6 +1213,7 @@ template lrstream& lrstream::operator<<(const double val);
 template lrstream& lrstream::operator<<(const long double val);
 template lrstream& lrstream::operator<<(const char val);
 template lrstream& lrstream::operator<<(const char* val);
+template lrstream& lrstream::operator<<(char* val);
 
 ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
 /** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.

@@ -184,7 +184,7 @@ long double с одним и тем же манипул€тором. ћанипул€тор ограничивает количество 
     lrstream& operator<<(const LongReal& val);  // ќператор вывода в поток lrstream вещественных чисел типа LongReal
 
     template<typename T, class=std::enable_if_t<are_types_for_lrstream_v<T>>>
-    lrstream& operator<<(const T val);     // ќператор вывода в поток lrstream используемых величин встроенных типов
+    lrstream& operator<<(T val);     // ќператор вывода в поток lrstream используемых величин встроенных типов
 
     ostream& operator<<(ostream&(*f)(ostream&));/** ќператор ввода в поток манипул€тора дл€ выхода из потока lrstream
         в поток ostream. ¬ качестве аргумента может использоватьс€ функци€ lr_exit или стандартные манипул€торы
