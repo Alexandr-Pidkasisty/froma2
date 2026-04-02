@@ -87,8 +87,9 @@ class LongReal {
         stringstream getstream() const;                             // Вывод хранимого числа в поток stringstream
         inline bool ovrflw(const Etype& E1, const Etype& E2) const; // Контроль переполнения
         LongReal incrE(const Etype& _E) const;                      // Меняет экспоненту без изменения числа
-        void incrD(const size_t& _N);       // Увеличивает длину массива digits до значения _N за счет правых нулей
-
+        void incrD(const size_t& _N);               // Увеличивает длину массива digits до значения _N за счет правых нулей
+        inline LongReal _round(const size_t) const; // Возвращает число типа LongReal с округлением до _n разрядов;
+                                                    // значения в разрядах от _n+1 до NumCount не меняются
     public:
         /** Конструкторы, деструктор, метод обмена **/
         LongReal();                         // Конструктор по-умолчанию
@@ -96,6 +97,7 @@ class LongReal {
         LongReal(const double& value);      // Конструктор с инициализацией числа из числа типа double
         LongReal(const LongReal& obj);      // Конструктор копирования
         LongReal(LongReal&& obj);           // Конструктор перемещения
+        LongReal(Stype _sign, size_t _NumCount, Dtype* &_digits, Etype _exp);    // Конструктор прямого создания числа
         ~LongReal();                        // Деструктор
         void swap(LongReal& obj) noexcept;  // Функция обмена значениями между объектами
 

@@ -369,6 +369,17 @@ void LongReal::incrD(const size_t& _N) {
     };
 }   // Dtype LongReal::incrD
 
+LongReal LongReal::_round(const size_t _n) const {
+/** Возвращает число типа LongReal с округлением до _n разрядов; значения в разрядах от _n+1 до NumCount
+не меняются. Метод используется в функции string Get(size_t) **/
+    Stype _sign = this->sign;                               // Знак вспомогательного числа равный знаку основного
+    size_t _NumCount = 1;                                   // Размер массива с разрядами вспомогательного числа
+    Dtype* _digits = new Dtype[_NumCount]{5};               // Создаем динамический массив с одним элементом
+    Etype _exp = static_cast<Etype>(-_n);                   // Создаем экспоненту для вспомогательного числа
+    const LongReal temp(_sign, _NumCount, _digits, _exp);   // Создаем константу числа для округления
+    return (*this + temp);                                  // Возвращаем копию округленного числа
+}   // LongReal::_round
+
 /********************************************** Секция public ********************************************************/
 
 LongReal::LongReal() {
@@ -470,6 +481,19 @@ LongReal::LongReal(LongReal&& obj) {
         cout << "Move Ctor\n";
     #endif // Debug_voice
 }   // Move Ctor
+
+LongReal::LongReal(Stype _sign, size_t _NumCount, Dtype* &_digits, Etype _exp) {
+/** Конструктор прямого создания числа из отдельных составляющих. Может быть полезен
+при создании констант. **/
+    sign = _sign;                   // Ноль считаем положительным числом
+    NumCount = _NumCount;           // Устанавливаем размер массива равный нулю
+    digits = _digits;               // Устанавливаем указатель на массив _digits
+    _digits = nullptr;              // Устанавливаем указатель на nullptr
+    exponent = _exp;                // Присваиваем экспоненте минимально возможное число
+    #ifdef Debug_voice              // Макрос вывода отладочной информации. Работает, если определен CDtor_voice
+        cout << "Direct Ctor\n";    // Отладочная информация
+    #endif // Debug_voice
+}   // Direct Ctor
 
 LongReal::~LongReal() {
 /** Деструктор **/
@@ -586,14 +610,15 @@ template double LongReal::Get<double>() const;
 template float LongReal::Get<float>() const;
 
 string LongReal::LongReal::Get(const size_t n) const {
-/** Функция возвращает число в форме string с заданным количеством n знаков после точки **/
+/** Функция возвращает число в форме string с заданным количеством n знаков после точки. Число округляется **/
     if(this->isNaN()) return strNaN;        // Если объект равен NaN, выводим NaN и выходим
     if(this->isposInf()) return strInf;     // Если объект равен inf, выводим inf и выходим
     if(this->isnegInf()) return strNInf;    // Если объект равен -inf, выводим -inf и выходим
     char c=sZero;                           // Вспомогательная переменная
     bool ind = false;                       // Индикатор присутствия разделителя целой и дробной части (точка)
     string str="";                          // Строка, возвращаемая функцией
-    stringstream sst = getstream();         // Получаем поток с числом
+    LongReal tmp = this->_round(n);         // Создаем вспомогательное число и округляем его до n-разрядов
+    stringstream sst = tmp.getstream();     // Получаем поток с округленным числом. Далее работаем только с потоком
     while(sst.get(c) && (c!=chPoint) && !sst.eof()) // Считываем посимвольно из потока, пока не встретили точку или конец потока
         str += c;                                   // Считанные символы добавляем в строку
     if(c==chPoint) ind = true;                      // Если встретили точку, то изменяем индикатор на true
@@ -1151,11 +1176,17 @@ bool LongReal::ReadFromFile(const string _filename) {
         return true;
     }   // DSF
 
+//ostream& operator<<(ostream& os, const LongReal& value) {
+///** Перегрузка оператора вывода числа в поток ostream с промежуточной конвертацией в double.  **/
+//    double tmp;                 // Вспомогательная переменная
+//    value.getstream() >> tmp;   // Конвертируем число в double
+//    os << tmp;                  // Выводим double в поток
+//	return os;
+//}   // operator<<
+
 ostream& operator<<(ostream& os, const LongReal& value) {
-/** Перегрузка оператора вывода числа в поток ostream с промежуточной конвертацией в double.  **/
-    double tmp;                 // Вспомогательная переменная
-    value.getstream() >> tmp;   // Конвертируем число в double
-    os << tmp;                  // Выводим double в поток
+/** Перегрузка оператора вывода числа в поток ostream без конвертации.  **/
+    os << value.getstream().str(); // Выводим число, как string
 	return os;
 }   // operator<<
 
