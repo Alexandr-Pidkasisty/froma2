@@ -81,7 +81,7 @@ const decimal   epsln = 1e-9;   // Бесконечно малая величина, являющаяся альтерн
                                 // для сравнения вещественных чисел друг с другом и нулем
 
 const string    EmpStr = "";    // Пустая строка
-const string    stSpc  = " ";   // Пробел
+const char      stSpc  = ' ';   // Пробел
 
 /** Наиболее употребимые типы **/
 enum ReportData{volume = sZero, price, value};                  // Тип набора данных (в натуральном, в ценовом
@@ -251,7 +251,7 @@ const size_t ncount - число строк, равное числу элементов массива names[] с наим
             cout << name << (names+i)->name << stSpc;           // Вывод названия строки
             cout << meas << (names+i)->measure << stSpc;        // Вывод единицы измерения
             for(size_t j=b; j<e; j++) {                         // Цикл по столбцам
-                cout << number << *(data+dcount*i+j) <<stSpc;   // Вывод данных столбца
+                cout << number << lr_precision(sPrec) << *(data+dcount*i+j) << stSpc;   // Вывод данных столбца
             };
             cout << endl;
         };  // Цикл по строкам
@@ -288,10 +288,10 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
             else            cout << name << c_ByPrice  << stSpc; // Вывод "В удельном стоимостном измерении"
         else                cout << name << c_ByValue  << stSpc; // Вывод "В стоимостном измерении"
         cout << endl;
-        cout << name << c_TableName <<stSpc;                   // Вывод заголовков столбцов
-        cout << meas << c_TableMeas <<stSpc;                   // Вывод заголовков столбцов
+        cout << name << c_TableName << stSpc;                   // Вывод заголовков столбцов
+        cout << meas << c_TableMeas << stSpc;                   // Вывод заголовков столбцов
         for(size_t j=b; j<e; j++) {                             // Вывод заголовков столбцов (номера периодов)
-            cout << number << j <<stSpc;
+            cout << number << j << stSpc;
         };
         cout << endl;
         // Вывод данных в таблицы
@@ -304,9 +304,9 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
             cout << meas << aMeas << stSpc;                       // Вывод единицы измерения
                 for(size_t j=b; j<e; j++) {                     // Цикл по столбцам
                     if((flg==volume) || (flg==price))
-                        if(flg==volume) cout << number << (data+dcount*i+j)->volume << stSpc; // Вывод данных столбца
-                        else            cout << number << (data+dcount*i+j)->price  << stSpc; // Вывод данных столбца
-                    else                cout << number << (data+dcount*i+j)->value  << stSpc; // Вывод данных столбца
+                        if(flg==volume) cout << number << lr_precision(sPrec) << (data+dcount*i+j)->volume << stSpc; // Вывод данных столбца
+                        else            cout << number << lr_precision(sPrec) << (data+dcount*i+j)->price  << stSpc; // Вывод данных столбца
+                    else                cout << number << lr_precision(sPrec) << (data+dcount*i+j)->value  << stSpc; // Вывод данных столбца
                 };
             cout << endl;
         };  // Цикл по строкам
@@ -360,9 +360,9 @@ const string& _hmcur) {
             cout << meas << aMeas << stSpc;        // Вывод единицы измерения
                 for(size_t j=b; j<e; j++) {                     // Цикл по столбцам
                     if((flg==volume) || (flg==price))
-                        if(flg==volume) cout << number << (data+dcount*i+j)->volume << stSpc; // Вывод данных столбца
-                        else            cout << number << (data+dcount*i+j)->price  << stSpc; // Вывод данных столбца
-                    else                cout << number << (data+dcount*i+j)->value  << stSpc; // Вывод данных столбца
+                        if(flg==volume) cout << number << lr_precision(sPrec) << (data+dcount*i+j)->volume << stSpc; // Вывод данных столбца
+                        else            cout << number << lr_precision(sPrec) << (data+dcount*i+j)->price  << stSpc; // Вывод данных столбца
+                    else                cout << number << lr_precision(sPrec) << (data+dcount*i+j)->value  << stSpc; // Вывод данных столбца
                 };
             cout << endl;
         };  // Цикл по строкам
@@ -831,7 +831,7 @@ class clsRePrint {
                     *out << *tname << (tmpnames+i)->name << stSpc;          // Вывод названия строки
                     *out << *tmeas << (tmpnames+i)->measure << stSpc;       // Вывод единицы измерения
                     for(size_t j=b; j<e; j++) {                             // Цикл по столбцам
-                        *out << *tnumb << *(Tcoldata+colcount*i+j) <<stSpc; // Вывод данных столбца
+                        *out << *tnumb << lr_precision(precis) << *(Tcoldata+colcount*i+j) <<stSpc; // Вывод данных столбца
                     };
                     *out << endl;
                 };  // Цикл по строкам
@@ -895,9 +895,9 @@ class clsRePrint {
                     *out << *tmeas << aMeas << stSpc;                // Вывод единицы измерения
                     for(size_t j=b; j<e; j++) {                      // Цикл по столбцам
                         if((flg==volume) || (flg==price))
-                            if(flg==volume) *out << *tnumb << (Tcoldata+colcount*i+j)->volume << stSpc; // Вывод данных столбца
-                            else            *out << *tnumb << (Tcoldata+colcount*i+j)->price  << stSpc; // Вывод данных столбца
-                        else                *out << *tnumb << (Tcoldata+colcount*i+j)->value  << stSpc; // Вывод данных столбца
+                            if(flg==volume) *out << *tnumb << lr_precision(precis) << (Tcoldata+colcount*i+j)->volume << stSpc; // Вывод данных столбца
+                            else            *out << *tnumb << lr_precision(precis) << (Tcoldata+colcount*i+j)->price  << stSpc; // Вывод данных столбца
+                        else                *out << *tnumb << lr_precision(precis) << (Tcoldata+colcount*i+j)->value  << stSpc; // Вывод данных столбца
                     };
                     *out << endl;
                 };  // Цикл по строкам
