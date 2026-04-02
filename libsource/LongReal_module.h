@@ -170,7 +170,8 @@ class LongReal {
 template<typename T> constexpr bool are_types_for_lrstream_v =
     std::is_floating_point<T>::value ||
     std::is_same<std::remove_const_t<std::remove_pointer_t<T>>, char>::value ||
-    std::is_same<std::remove_const_t<T>, size_t>::value;
+    std::is_same<std::remove_const_t<T>, size_t>::value ||
+    std::is_same<T, std::string>::value;
 /** Условие соответствия типам: float, double, long double, char, char*, const char, const char*,
 size_t, const size_t. При этом, параметры могут быть как lvalue, так и rvalue.
 (https://cplusplus.com/reference/type_traits) **/
