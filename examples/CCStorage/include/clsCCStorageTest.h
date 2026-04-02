@@ -71,7 +71,7 @@ class clsCCStorageTest {
 
         bool Import_Data(Currency _cur, AccountingMethod _ac);
         /** ћетод читает информацию из файлов с исходными данными (имена файлов в данном примере определ€ютс€ макросами
-        filename_shipment, filename_purprice, filename_recipe_in, filename_recipe_out и маской msks. ћетод также вводит
+        filename_shipment, filename_purprice, filename_recipe_in, filename_recipe_out и маской msks). ћетод также вводит
         основные параметры: _cur - валюту проекта и _ac - принцип учета запасов. **/
 
         /** Get - методы **/
