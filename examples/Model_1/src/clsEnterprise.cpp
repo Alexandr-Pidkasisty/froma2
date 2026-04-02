@@ -1311,7 +1311,7 @@ void clsEnterprise::showSKUsettings(ostream& os, clsStorage* stock) const {
         os << meas   << (tmpNames+i)->measure  << stSpc;
         os << perm   << stock->Permission(i)   << stSpc;
         os << apur   << stock->AutoPurchase(i) << stSpc;
-        os << nSKU   << stock->Share(i)        << stSpc;
+        os << nSKU   << lr_precision(2) << stock->Share(i)        << stSpc;
         os << endl;
         if(os.rdbuf() == std::cout.rdbuf())         // Если используемый буфер принадлежит cout, то разбиваем вывод
                                                     // на фрагменты по 10 строк для читабельности с экрана
