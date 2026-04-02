@@ -195,7 +195,7 @@ names[] с наименовани€ми строк, names[] - массив с наименовани€ми строк и единиц
         m_data.push_back(std::move(row));       // ѕереносим вспомогателный вектор в элемент основного вектора
     };
     return true;
-}   // Impotr from massive
+}   // Import from massive
 
 /** ћетоды преобразовани€ **/
 
