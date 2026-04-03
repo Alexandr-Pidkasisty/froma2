@@ -223,7 +223,7 @@ void clsImpex::csvExport(ofstream& ofs) const {
 /** Метод экспорта вектора в csv-файл с разделителем, заданным в переменной separator **/
     for (const vector<string>& row : m_data) {
         for(const string& value: row) {
-            ofs << lr_precision(ex_precision) << value << separator;
+            ofs << value << separator;
         }
         ofs << endl;
     };
