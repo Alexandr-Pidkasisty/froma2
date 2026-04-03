@@ -1246,7 +1246,6 @@ template lrstream& lrstream::operator<<(const char val);
 template lrstream& lrstream::operator<<(const char* val);
 template lrstream& lrstream::operator<<(char* val);
 template lrstream& lrstream::operator<<(size_t val);
-template lrstream& lrstream::operator<<(string val);
 
 ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
 /** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.
