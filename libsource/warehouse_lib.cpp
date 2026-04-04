@@ -111,10 +111,10 @@ void EraseVector(vector<thread>& _pool) {
             принцип учета запасов: FIFO или LIFO.ВНИМАНИЕ!!! Функция не оптимизирует план отгрузок, если возникает дефицит
             сырья и материалов; в периоды где возникает дефицит, расчет цен и стоимости отгружаемых партий НЕ КОРРЕКТЕН.**/
             const ptrdiff_t iZero = 0;
-            ptrdiff_t i, j;                 // Счетчики для перебора массива остатков
-            ptrdiff_t *k;                   // Ссылка на действующий счетчик: или i, или j
-            strItem Q, M;                   // Вспомогательные локальные переменные
-            decimal deficit = dZero;        // Дефицит сырья и материалов для отгрузки со склада
+            ptrdiff_t i, j;              // Счетчики для перебора массива остатков
+            ptrdiff_t *k;                // Ссылка на действующий счетчик: или i, или j
+            strItem Q, M;                // Вспомогательные локальные переменные
+            decimal deficit = dZero;     // Дефицит сырья и материалов для отгрузки со склада
             ptrdiff_t L;                    // Вспомогательная переменная
             for(size_t i=sZero; i<N; i++) { // В случае, если мы ранее вызывали функцию, массив Rem отличается от Pur,
                 *(R+i) = *(P+i);            // и повторный вызов функции приведет к ошибке, поэтому сбрасываем Rem к состоянию Pur
@@ -1213,7 +1213,7 @@ void EraseVector(vector<thread>& _pool) {
                 string _APurch = cit->AutoPurchase();
                 _APurch.resize(8);
                 cout << fld << _Name << fld << _Meas << fld << cit->AccMethod() << \
-                fld << cit->Permission()<< fld << _APurch << lr_precision(sTwo) << cit->Share() << endl;
+                fld << cit->Permission()<< fld << _APurch << cit->Share() << endl;
             }
         }   // ViewSettings
 

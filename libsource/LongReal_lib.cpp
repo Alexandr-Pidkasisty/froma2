@@ -610,7 +610,7 @@ template double LongReal::Get<double>() const;
 template float LongReal::Get<float>() const;
 
 string LongReal::LongReal::Get(const size_t n) const {
-/** Функция возвращает число в форме string с заданным количеством n знаков после точки. Число округляется **/
+/** Функция возвращает число в форме string с заданным количеством n знаков после точки **/
     if(this->isNaN()) return strNaN;        // Если объект равен NaN, выводим NaN и выходим
     if(this->isposInf()) return strInf;     // Если объект равен inf, выводим inf и выходим
     if(this->isnegInf()) return strNInf;    // Если объект равен -inf, выводим -inf и выходим
@@ -1176,17 +1176,11 @@ bool LongReal::ReadFromFile(const string _filename) {
         return true;
     }   // DSF
 
-//ostream& operator<<(ostream& os, const LongReal& value) {
-///** Перегрузка оператора вывода числа в поток ostream с промежуточной конвертацией в double.  **/
-//    double tmp;                 // Вспомогательная переменная
-//    value.getstream() >> tmp;   // Конвертируем число в double
-//    os << tmp;                  // Выводим double в поток
-//	return os;
-//}   // operator<<
-
 ostream& operator<<(ostream& os, const LongReal& value) {
-/** Перегрузка оператора вывода числа в поток ostream без конвертации.  **/
-    os << value.getstream().str(); // Выводим число, как string
+/** Перегрузка оператора вывода числа в поток ostream с промежуточной конвертацией в double.  **/
+    double tmp;                 // Вспомогательная переменная
+    value.getstream() >> tmp;   // Конвертируем число в double
+    os << tmp;                  // Выводим double в поток
 	return os;
 }   // operator<<
 
@@ -1246,6 +1240,9 @@ template lrstream& lrstream::operator<<(const char val);
 template lrstream& lrstream::operator<<(const char* val);
 template lrstream& lrstream::operator<<(char* val);
 template lrstream& lrstream::operator<<(size_t val);
+template lrstream& lrstream::operator<<(std::string val);
+template lrstream& lrstream::operator<<(std::string& val);
+template lrstream& lrstream::operator<<(std::string&& val);
 
 ostream& lrstream::operator<<(ostream&(*f)(ostream&)) {
 /** Оператор ввода в поток манипулятора для выхода из потока lrstream в поток ostream.

@@ -87,9 +87,10 @@ class LongReal {
         stringstream getstream() const;                             // Вывод хранимого числа в поток stringstream
         inline bool ovrflw(const Etype& E1, const Etype& E2) const; // Контроль переполнения
         LongReal incrE(const Etype& _E) const;                      // Меняет экспоненту без изменения числа
-        void incrD(const size_t& _N);               // Увеличивает длину массива digits до значения _N за счет правых нулей
+        void incrD(const size_t& _N);       // Увеличивает длину массива digits до значения _N за счет правых нулей
         inline LongReal _round(const size_t) const; // Возвращает число типа LongReal с округлением до _n разрядов;
                                                     // значения в разрядах от _n+1 до NumCount не меняются
+
     public:
         /** Конструкторы, деструктор, метод обмена **/
         LongReal();                         // Конструктор по-умолчанию
@@ -170,7 +171,8 @@ class LongReal {
 template<typename T> constexpr bool are_types_for_lrstream_v =
     std::is_floating_point<T>::value ||
     std::is_same<std::remove_const_t<std::remove_pointer_t<T>>, char>::value ||
-    std::is_same<std::remove_const_t<T>, size_t>::value;
+    std::is_same<std::remove_const_t<T>, size_t>::value ||
+    std::is_same<std::remove_const_t<std::remove_reference_t<T>>, std::string>::value;
 /** Условие соответствия типам: float, double, long double, char, char*, const char, const char*,
 size_t, const size_t. При этом, параметры могут быть как lvalue, так и rvalue.
 (https://cplusplus.com/reference/type_traits) **/
