@@ -171,8 +171,7 @@ class LongReal {
 template<typename T> constexpr bool are_types_for_lrstream_v =
     std::is_floating_point<T>::value ||
     std::is_same<std::remove_const_t<std::remove_pointer_t<T>>, char>::value ||
-    std::is_same<std::remove_const_t<T>, size_t>::value ||
-    std::is_same<std::remove_const_t<std::remove_reference_t<T>>, std::string>::value;
+    std::is_same<std::remove_const_t<T>, size_t>::value;
 /** ”словие соответстви€ типам: float, double, long double, char, char*, const char, const char*,
 size_t, const size_t. ѕри этом, параметры могут быть как lvalue, так и rvalue.
 (https://cplusplus.com/reference/type_traits) **/
@@ -188,6 +187,8 @@ long double с одним и тем же манипул€тором. ћанипул€тор ограничивает количество 
     lrstream(const size_t w);                   //  онстркутор
 
     lrstream& operator<<(const LongReal& val);  // ќператор вывода в поток lrstream вещественных чисел типа LongReal
+
+    lrstream& operator<<(const string& val);    // ќператор вывода в поток lrstream строк std::string
 
     template<typename T, class=std::enable_if_t<are_types_for_lrstream_v<T>>>
     lrstream& operator<<(T val);     // ќператор вывода в поток lrstream используемых величин встроенных типов
