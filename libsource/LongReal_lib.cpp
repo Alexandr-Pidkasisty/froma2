@@ -736,23 +736,16 @@ LongReal LongReal::operator*(const LongReal& x) const {
         return res;                                         // и выходим
     };
     res.sign = sign ^ x.sign;                               // Определяем и присваиваем знак результата
-    if( this->isZero() && !x.isposInf() && !x.isnegInf() ) return res;      // Если один из сомножителей равен нулю, а второй НЕ
-    if( x.isZero() && !this->isposInf() && !this->isnegInf() ) return res;  // равен любой бесконечности, то результат равен нулю
-    if(this->isZero() && (x.isposInf() || x.isnegInf())) {                  // Если один из сомножителей равен нулю, а второй
-        res.setNaN();                                                       // равен любой бесконечности, то результат равен NaN
+    if( (this->isZero() && !x.isposInf() && !x.isnegInf()) ||       // Если один из сомножителей равен нулю, а второй НЕ равен
+        (x.isZero() && !this->isposInf() && !this->isnegInf()) ) return res;  // любой бесконечности, то результат равен нулю
+    if( (this->isZero() && (x.isposInf() || x.isnegInf())) ||       // Если один из сомножителей равен нулю, а второй
+        (x.isZero() && (this->isposInf() || this->isnegInf()))) {   // равен любой бесконечности,
+        res.setNaN();                                               // то результат равен NaN
         return res;
-    };
-    if(x.isZero() && (this->isposInf() || this->isnegInf())) {
-        res.setNaN();
-        return res;
-    };                                                      // После проведенных проверок выше знаем что в числах нет нуля
-    if((x.exponent==MaxEtype) || (exponent==MaxEtype)) {    // Если любая из экпонент максимальна, то это +/- бесконечность
-        res.setposinf();                                    // Устанавливаем в результат положительную бесконечность
-        res.sign = x.sign ^ sign;                           // определяем и присваиваем знак результата,
-        return res;                                         // выходим и возвращаем результат
-    };
-    if(ovrflw(exponent, x.exponent)) {                      // В случае переполнения проверяем знаки чисел
-        if( (exponent < eZero) && (x.exponent < eZero) ) {  // Если экспоненты отрицательные, то
+    };  // После проведенных проверок выше знаем что в числах нет нуля
+    if(ovrflw(exponent, x.exponent) ||                      // В случае переполнения или если любая из экпонент
+        (x.exponent==MaxEtype) || (exponent==MaxEtype)) {   // максимальна, то проверяем знаки экспонент
+        if( (exponent < eZero) && (x.exponent < eZero) ) {  // Если обе экспоненты отрицательные, то
             res.setzero();                                  // произведение равно нулю
             res.sign = x.sign ^ sign;                       // с учетом знака
             return res;
@@ -760,7 +753,7 @@ LongReal LongReal::operator*(const LongReal& x) const {
         res.setposinf();                                    // устанавливаем в результат положительную бесконечность
         res.sign = x.sign ^ sign;                           // определяем и присваиваем знак результата,
         return res;                                         // выходим и возвращаем результат
-    };  // Окончание проверки на переполнения
+    };  // Окончание проверки на максимальную экспоненту или переполнения
     res.NumCount = NumCount + x.NumCount;           // Максимальная длина нового числа не больше суммы длин перемножаемых чисел
     res.exponent = exponent + x.exponent;           // Складываем экспоненты
     res.digits = new(nothrow) Dtype[res.NumCount];  // Выделяем память новому массиву
@@ -842,9 +835,9 @@ LongReal LongReal::operator+(const LongReal& x) const {
     if(x.isZero()) return *this;    // Если x равен нулю, то возвращаем себя
     LongReal E1;                    // Создаем объект
     E1.setNaN();                    // Устанавливаем в этом объекте NaN
-    if(this->isNaN() || x.isNaN()) return E1;   // Если любой из слогаемых NaN, результат NaN
-    if(((this->isposInf()) && ( x.isnegInf())) || ((x.isposInf()) && ( this->isnegInf()))) return E1; // Сложение противоположных
-                                    // бесконечностей дает неопределенность
+    if(this->isNaN() || x.isNaN() ||                    // Если любой из слогаемых NaN, результат NaN
+        (this->isposInf() && x.isnegInf()) ||           // Сложение противоположных бесконечностей
+        (x.isposInf() && this->isnegInf())) return E1;  // тоже дает неопределенность NaN
     E1.setposinf();                 // Присваиваем "плюс бесконечность"
     LongReal E2;                    // Создаем объект и
     E2.setneginf();                 // присваиваем ему "минус бесконечность"
@@ -901,8 +894,9 @@ LongReal LongReal::operator-(const LongReal& x) const {
     if(this->isZero()) return -x;   // Если мы равны нулю, то возвращаем -x
     LongReal E1;                    // Создаем объект и
     E1.setNaN();                    // устанавливаем его в NaN
-    if(this->isNaN() || x.isNaN()) return E1;   // Если любой из вычитаемых NaN, результат NaN
-    if( ((this->isposInf()) && ( x.isposInf())) || ((x.isnegInf()) && ( this->isnegInf())) ) return E1;
+    if(this->isNaN() || x.isNaN() ||                        // Если любой из вычитаемых NaN, результат NaN
+        (this->isposInf() &&  x.isposInf()) ||              // Вычитание бесконечностей одного знака
+        (x.isnegInf() &&  this->isnegInf()) ) return E1;    // тоже дает неопределенность NaN
     E1.setposinf();                 // присваиваем E1 "плюс бесконечность"
     LongReal E2;                    // Создаем объект и
     E2.setneginf();                 // присваиваем ему "минус бесконечность"
