@@ -133,7 +133,7 @@ struct strNameMeas {    /** Тип описания единичной партии ресурсов **/
 /****************************************************************************************************/
 
 template<typename T>
-void var_cpy(T* destin, const T* source, const size_t Num) {
+constexpr void var_cpy(T* destin, const T* source, const size_t Num) {
 /** Метод копирует данные из массива, на который ссылается указатель source в массив, на который ссылается
 указатель destin. Размер обоих массивов равен Num. Если массивы имеют тривиально копируемый тип, копирование
 осуществляется блоками памяти с помощью функции memcpy. В противном случае копирование поэлементное с помощью
@@ -145,7 +145,11 @@ https://cplusplus.com/reference/type_traits/is_trivially_copyable **/
     // Если тип элементов массива - тривиально копируемый тип,
     // то копируем массивы поблочно с помощью функции memcpy
     // Иначе копируем массивы поэлементно с помощью функции std::copy_n
-     (std::is_trivially_copyable<T>::value) ? memcpy(destin, source, sizeof(T)*Num) : std::copy_n(source, Num, destin);
+//     (std::is_trivially_copyable<T>::value) ? memcpy(destin, source, sizeof(T)*Num) : std::copy_n(source, Num, destin);
+    if constexpr (std::is_trivially_copyable<T>::value)
+        memcpy(destin, source, sizeof(T)*Num);
+    else
+        std::copy_n(source, Num, destin);
 }   // var_cpy
 
 
@@ -792,9 +796,9 @@ class clsRePrint {
             tname = new(nothrow) clsTextField(nwidth);          // Ширина поля для вывода первой текстовой колонки
             if(!tname)  return false;
             tmeas = new(nothrow) clsTextField(mwidth);          // Ширина поля для вывода второй текстовой колонки
-            if(!tmeas) { delete[] tname; return false; };
+            if(!tmeas) { delete tname; return false; };
             tnumb = new(nothrow) clsDataField(dwidth, precis);  // Ширина поля для вывода колонки с цифрами
-            if(!tnumb) { delete[] tname; delete[] tmeas; return false; };
+            if(!tnumb) { delete tname; delete tmeas; return false; };
             return true;
         }   // SetReport
 
