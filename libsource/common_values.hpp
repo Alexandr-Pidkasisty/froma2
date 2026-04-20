@@ -128,6 +128,18 @@ struct strNameMeas {    /** Тип описания единичной партии ресурсов **/
     string measure;     // Наименование единицы измерения номенклатурной позиции (например, кг или штук)
 };  // strNameMeas
 
+template<typename T> constexpr bool is_real_v =
+    std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value;
+/** Функция проверки допустимости типов. Выполняется на этапе компиляции. Допустимые типы:
+арифметический (https://cplusplus.com/reference/type_traits/is_arithmetic/) и LongReal **/
+
+template<typename T>
+constexpr bool is_tbld_v = std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value ||
+std::is_same<T, strItem>::value;
+/** Функция проверки допустимости типов. Выполняется на этапе компиляции. Допустимые типы:
+арифметический (https://cplusplus.com/reference/type_traits/is_arithmetic/), LongReal и
+strItem **/
+
 }   // namespace nmBPTypes
 
 /****************************************************************************************************/
@@ -235,6 +247,7 @@ const size_t ncount - число строк, равное числу элементов массива names[] с наим
 наименованиями строк и единицами измерения, data[] - одномерный массив, аналог двумерной матрицы размером ncount*dcount
 с данными, dcount - число столбцов матрицы. Функция яляется альтернативой использованию класса clsRePrint для вывода
 отчета на экран. Ширина полей фиксированная и не изменяемая. **/
+    static_assert(is_real_v<Tdata>);    // Валидация типа задана constexpr-функцией is_real_v
     if(ncount==sZero) return;           // Проверка корректности параметров
     if(dcount==sZero) return;
     if(!names) return;
@@ -276,6 +289,7 @@ template<typename Tdata, typename TName=strNameMeas>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
 параметр - flg - флаг, определяющий тип используемых данных: volume, price или value. **/
+    static_assert(std::is_same<Tdata, strItem>::value); // Валидация типа strItem
     if(ncount==sZero) return;
     if(dcount==sZero) return;
     if(!names) return;
@@ -412,9 +426,6 @@ const size_t uOne = 1;
 const size_t uTwo = 2;
 const size_t uThree = 3;
 
-template<typename T>
-constexpr bool is_real_v =
-    std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value;  // Условие проверки
 template<typename T, class=std::enable_if_t<is_real_v<T>>>
 size_t CalcSingleDataLenth(const T& val) {
 /** Метод расчета количества знаков при форматированном выводе числа типа T. **/
@@ -449,9 +460,6 @@ size_t CalcArrayDataLenth(const size_t _asize, const T _arr[], const size_t _min
     return temp;
 } // CalcArrayDataLenth
 
-template<typename T>
-constexpr bool is_tbld_v =
-    std::is_arithmetic<T>::value || std::is_same<T, LongReal>::value || std::is_same<T, strItem>::value;  // Условие проверки
 template<typename Tdata, class=std::enable_if_t<is_tbld_v<Tdata>>, typename TName=strNameMeas>
 class clsRePrint {
 /** Основной класс для форматированного вывода отчета на экран или в файл. **/
@@ -714,8 +722,10 @@ class clsRePrint {
 
         bool SetReport(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount) {
         /** Метод вводит данные для отчета и рассчитывает ширину колонок. Параметры: ncount - число элементов массива
-        names и число строк отчета; names - массив с именами и единицами измерения строк (наиболее подходящий тип - это
-        тип strNameMeas); data - массив с данными размером ncount*dcount; dcount - число столбцов отчета. **/
+        names и число строк отчета; names - массив с именами и единицами измерения строк (допустимый тип strNameMeas);
+        data - массив с данными размером ncount*dcount; dcount - число столбцов отчета. Допустимый тип элементов
+        массива data - арифметический тип и тип longReal. **/
+            static_assert(is_real_v<Tdata>);                // Валидация типа задана constexpr-функцией is_real_v
             if( (ncount==sZero) || (!names) || (dcount==sZero) || (!data) ) return false;   // Валидация параметров
             rowcount = ncount;                              // Размер массива наименований строк
             colcount = dcount;                              // Размер массива данных для столбцов
@@ -751,7 +761,9 @@ class clsRePrint {
         bool SetReport(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg) {
         /** Метод вводит данные для отчета и рассчитывает ширину колонок для данных, выбранных флагом flg. Параметры:
         ncount - число элементов массива names и число строк отчета; names - массив с именами и единицами измерения строк;
-        data - массив с данными с тремя полями размером ncount*dcount; dcount - число столбцов отчета **/
+        data - массив с данными с тремя полями размером ncount*dcount (допустимый тип strItem); dcount - число столбцов
+        отчета **/
+            static_assert(std::is_same<Tdata, strItem>::value);                             // Валидация типа strItem
             if( (ncount==sZero) || (!names) || (dcount==sZero) || (!data) ) return false;   // Валидация параметров
             rowcount = ncount;
             colcount = dcount;
@@ -803,13 +815,13 @@ class clsRePrint {
         }   // SetReport
 
         void Print() {
-        /** Метод выводит отчёт в поток, установленный в поле out. Метод не используется
-        для данных типа strItem **/
-            if(rowcount==sZero) return;           // Проверка корректности параметров
+        /** Метод выводит отчёт в поток, установленный в поле out. Метод используется для арифметических
+        типов и типа longReal и не используется для структурных данных типа strItem **/
+            static_assert(is_real_v<Tdata>);                // Валидация типа задана constexpr-функцией is_real_v
+            if(rowcount==sZero) return;                     // Проверка корректности параметров
             if(colcount==sZero) return;
             if(!rownames) return;
             if(!Tcoldata) return;
-            if(std::is_same<Tdata, strItem>::value) return; // Если шаблонный тип strItem, то данный метод не применяется
             TName* tmpnames = new(nothrow) TName[rowcount]; // Создаем вспомогательный массив, строки в котором можно урезать
             if(!tmpnames) return;                           // если память не выделена, то выходим из функции
             for(size_t i=sZero; i<rowcount; i++) {
@@ -857,11 +869,12 @@ class clsRePrint {
         void Print(ReportData flg) {
         /** Метод выводит отчёт в поток, установленный в поле out. Параметры: flg - выбор данных для массива
         типа strItem. Метод используется только для данных типа strItem **/
-            if(rowcount==sZero) return;           // Проверка корректности параметров
+            static_assert(std::is_same<Tdata, strItem>::value); // Валидация типа strItem
+            if(rowcount==sZero) return;                         // Проверка корректности параметров
             if(colcount==sZero) return;
             if(!rownames) return;
             if(!Tcoldata) return;
-            if(!std::is_same<Tdata, strItem>::value) return; // Если шаблонный тип НЕ strItem, то метод не применяется
+//            if(!std::is_same<Tdata, strItem>::value) return; // Если шаблонный тип НЕ strItem, то метод не применяется
             TName* tmpnames = new(nothrow) TName[rowcount];
             if(!tmpnames) return;
             for(size_t i=sZero; i<rowcount; i++) {
