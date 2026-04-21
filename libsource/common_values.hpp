@@ -240,15 +240,16 @@ const size_t sMeas  = 12;   // Установка формата вывода ед.измерения для использ
 const size_t sNumb  = 12;   // Установка формата вывода числовых данных для использования в классе clsDataField
 const string CurUnt = c_HCurrency + "/";   // Валюта на гатуральную единицу
 
-template<typename Tdata, typename TName=strNameMeas>
+template<typename Tdata, typename TName>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount) {
 /** Функция отображения таблиц, состоящих из первого столбца наименований и последующих столбцов с данными. Параметры:
 const size_t ncount - число строк, равное числу элементов массива names[] с наименованиями строк, names[] - массив с
 наименованиями строк и единицами измерения, data[] - одномерный массив, аналог двумерной матрицы размером ncount*dcount
 с данными, dcount - число столбцов матрицы. Функция яляется альтернативой использованию класса clsRePrint для вывода
 отчета на экран. Ширина полей фиксированная и не изменяемая. **/
-    static_assert(is_real_v<Tdata>);    // Валидация типа задана constexpr-функцией is_real_v
-    if(ncount==sZero) return;           // Проверка корректности параметров
+    static_assert(is_real_v<Tdata>);                        // Валидация типа задана constexpr-функцией is_real_v
+    static_assert(std::is_same<TName, strNameMeas>::value); // Валидация типа strNameMeas
+    if(ncount==sZero) return;                               // Проверка корректности параметров
     if(dcount==sZero) return;
     if(!names) return;
     if(!data) return;
@@ -285,11 +286,12 @@ const size_t ncount - число строк, равное числу элементов массива names[] с наим
     cout << endl;
 }   // ArrPrint
 
-template<typename Tdata, typename TName=strNameMeas>
+template<typename Tdata, typename TName>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
 параметр - flg - флаг, определяющий тип используемых данных: volume, price или value. **/
-    static_assert(std::is_same<Tdata, strItem>::value); // Валидация типа strItem
+    static_assert(std::is_same<Tdata, strItem>::value);     // Валидация типа strItem
+    static_assert(std::is_same<TName, strNameMeas>::value); // Валидация типа strNameMeas
     if(ncount==sZero) return;
     if(dcount==sZero) return;
     if(!names) return;
@@ -346,6 +348,8 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
 const string& _hmcur) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
 параметр - flg - флаг, определяющий тип используемых данных: volume, price или value; _hmcur - валюта отчета **/
+    static_assert(std::is_same<Tdata, strItem>::value);     // Валидация типа strItem
+    static_assert(std::is_same<TName, strNameMeas>::value); // Валидация типа strNameMeas
     if(ncount==sZero) return;
     if(dcount==sZero) return;
     if(!names) return;
@@ -429,8 +433,8 @@ const size_t uThree = 3;
 template<typename T, class=std::enable_if_t<is_real_v<T>>>
 size_t CalcSingleDataLenth(const T& val) {
 /** Метод расчета количества знаков при форматированном выводе числа типа T. **/
-    const T tOne = 1,
-            tTen = 10;
+    const T tOne = static_cast<T>(1),
+            tTen = static_cast<T>(10);
     T temp = val;
     size_t i = sZero;
     while(temp > tOne) {    // Поиск числа разрядов
@@ -441,9 +445,9 @@ size_t CalcSingleDataLenth(const T& val) {
     return i;
 }   // CalcSingleDataLenth for decimal
 
-template<typename T=string>
+template<typename T = std::string>
 size_t CalcSingleDataLenth(const string& str) {
-/** Метод расчета количества заков при выводе строки **/
+/** Метод расчета количества знаков при выводе строки **/
     int len = str.length(); // Определяем длину переменной типа string
     return len += 3;        // Добавляем пустые поля
 }   // CalcSingleDataLenth for string type
@@ -451,7 +455,8 @@ size_t CalcSingleDataLenth(const string& str) {
 template<typename T>
 size_t CalcArrayDataLenth(const size_t _asize, const T _arr[], const size_t _minlimit, const size_t _maxlimit) {
 /** Метод расчета максимального количества знаков у элементов массива чисел или строк. **/
-    if((!_arr) || (_asize==sZero)) return sZero;        // Валидация параметров
+    static_assert(is_real_v<T> || std::is_same<T, std::string>::value); // Валидация допустимого типа
+    if((!_arr) || (_asize==sZero)) return sZero;                        // Валидация параметров
     size_t temp = _minlimit;
     for(size_t i=sZero; i<_asize; i++) {
         temp = CalcSingleDataLenth(*(_arr+i))>temp ? CalcSingleDataLenth(*(_arr+i)): temp;
@@ -460,7 +465,8 @@ size_t CalcArrayDataLenth(const size_t _asize, const T _arr[], const size_t _min
     return temp;
 } // CalcArrayDataLenth
 
-template<typename Tdata, class=std::enable_if_t<is_tbld_v<Tdata>>, typename TName=strNameMeas>
+template<typename Tdata, class=std::enable_if_t<is_tbld_v<Tdata>>,
+         typename TName=strNameMeas, class=std::is_same<TName, strNameMeas>>
 class clsRePrint {
 /** Основной класс для форматированного вывода отчета на экран или в файл. **/
     private:
