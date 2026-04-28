@@ -343,7 +343,7 @@ void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], cons
     cout << endl;
 }   // ArrPrint with ReportData flag
 
-template<typename Tdata, typename TName=strNameMeas>
+template<typename Tdata, typename TName>
 void ArrPrint(const size_t ncount, const TName names[], const Tdata data[], const size_t dcount, ReportData flg,
 const string& _hmcur) {
 /** Перегруженная функция отображения таблиц для отображения таблиц, получаемых из данных типа strItem. Дополнительный
