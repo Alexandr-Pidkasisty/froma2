@@ -116,7 +116,6 @@ class clsProgress_shell {
         atomic<int> counter{};  // Счетчик операций; инициализируется нулем
         int maxcounter;         // Максимальное число итераций
         int stepcount;          // Шаг итерации
-//        atomic<bool> Exit;      // Флаг завершения работы
 
     public:
         clsProgress_shell(T* _pbar=nullptr, const int _maxcounter=100, const int _stepcount=1):
