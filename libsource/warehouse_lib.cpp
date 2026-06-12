@@ -565,7 +565,6 @@ void EraseVector(vector<thread>& _pool) {
         цены и стоимость могут нести некорректные значения. **/
             if(acct == AVG) { lack = AVGcalc(Pur, Rem, Ship, PrCount, indr); }
             else { lack = FLFcalc(Pur, Rem, Ship, PrCount, indr, acct); };
-//            if(is_smaller(lack, epsln)) {           // Если дефицит меньше минимального значения, то считаем его нулевым
             if(lack < epsln) {                      // Если дефицит меньше минимального значения, то считаем его нулевым
                 lack=dZero;                         // Обнуляем дефицит и
                 BALcalc(Pur, Bal, Ship, PrCount);   // Рассчитываем баланс остатков на складе
@@ -578,9 +577,8 @@ void EraseVector(vector<thread>& _pool) {
         сырья и материалов, записывает результаты расчетов в массив Pur, возвращает величину дефицита сырья и материалов для
         обеспечения плановых отгрузок в нулевом периоде.**/
             if(pcalc == nocalc) { return dZero; };  // Если расчет закупок запрещен, то выход из функции
-//            decimal def;
             lack = PURcalc(Pur, Ship, PrCount, indr, share);
-            if(lack < epsln) { lack = dZero;};        // Если дефицит меньше минимального значения, то считаем его нулевым
+            if(lack < epsln) { lack = dZero;};      // Если дефицит меньше минимального значения, то считаем его нулевым
             return lack;
         }   // CalcPurchase
 
@@ -1270,12 +1268,12 @@ void EraseVector(vector<thread>& _pool) {
         наименовании SKU, где найден дефицит. Дальнейшие расчеты не производятся. Информация возвращается в виде структуры
         типа TLack. Все расчеты производятся в тех SKU, чьи индексы в векторе stock лежат между bg и en. **/
             TLack Lack;                         // Вспомогательная переменная
-            size_t lim = stock.size();          // Верхняя граница опустимого значения индекса
+            size_t lim = stock.size();          // Верхняя граница допустимого значения индекса
             if(bg>=lim) return Lack;            // Валидация нижней границы индекса
             if(en>=lim) en = lim;               // Валидация верхней границы индекса
             for(size_t i = bg; i<en; i++) {
-                if(Calculation_Exit.load(memory_order_relaxed)) {                   // Если установлен флаг останова,
-                    (pshell) ? pshell->Counter_max() : (void)([](){return;});       // то максимизируем счетчик
+                if(Calculation_Exit.load(memory_order_relaxed)) {               // Если установлен флаг останова,
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // то максимизируем счетчик
                     break;                      // и выходим из цикла
                 }
                 clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
@@ -1293,6 +1291,68 @@ void EraseVector(vector<thread>& _pool) {
             return {dZero, EmpStr};
         }   // void Calculate(size_t, size_t)
 
+        TLack clsStorage::CalcPurchase(size_t bg, size_t en) {
+        /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
+        переменной PRCount, то для этого SKU вызывается функция Resize, которая приводит количество периодов к заданному.
+        Функция также рассчитывает требуемый объем закупок для тех SKU, у которых выставлен разрешающий такой расчет флаг.
+        Функция завершает работу при нахождении первого дефицита в предплановом (нулевом) периоде и сообщает о размере
+        этого дефицита и наименовании SKU, где найден дефицит в предплановом (нулевом) периоде. Дальнейшие расчеты не
+        производятся. Информация возвращается в виде структуры типа TLack. Все расчеты производятся в тех SKU, чьи индексы
+        в векторе stock лежат между bg и en. **/
+            TLack Lack;                         // Вспомогательная переменная
+            size_t lim = stock.size();          // Верхняя граница допустимого значения индекса
+            if(bg>=lim) return Lack;            // Валидация нижней границы индекса
+            if(en>=lim) en = lim;               // Валидация верхней границы индекса
+            for(size_t i = bg; i<en; i++) {
+                if(Calculation_Exit.load(memory_order_relaxed)) {               // Если установлен флаг останова,
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // то максимизируем счетчик
+                    break;                      // и выходим из цикла
+                }
+                clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
+                if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
+                    p->Resize(PrCount);         // выравниваем длительности
+                Lack.lack = p->CalcPurchase();  // Основные вычисления
+                (pshell) ? pshell->Counter_inc() : (void)([](){return;});       // Вызываем счетчик
+                if(fabs(Lack.lack) > epsln) {                                   // и если обнаруживаем дефицит, то
+                    Calculation_Exit.store(true, memory_order_relaxed);         // устанавливаем флаг выхода для других
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // потоков и максимизируем счетчик
+                    Lack.Name = p->Name();                                      // Заполняем поле с именем ресурса с дефицитом
+                    return Lack;    // и заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
+                }
+            }
+            return {dZero, EmpStr};
+        }   // TLack clsStorage::CalcPurchase
+
+        TLack clsStorage::CalcPrice(size_t bg, size_t en) {
+        /** Для каждого SKU функция рассчитывает цены и стоимость отгружаемых партий в соответствии с выбранным принципом FIFO,
+        LIFO или AVG. Функция завершает работу при нахождении первого дефицита ресурсов и сообщает о размере этого дефицита и
+        наименовании SKU, где найден дефицит. Дальнейшие расчеты не производятся. Информация возвращается в виде структуры типа
+        TLack. Все расчеты производятся в тех SKU, чьи индексы в векторе stock лежат между bg и en. **/
+            TLack Lack;                         // Вспомогательная переменная
+            size_t lim = stock.size();          // Верхняя граница допустимого значения индекса
+            if(bg>=lim) return Lack;            // Валидация нижней границы индекса
+            if(en>=lim) en = lim;               // Валидация верхней границы индекса
+            for(size_t i = bg; i<en; i++) {
+                if(Calculation_Exit.load(memory_order_relaxed)) {               // Если установлен флаг останова,
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // то максимизируем счетчик
+                    break;                      // и выходим из цикла
+                }
+                clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
+                p->SetAccount(acct);            // Устанавливаем принцип учета запасов
+                if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
+                    p->Resize(PrCount);         // выравниваем длительности
+                Lack.lack = p->CalcPrice();     // Основные вычисления
+                (pshell) ? pshell->Counter_inc() : (void)([](){return;});       // Вызываем счетчик
+                if(fabs(Lack.lack) > epsln) {                                   // и если обнаруживаем дефицит, то
+                    Calculation_Exit.store(true, memory_order_relaxed);         // устанавливаем флаг выхода для других
+                    (pshell) ? pshell->Counter_max() : (void)([](){return;});   // потоков и максимизируем счетчик
+                    Lack.Name = p->Name();                                      // Заполняем поле с именем ресурса с дефицитом
+                    return Lack;    // и заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
+                }
+            }
+            return {dZero, EmpStr};
+        }   // TLack clsStorage::CalcPrice
+
         TLack clsStorage::Calculate() {
         /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
         переменной PRCount, то для этого SKU вызывается функция Resize, которая приводит количество периодов к заданному.
@@ -1308,15 +1368,73 @@ void EraseVector(vector<thread>& _pool) {
                 if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
                     p->Resize(PrCount);         // выравниваем длительности;
                 Lack = p->Calculate();          // Основные вычисления
-                (pshell) ? pshell->Update((int)i) : (void)([](){return;});    // Вызываем индикатор прогресса
+                (pshell) ? pshell->Update((int)i) : (void)([](){return;});                  // Вызываем индикатор прогресса
                 if(fabs(Lack.lack) > epsln) {   // и если обнаруживаем дефицит, то
-                    (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});    // индикатор на 100%,
+                    (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});   // индикатор на 100%,
                     return Lack;    // заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
                 };
             };
-            (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});    // Индикатор на 100%
+            (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});           // Индикатор на 100%
             return {dZero, EmpStr};
-        }   // Calculate1
+        }   // Calculate
+
+        TLack clsStorage::CalcPurchase() {
+        /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
+        переменной PRCount, то для этого SKU вызывается функция Resize, которая приводит количество периодов к заданному.
+        Функция также рассчитывает требуемый объем закупок для тех SKU, у которых выставлен разрешающий такой расчет флаг.
+        Функция завершает работу при нахождении первого дефицита в предплановом (нулевом) периоде и сообщает о размере
+        этого дефицита и наименовании SKU, где найден дефицит в предплановом (нулевом) периоде. Дальнейшие расчеты не
+        производятся. Информация возвращается в виде структуры типа TLack. Расчеты производятся во всех SKU последовательно. **/
+            TLack Lack;                         // Вспомогательная переменная
+            for(size_t i{}; i<stock.size(); i++) {
+                clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
+                if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
+                    p->Resize(PrCount);         // выравниваем длительности;
+                Lack.lack = p->CalcPurchase();  // Основные вычисления
+                (pshell) ? pshell->Update((int)i) : (void)([](){return;});                  // Вызываем индикатор прогресса
+                if(fabs(Lack.lack) > epsln) {
+                    (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});   // индикатор на 100%,
+                    Lack.Name = p->Name();  // Заполняем поле с именем ресурса с дефицитом
+                    return Lack;            // заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
+                }
+            }
+            (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});           // Индикатор на 100%
+            return {dZero, EmpStr};
+        }   // CalcPurchase
+
+        TLack clsStorage::CalcPrice() {
+        /** Для каждого SKU функция рассчитывает цены и стоимость отгружаемых партий в соответствии с выбранным принципом FIFO,
+        LIFO или AVG. Функция завершает работу при нахождении первого дефицита ресурсов и сообщает о размере этого дефицита и
+        наименовании SKU, где найден дефицит. Дальнейшие расчеты не производятся. Информация возвращается в виде структуры типа
+        TLack. Расчеты производятся во всех SKU последовательно. **/
+            TLack Lack;                         // Вспомогательная переменная
+            for(size_t i{}; i<stock.size(); i++) {
+                clsSKU* p = (stock.data()+i);   // Вспомогательный указатель на экземпляр массива SKU
+                p->SetAccount(acct);            // Устанавливаем принцип учета запасов
+                if(p->Count() != PrCount)       // Если длительности проектов по SKU отличаются от PrCount
+                    p->Resize(PrCount);         // выравниваем длительности
+                Lack.lack = p->CalcPrice();     // Основные вычисления
+                (pshell) ? pshell->Update((int)i) : (void)([](){return;});                  // Вызываем индикатор прогресса
+                if(fabs(Lack.lack) > epsln) {
+                    (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});   // индикатор на 100%,
+                    Lack.Name = p->Name();  // Заполняем поле с именем ресурса с дефицитом
+                    return Lack;            // заканчиваем цикл, поскольку все расчеты не действительны и выходим из функции
+                }
+            }
+            (pshell) ? pshell->Update((int)stock.size()) : (void)([](){return;});           // Индикатор на 100%
+            return {dZero, EmpStr};
+        }   // CalcPrice
+
+        TLack clsStorage::Calculate(size_t icalc) {
+        /** Функция-интерфейс для вызова одного из возможных расчетных методов: Calculate(), CalcPurchase() или CalcPrice().
+        Расчёты произволятся для всех SKU последовательно. **/
+            TLack (clsStorage::*f)();                           // Вспомогательный указатель на функцию.
+            if((icalc == sZero) || (icalc == sOne))             // В зависимости от icalc, указывает на функцию
+                if(icalc == sZero) f = &clsStorage::Calculate;  // Calculate,
+                else f = &clsStorage::CalcPurchase;             // CalcPurchase
+            else f = &clsStorage::CalcPrice;                    // или CalcPrice
+            return (this->*f)();                                // Псоледовательные вычисления
+        }   // clsStorage::Calculate
 
         TLack clsStorage::Calculate_future() {
         /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
@@ -1366,7 +1484,59 @@ void EraseVector(vector<thread>& _pool) {
                 if((Lack+i)->lack>epsln)                // Если обнаружен дефицит, то
                     return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
             return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
-       }    // Calculate_future
+        }   // Calculate_future
+
+        TLack clsStorage::Calculate_future(size_t icalc) {
+        /** Функция-интерфейс для вызова одного из возможных расчетных методов: Calculate(size_t, size_t),
+        CalcPurchase(size_t, size_t) или CalcPrice(size_t, size_t). Расчёты произволятся для всех SKU. Используются
+        параллельные асинхронные вычисления. **/
+            typedef TLack (clsStorage::*Tf)(size_t, size_t);    // Тип вспомогательного указателя на функцию
+            Tf f;                                               // Вспомогательный указатель на функцию.
+            if((icalc == sZero) || (icalc == sOne))             // В зависимости от icalc, указывает на функцию
+                if(icalc == sZero) f = &clsStorage::Calculate;  // Calculate, CalcPurchase или CalcPrice
+                else f = &clsStorage::CalcPurchase;
+            else f = &clsStorage::CalcPrice;
+            size_t maxthreads = std::thread::hardware_concurrency()-sOne;   // Определение макс. числа потоков через число ядер
+            if(maxthreads < sTwo)                                           // Если макс. число потоков менее двух, то
+                return Calculate(icalc);                                    // проводим последовательные вычисления и выходим
+            vector<std::future<TLack>> pool;            // Пул потоков в виде вектора
+            pool.reserve(maxthreads);                   // Резервируем память вектору потоков
+            size_t stocksize = stock.size();            // Получаем размер массива с SKU
+            size_t ncap = (stocksize/maxthreads)+sOne;  // Количество SKU для каждого потока
+            TLack Lack[maxthreads]{};                   // Вспомогательный массив с результатами вычислений
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
+            for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
+                size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
+                if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу SKU, выходим из цикла
+                size_t en = (i+sOne)*ncap;              // Определяем верхнюю границу индекса
+                pool.push_back(std::async([](Tf _f, clsStorage* pobj, size_t _bg, size_t _en) {
+                // Создаем поток и запускаем вычисления. В качестве первого аргумента функции async используем лямбду "[](){}"
+                    #ifdef DEBUG_THREADS                    // Макрос вывода отладочной информации. Работает, если определен DEBUG
+                        mu.lock();                          // Блокируем ресурс cout для монопольного использования
+                        cout << "Async thread #" << std::this_thread::get_id() << " has been started" << endl;
+                        mu.unlock();                        // Разблокируем ресурс cout для использования другими объектами
+                    #endif
+                    TLack res = (pobj->*_f)(_bg, _en);      // Вызываем метод с вычислениями
+                    #ifdef DEBUG_THREADS                    // Макрос вывода отладочной информации. Работает, если определен DEBUG
+                        mu.lock();                          // Блокируем ресурс cout для монопольного использования
+                        cout << "Async thread #" << std::this_thread::get_id() << " has been calculated" << endl;
+                        mu.unlock();                        // Разблокируем ресурс cout для использования другими объектами
+                    #endif
+                    return res;
+                }, f, this, bg, en));                      // После лямбды стоят аргументы для нее: this, bg, en
+            };                                          // Цикл по всему пулу потоков
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;});   // Вызываем отрисовку индикатора
+            size_t k{};
+            for(auto &t : pool) {
+                *(Lack+k) = t.get();
+                k++;
+            };
+            Calculation_Exit.store(false, memory_order_relaxed);    // Сбрасываем флаг, чтобы можно было снова вызвать Calculate(size_t
+            for(size_t i{}; i<maxthreads; i++ )         // Цикл по всем элементам вспомогательного массива с результатами
+                if((Lack+i)->lack>epsln)                // Если обнаружен дефицит, то
+                    return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
+            return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
+        }   // Calculate_future(size_t icalc)
 
         TLack clsStorage::Calculate_thread() {
         /** Функция проверяет количество периодов у каждого SKU: если оно отличается от количества, установленного в
@@ -1417,6 +1587,56 @@ void EraseVector(vector<thread>& _pool) {
                     return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
             return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
        }    // Calculate_thread
+
+        TLack clsStorage::Calculate_thread(size_t icalc) {
+        /** Функция-интерфейс для вызова одного из возможных расчетных методов: Calculate(size_t, size_t),
+        CalcPurchase(size_t, size_t) или CalcPrice(size_t, size_t). Расчёты произволятся для всех SKU. Используются
+        параллельные синхронные вычисления. **/
+            typedef TLack (clsStorage::*Tf)(size_t, size_t);    // Тип вспомогательного указателя на функцию
+            Tf f;                                               // Вспомогательный указатель на функцию.
+            if((icalc == sZero) || (icalc == sOne))             // В зависимости от icalc, указывает на функцию
+                if(icalc == sZero) f = &clsStorage::Calculate;  // Calculate, CalcPurchase или CalcPrice
+                else f = &clsStorage::CalcPurchase;
+            else f = &clsStorage::CalcPrice;
+            size_t maxthreads = std::thread::hardware_concurrency()-sOne;   // Определение макс. числа потоков через число ядер
+            if(maxthreads < sTwo)                                           // Если макс. число потоков менее двух, то
+                return Calculate(icalc);                                    // проводим последовательные вычисления и выходим
+            vector<std::thread> pool;                   // Пул потоков в виде вектора
+            pool.reserve(maxthreads);                   // Резервируем память вектору потоков
+            size_t stocksize = stock.size();            // Получаем размер массива с SKU
+            size_t ncap = (stocksize/maxthreads)+sOne;  // Количество SKU для каждого потока
+            TLack Lack[maxthreads]{};                   // Вспомогательный массив с результатами вычислений
+            (pshell != nullptr) ? pshell->Counter_reset() : (void)([](){return;});  // Сбрасываем счетчик
+            for(size_t i{}; i<maxthreads; i++) {        // Цикл по всему пулу потоков
+                size_t bg = i*ncap;                     // Определяем нижнюю границу индекса
+                if(bg>=stocksize) break;                // Если нижняя граница больше или равна числу SKU, выходим из цикла
+                size_t en = (i+sOne)*ncap;              // Определяем верхнюю границу индекса
+                pool.emplace_back([](Tf _f, void *param, size_t _bg, size_t _en, TLack &res){
+                    // Создаем поток и запускаем вычисления. В качестве первого аргумента функции emplace_back используем лямбду "[](){}"
+                    clsStorage* pobj = (clsStorage*)param;  // Вспомогательный указатель на экземпляр класса clsStorage
+                    #ifdef DEBUG_THREADS                    // Макрос вывода отладочной информации. Работает, если определен DEBUG
+                    mu.lock();                              // Блокируем ресурс cout для монопольного использования
+                    cout << "Thread #" << std::this_thread::get_id() << " has been started" << endl;
+                    mu.unlock();                            // Разблокируем ресурс cout для использования другими объектами
+                    #endif
+                    res = (pobj->*_f)(_bg, _en);            // Основные вычисления
+                    #ifdef DEBUG_THREADS                    // Макрос вывода отладочной информации. Работает, если определен DEBUG
+                    mu.lock();                              // Блокируем ресурс cout для монопольного использования
+                    cout << "Thread #" << std::this_thread::get_id() << " has been calculated" << endl;
+                    mu.unlock();                            // Разблокируем ресурс cout для использования другими объектами
+                    #endif
+                }, f, this, bg, en, std::ref(*(Lack+i)));   // Создаем поток и запускаем вычисления
+            };  // Для возврата значения из потока используем эмулятор ссылки std::ref(...), см.:
+                // https://pro--prof-com.turbopages.org/pro-prof.com/s/forums/topic/cplusplus_reference_wrapper
+            (pshell) ? pshell->Progress_indicate() : (void)([](){return;}); // Вызываем отрисовку индикатора
+            for(auto &t : pool)                         // Цикл по всему пулу потоков
+                t.join();                               // Ожидаем завершения каждого запущенного потока
+            Calculation_Exit.store(false, memory_order_relaxed);// Сбрасываем флаг, чтобы можно было снова вызвать Calculate(size_t
+            for(size_t i{}; i<maxthreads; i++ )         // Цикл по всем элементам вспомогательного массива с результатами
+                if((Lack+i)->lack>epsln)                // Если обнаружен дефицит, то
+                    return *(Lack+i);                   // выходим и возвращаем величину дефицита и наименование SKU
+            return {dZero, EmpStr};                     // Благополучное завершение и выход без дефицита
+        }    // clsStorage::Calculate_thread(size_t)
 
         bool clsStorage::StF(ofstream &_outF)  {
         /** Метод имплементации записи в файловую переменную текущего экземпляра класса (метод сериализации).
