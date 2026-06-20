@@ -1135,7 +1135,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             return true;
         }   // SetRawMatPrice
 
-        bool clsManufactItem::MoveRawMatPrice(decimal _Price[]) {
+        bool clsManufactItem::MoveRawMatPrice(decimal* &_Price) {
         /** Метод ввода цен на сырье и материалы. Предполагается, что после получения складом информации о потребности
         в сырье и материалах, склад возвращает информацию об учетных ценах на сырье и материалы. Эта информация с помощью
         данного метода перемещается в массив RawMatPrice размером rcount*PrCount. Параметры: _Price - указатель на массив
