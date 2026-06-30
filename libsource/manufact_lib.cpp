@@ -266,7 +266,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // CalcProductBalanceItem
 
         inline void clsRecipeItem::clsEraser() {
-        /** Метод "обнуляет" все поля экземпляра класса. Используется только в конструкторе перемещения**/
+        /** Метод "обнуляет" все поля экземпляра класса. Используется только в конструкторе перемещения **/
             name = measure = "";
             duration = rcount = sZero;
             rnames = nullptr;
@@ -870,7 +870,7 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             #ifdef CDtor_voice
                 cout << "Ctor clsManufactItem with const clsRecipeItem &obj in param" << endl;
             #endif // CDtor_voice
-        }   // clsManufactItem(const size_t _PrCount, clsRecipeItem &&obj)
+        }   // clsManufactItem(const size_t _PrCount, const clsRecipeItem &obj)
 
         clsManufactItem::clsManufactItem(const size_t _PrCount, clsRecipeItem &&obj) {
         /** Конструктор с параметрами: _PrCount - количество периодов проекта, obj - rvalue ссылка на объект типа
@@ -1109,8 +1109,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         /** Set - методы **/
 
         bool clsManufactItem::SetProductPlan(const strItem _ProductPlan[]) {
-        /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска).
-        Параметры: _ProductPlan - массив типа strItem размерностью PrCount. Используются только поля _Product.volume.  **/
+        /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска). Параметры:
+        _Product - указатель на массив типа strItem размерностью PrCount. Используются только поля _Product.volume.
+        Данные вводятся копированием. **/
             if((PrCount==sZero) || (!_ProductPlan)) return false;   // Валидация параметров
             strItem* temp = new(nothrow) strItem[PrCount];          // Выделяем память под временный массив
             if(!temp) return false;                                 // Если память не выделена, то выход и возврат false
@@ -1118,7 +1119,17 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             std::swap(temp, ProductPlan);                           // Обмениваем указатели массивов
             if(temp) delete[] temp;                                 // Удаляем вспомогательный массив, если он не пустой
             return true;
-        }   // SetProductPlan
+        }   // SetProductPlan (Copy)
+
+        bool clsManufactItem::SetProductPlan(strItem* &_ProductPlan) {
+        /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска). Параметры:
+        _Product - ссылка на указатель на массив типа strItem размерностью PrCount. Используются только поля _Product.volume.
+        Данные вводятся перемещением. Внимание!!! После перемещения массив _ProductPlan не пуст и содержит
+        неопределенные данные! **/
+            if((PrCount==sZero) || (!_ProductPlan)) return false;   // Валидация параметров
+            std::swap(ProductPlan, _ProductPlan);                   // Обмен указателями
+            return true;
+        }   // clsManufactItem::SetProductPlan (Move)
 
         bool clsManufactItem::SetRawMatPrice(const decimal _Price[]) {
         /** Метод ввода цен на сырье и материалы. Предполагается, что после получения складом информации о потребности
@@ -1147,6 +1158,21 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             _Price = nullptr;
             return true;
         }   // MoveRawMatPrice
+
+        bool clsManufactItem::SetRawMatPrice(const strItem _Price[]) {
+        /** Аналогичен методу SetRawMatPrice(const decimal*), но входной массив типа strItem (используются поля price) **/
+            const size_t tcount = rcount*PrCount;               // Вычисляем размер массива (аналог двумерной матрицы)
+            if((tcount==sZero) || (!_Price)) return false;      // Валидация параметров
+            decimal* temp = new(nothrow) decimal[tcount];       // Выделяем память под массив
+            if(!temp) return false;                             // Если память не выделена, то выход и возврат false
+            for(size_t i{}; i<tcount; i++)                      // Копируем данные в новый массив
+                *(temp + i) = (_Price + i)->price;              // из полей price исходного массива
+            std::swap(temp, RawMatPrice);                       // Обмениваем указатели массивов
+            if(temp) delete[] temp;                             // Удаляем вспомогательный массив, если он не пустой
+            return true;
+        }   // clsManufactItem::SetRawMatPrice (Copy)
+
+
 
         /** Вычислительные методы **/
 
@@ -1510,10 +1536,9 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // Emplty Ctor clsManufactory
 
         clsManufactory::clsManufactory(const size_t _PrCount, const size_t _RMCount, const strNameMeas _RMNames[], \
-            const size_t msize):PrCount(_PrCount), RMCount(_RMCount), hmcur(RUR) {
+            const size_t msize) : PrCount(_PrCount), RMCount(_RMCount), hmcur(RUR) {
         /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций сырья и
-        материалов, _RMNames - полный массив с названиями сырья и материалов, msize - полное количество наименований
-        продуктов. **/
+        материалов, _RMNames - полный массив с названиями сырья и материалов, msize - полное количество наименований продуктов. **/
             if(_RMNames && (_RMCount>sZero)) {              // Если массив _RMNames существует и _RMCount>0, то
                 RMNames = new(nothrow) strNameMeas[RMCount];// Выделяем память под массив со списком наименований сырья и материалов
                 if(RMNames)                                 // Если память выделена, то
@@ -1529,6 +1554,50 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 cout << "Ctor clsManufactory with parameters" << endl;
             #endif // CDtor_voice
         }   // clsManufactory
+
+        clsManufactory::clsManufactory(const size_t _PrCount, const size_t _RMCount, const strNameMeas _RMNames[], \
+            const size_t msize, const Currency _cur, const clsRecipeItem _Recipies[]) : PrCount(_PrCount), \
+            RMCount(_RMCount), hmcur(_cur) {
+        /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций
+        ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований продуктов,
+        _cur - валюта проекта, _Recipies - указатель на массив с рецептурами продуктов. Наименования ресурсов и
+        рецептуры копируются. **/
+            if(_RMNames && (_RMCount>sZero)) {              // Если массив _RMNames существует и _RMCount>0, то
+                RMNames = new(nothrow) strNameMeas[RMCount];// Выделяем память под массив со списком наименований сырья и материалов
+                if(RMNames)                                 // Если память выделена, то
+                    for(size_t i=sZero; i<RMCount; i++) {   // Заполняем массив значениями из массива _RMNames
+                        *(RMNames+i) = *(_RMNames+i);       // Нельзя использовать memcpy, т.к. strNameMeas - это тип со строками
+                    }
+                else { RMCount = sZero; };
+            } else { RMNames = nullptr; RMCount = sZero; };
+            Manuf.reserve(msize);                               // Резервируем память контейнеру
+            for(size_t i{}; i<msize; i++){                      // Создаем единичные производства в контейнере
+                if(!Checkrnames((_Recipies+i)->GetRCount(), (_Recipies+i)->GetRefRawNamesItem()))   // Если наименования ресурсов
+                continue;                                       // в рецептуре отличается от полного набора ресурсов, не добавляем
+                Manuf.emplace_back(_PrCount, *(_Recipies+i));   // копируя рецептуры в единичные производства
+            }
+        }   // clsManufactory Ctor with full parametrs and ManufactItem-units creating (Copy)
+
+        clsManufactory::clsManufactory(const size_t _PrCount, const size_t _RMCount, strNameMeas* &_RMNames, \
+            const size_t msize, const Currency _cur, clsRecipeItem* &_Recipies) : PrCount(_PrCount), \
+            RMCount(_RMCount), hmcur(_cur), RMNames(nullptr) {
+        /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций
+        ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований продуктов,
+        _cur - валюта проекта, _Recipies - указатель на массив с рецептурами продуктов. Наименования ресурсов и
+        рецептуры перемещаются. **/
+            if(_RMNames && (_RMCount>sZero))        // Если массив _RMNames существует и _RMCount>0, то
+                std::swap(RMNames, _RMNames);       // Обмениваемся указателями массивов с наименованиями ресурсов
+            else RMCount = sZero;                   // На всякий случай обнуляем счётчик
+            Manuf.reserve(msize);                               // Резервируем память контейнеру
+            for(size_t i{}; i<msize; i++) {                     // Создаем единичные производства в контейнере
+                if(!Checkrnames((_Recipies+i)->GetRCount(), (_Recipies+i)->GetRefRawNamesItem()))   // Если наименования ресурсов
+                continue;                                       // в рецептуре отличается от полного набора ресурсов, не добавляем
+                Manuf.emplace_back(_PrCount, move(*(_Recipies+i))); // перемещая рецептуры в единичные производства;
+                // в данном случае на место перемещенной рецептуры встает "пустая" рецептура, созданная конструктором перемещения
+                // clsRecipeItem(clsRecipeItem&&), с тем же объемом занимаемой памяти, элемент не удаляется, не "пропадает". Поэтому
+                // такое перемещение корректно и безопасно.
+            }
+        }   // clsManufactory Ctor with full parametrs and ManufactItem-units creating (Move)
 
         clsManufactory::clsManufactory(const clsManufactory& obj) {
         /** Конструктор копирования **/
@@ -1703,8 +1772,8 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
         }   // SetManufItem
 
         bool clsManufactory::SetProdPlan(const strItem _ProdPlan[]) {
-            /** Метод вводит план выпуска продуктов в производство. Параметры: _ProdPlan - указатель на полный массив
-            с планом выпуска всех продуктов, размером Manuf.size()*PrCount **/
+        /** Метод вводит план выпуска продуктов в производство. Параметры: _ProdPlan - указатель на полный массив
+        с планом выпуска всех продуктов, размером Manuf.size()*PrCount. Данные вводятся копированием. **/
             if( (PrCount == sZero) || (RMCount == sZero) || (!RMNames) || (Manuf.size() == sZero) ) return false;
             vector<clsManufactItem>::iterator it;           // Итератор для массива
             size_t i = sZero;                               // Вспомогательный счетчик
@@ -1713,7 +1782,23 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 i++;
             };
             return true;
-        }   // SetProdPlan
+        }   // clsManufactory::SetProdPlan (Copy)
+
+        bool clsManufactory::SetProdPlan(strItem* &_ProdPlan) {
+        /** Метод вводит план выпуска всех продуктов в производство. Параметры: _ProdPlan - ссылка на указатель на
+        полный массив с планом выпуска всех продуктов, размером Manuf.size()*PrCount. Данные вводятся перемещением. **/
+            if(Manuf.size() == sZero) return false;                     // Валидация параметров
+            strItem* p = _ProdPlan;                                     // Вспомогательный указатель
+            for(vector<clsManufactItem>::iterator it = Manuf.begin(); it != Manuf.end(); it++) { // Цикл по всем произв-вам
+                if(!it->SetProductPlan(move(p))) return false;          // Вводим данные в индивидуальный склад
+                p += PrCount;                                           // Смещаем указатель на следующую строку
+            }
+            if(!_ProdPlan) {                                            // Если после обмена массив _unit не пуст,
+                delete[] _ProdPlan;                                     // удаляем этот массив
+                _ProdPlan = nullptr;                                    // и присваиваем указателю nullptr
+            }
+            return true;
+        }   // clsManufactory::SetProdPlan (Move)
 
         /** Сервисные методы **/
 
@@ -1914,7 +1999,48 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 };  // if(rtemp)
             };
             return check;   // Если хоть один элемент не заполнен ценами, то check==false
-        }   // SetRawMatPrice
+        }   // SetRawMatPrice (decomal)
+
+        bool clsManufactory::SetRawMatPrice(const strItem _Price[]) {
+        /** Аналогичен методу SetRawMatPrice(const decimal*), но элементы массива представляют собой структуру strtItem,
+        из которой используются только поля price **/
+            if(!_Price) return false;                                   // Валидация входного массива
+            if(Manuf.size() == sZero) return false;                     // Проверка вектора на остутствие элементов
+            bool check = true;                                          // Индикатор успешности операции
+            for(vector<clsManufactItem>::iterator it = Manuf.begin(); it!=Manuf.end(); it++) {  // Цикл по элементам вектора
+                const size_t _rcount = it->GetRCount();                 // Узнаем число сырья и материалов в элементе вектора
+                decimal *rtemp =  new(nothrow) decimal[_rcount*PrCount];// Создаем массив для ввода цен в элемент вектора
+                if(rtemp) {                                             // Если массив создан, то
+                    const strNameMeas *rnames = it->GetRefRawNames();   // Получаем константный указатель на внутренний массив
+                                                                        // с наименованием сырья и материалов элемента
+                    if(rnames) {                                        // Если указатель не пуст, то
+                        for(size_t j=sZero; j<_rcount; j++) {           // Заполняем массив для ввода цен ценами тех позиций
+                            for(size_t k=sZero; k<RMCount; k++) {       // сырья, которые присутствуют в рецептуре элемента
+                                if( (rnames+j)->name == (RMNames+k)->name) { // Сравниваем имена, если они совпадают, то
+                                    // копируем элементы из k-строки с ценами общего массива в элементы j-строки
+                                    for(size_t m{}; m<PrCount; m++)     // временного массив цен
+                                        *(rtemp+PrCount*j + m) = (_Price+PrCount*k + m)->price;
+                                    break;                              // и досрочно завершаем цмкл по k
+                                }
+                            }   // for k
+                        }   // for j
+                        check = check && it->MoveRawMatPrice(rtemp); // Перемещаем временный массив цен в элемент вектора
+                    }   // if(rnames)
+                }   // if(rtemp)
+            }   // for vector
+            return check;   // Если хоть один элемент не заполнен ценами, то check==false
+        }   // clsManufactory::SetRawMatPrice (strItem)
+
+        bool clsManufactory::SetRawMatPrice(strItem* &_Price) {
+        /** Аналогичен методу clsManufactory::SetRawMatPrice(const strItem _Price[]), но после копирования исходный массив
+        уничтожается, а указатель _Price становится равным nullptr. **/
+            const strItem* temp = const_cast<const strItem*>(_Price);   // Приводим неконстантный указатель к константному
+            if(SetRawMatPrice(temp)) {                          // Вызываем метод для константного указателя, если удачно
+                delete[] _Price;                                // удаляем входной массив,
+                _Price = nullptr;                               // присваиваем ему nullptr
+                return true;                                    // и выходим с true
+            }   else return false;                              // Иначе выходим с false
+        }   // clsManufactory::SetRawMatPrice (Copy-Delete)
 
         bool clsManufactory::Calculate(size_t bg, size_t en) {
         /** Метод рассчитывает объем, удельную и полную себестоимость незавершенного производства и готовой продукции
@@ -2266,16 +2392,6 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
                 std::swap(tmp, RMNames);                                // Обмениваемся указателями
                 if(tmp) delete[] tmp;                                   // Удаляем вспомогательный массив
             } else RMNames = nullptr;
-
-//            if(RMNames) delete[] RMNames;               // Если массив существует, то удаляем его
-//            RMNames = new(nothrow) strNameMeas[RMCount];// Выделяем память под массив
-//            if(RMNames) {                               // Если память выделена, то
-//                for(size_t i=sZero; i<RMCount; i++) {   // Читаем из файла массив с названиями сырья и единицами измерения
-//                    if(!DSF(_inF, (RMNames+i)->name)) return false;
-//                    if(!DSF(_inF, (RMNames+i)->measure)) return false;
-//                };
-//            } else return false;
-
             if(manufsize == sZero) return true;             // Если вектор пустой, то десериализация заканчивается
             Manuf.reserve(capac);                           // Резервируем память для вектора
             for(size_t i=sZero; i<manufsize; i++) {

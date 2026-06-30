@@ -479,15 +479,28 @@ void EraseVector(vector<thread>& _pool) {
 
         bool clsSKU::SetPurchase(const strItem _unit[], size_t _count) {
         /** Функция загружает данные о закупке сырья и материалов на склад (объемы и цены). Параметры:  _unit[]
-            - указатель на массив загружаемых данных, _count - размерность массива (может не совпадать с размерностью
-            массива закупок PrCount) **/
-            if((!_unit) || (_count==sZero)) return false;       // валидация параметров
-            size_t M;
+        - указатель на массив загружаемых данных, _count - размерность массива (может не совпадать с размерностью
+        массива закупок PrCount). Данные загружаются копированием во внутренние массивы Pur и Rem. **/
+            if((!_unit) || (_count==sZero)) return false;       // Валидация параметров
+            size_t M;                                           // Вспомогательная переменная
             if(_count > PrCount) M = PrCount; else M = _count;  // Если размер переданного в функцию массива больше массива
             var_cpy(Pur, _unit, M);         // закупок, то данные обрезаются, иначе используется размер полученного массива
             var_cpy(Rem, _unit, M);         // Загружаем данные в массивы Pur (закупки) и Rem (остатки)
             return true;
-        }   // SetPurchase
+        }   // SetPurchase (Copy)
+
+        bool clsSKU::SetPurchase(strItem* &_unit, size_t _count) {
+        /** Функция загружает данные о закупке ресурсов на склад (объемы, цены, стоимость). Параметры:  _unit[]
+        - ссылка на указатель на массив загружаемых данных, _count - размерность массива (может не совпадать с размерностью
+        массива закупок PrCount). Данные загружаются перемещением во внутренний массив Pur и копированием массива
+        Pur во внутренний массив Rem. Внимание!!! После перемещения массив _unit не пуст и содержит неопределенные
+        данные! **/
+            if((!_unit) || (_count==sZero)) return false;   // Валидация параметров
+            if(!Resize(_count)) return false;               // Измененние размера внутр. массива перед перемещением
+            std::swap(Pur, _unit);                          // Обмен указателями
+            var_cpy(Rem, Pur, _count);                      // Копируем данные в массив Rem (остатки)
+            return true;
+        }   // SetPurchase (Move)
 
         bool clsSKU::SetPurPrice(const strItem _unit[], size_t _count) {
         /** Функция загружает только цены на закупаемое на склад сырье. Параметры:  _unit[] - указатель на массив
@@ -503,17 +516,42 @@ void EraseVector(vector<thread>& _pool) {
             return true;
         }   // SetPurPrice
 
-        void clsSKU::SetShipment(const decimal _unit[], size_t _count) {
+        bool clsSKU::SetShipment(const decimal _unit[], size_t _count) {
         /** Функция загружает данные о плановых отгрузках сырья и материалов со склада (только объемы). Параметры:
-            _unit[] - указатель на массив, содержащий объемы отгрузок, _count - размерность массива (может не совпадать
-            с размерностью массива закупок PrCount). **/
-            if((!_unit) || (_count==sZero)) return;             // валидация параметров
-            size_t M;
-            if(_count > PrCount) M = PrCount; else M = _count;
-            for(size_t i = sZero; i<M; i++) {
+        _unit[] - указатель на массив типа decimal, содержащий объемы отгрузок, _count - размерность массива
+        (может не совпадать с размерностью массива закупок PrCount). Данные копируются. **/
+            if((!_unit) || (_count==sZero)) return false;       // Валидация параметров
+            size_t M;                                           // Вспомогательная переменная
+            if(_count > PrCount) M = PrCount; else M = _count;  // Установка длины массива для копирования
+            for(size_t i = sZero; i<M; i++) {                   // Поэлементное копирование полей volume
                 (Ship+i)->volume = *(_unit+i);
             };
-        }   // SetShipment
+            return true;
+        }   // SetShipment (Copy, decimal)
+
+        bool clsSKU::SetShipment(const strItem _unit[], size_t _count) {
+        /** Функция загружает данные о плановых отгрузках ресурсов со склада. Значимыми значениями являются только
+        объемы в натуральном выражении (поля volume). Данные загружаются копированием во внутренний массив Ship.
+        Параметры: _unit[] - указатель на массив типа strItem, содержащий объемы отгрузок, _count - размерность
+        массива (может не совпадать с размерностью массива закупок PrCount).**/
+            if((!_unit) || (_count==sZero)) return false;       // Валидация параметров
+            size_t M;                                           // Вспомогательная переменная
+            if(_count > PrCount) M = PrCount; else M = _count;  // Установка длины массива для копирования
+            var_cpy(Ship, _unit, M);                            // Копирование массивов или их частей
+            return true;
+        }   // SetShipment (Copy, strItem)
+
+        bool clsSKU::SetShipment(strItem* &_unit, size_t _count) {
+        /** Функция загружает данные о плановых отгрузках ресурсов со склада. Значимыми значениями являются только
+        объемы в натуральном выражении (поля volume). Данные загружаются перемещением во внутренний массив Ship.
+        Параметры: _unit[] - ссылка на указатель на массив типа strItem, содержащий объемы отгрузок, _count - размерность
+        массива (может не совпадать с размерностью массива закупок PrCount). Внимание!!! После перемещения массив
+        _unit не пуст и содержит неопределенные данные! **/
+            if((!_unit) || (_count==sZero)) return false;   // Валидация параметров
+            if(!Resize(_count)) return false;               // Измененние размера внутр. массива перед перемещением
+            std::swap(Ship, _unit);                         // Обмен указателями
+            return true;
+        }   // SetShipment (Move, strItem)
 
         /** Методы визуального контроля **/
 
@@ -739,7 +777,7 @@ void EraseVector(vector<thread>& _pool) {
             strItem* temp = new(nothrow) strItem[tcount];   // Выделяем память массиву
             if(!temp) {return nullptr; };                   // Если память не выделена, возвращаем nullptr
             size_t i = sZero;                                   // Индекс SKU
-            for(clsSKU& val: stock) {                           // Цикл по всем SKU
+            for(const clsSKU& val: stock) {                     // Цикл по всем SKU
                 var_cpy((temp+i*PrCount), (val.*f)(), PrCount); // Копируем данные в новый массив
                 i++;
             };
@@ -788,15 +826,29 @@ void EraseVector(vector<thread>& _pool) {
 
         clsStorage::clsStorage(size_t _pcnt, Currency _cur, AccountingMethod _ac, size_t stocksize) {
         /** Конструктор с созданием вектора заданного размера **/
-            PrCount = _pcnt;            // Количество периодов проекта
-            hmcur = _cur;               // Валюта проекта
-            acct = _ac;                 // ПРинцип учета запасов
-            Calculation_Exit.store(false);
-            stock.reserve(stocksize);   // Резервируем память для stocksize элементов вектора
+            PrCount = _pcnt;                    // Количество периодов проекта
+            hmcur = _cur;                       // Валюта проекта
+            acct = _ac;                         // Принцип учета запасов
+            Calculation_Exit.store(false);      // Флаг окончания расчётов
+            stock.reserve(stocksize);           // Резервируем память для stocksize элементов вектора
             #ifdef DEBUG    // Макрос вывода отладочной информации. Работает, если определен DEBUG
                 cout << "clsStorage Ctor with parametrs and size of vector" << endl;
             #endif
         }   // clsStorage Ctor with parametrs and size of vector
+
+        clsStorage::clsStorage(const size_t _PrCount, const Currency _cur, const AccountingMethod _ac, const size_t stocksize,\
+            const strNameMeas RMNames[]) {
+        /** Конструктор с созданием индивидуальных складов с заданными параметрами. Параметры: _PrCount - количество периодов
+        проекта, _cur - домашняя валюта проекта, _ac - принцип учета запасов, stocksize - количество номенклатурных позиций ресурсов
+        (количество индивидуальных складов), RMNames - указатель на массив с наименованиями ресурсов и ед.измерения. **/
+            PrCount = _PrCount;                 // Количество периодов проекта
+            hmcur = _cur;                       // Валюта проекта
+            acct = _ac;                         // Принцип учета запасов
+            Calculation_Exit.store(false);      // Флаг окончания расчётов
+            stock.reserve(stocksize);           // Резервируем память для stocksize элементов вектора
+            for(size_t i{}; i<stocksize; i++)   // Создаем индивидуальные склады
+                stock.emplace_back(PrCount, (RMNames+i)->name, (RMNames+i)->measure, acct, true, calc, dZero);
+        }   // Ctor with full parametrs and SKU-stores creating
 
         clsStorage::clsStorage(const clsStorage& obj) {
         /** Конструктор копирования **/
@@ -1048,6 +1100,39 @@ void EraseVector(vector<thread>& _pool) {
             return it->SetDataItem(_cd, _U, _N);                // Записываем данные в указанный элемент вектора
         }   // SetDataItem
 
+        bool clsStorage::SetShipment(const strItem _unit[]) {
+        /** Функция загружает данные о плановых отгрузках ресурсов со склада. Значимыми значениями являются только
+        объемы в натуральном выражении (поля volume). Параметры: _unit[] - указатель на одномерный массив, являющийся
+        аналогом двумерной матрицы размером stock.size()*PrCount, содержащий объемы отгрузок. Данные загружаются
+        копированием. Функция возвращает true при удачном завершении операции. **/
+            if(stock.size() == sZero) return false;                     // Валидация параметров
+            const strItem* p = _unit;                                   // Вспомогательный указатель
+            for(vector<clsSKU>::iterator it = stock.begin(); it != stock.end(); it++) { // Цикл по всем складам
+                if(!it->SetShipment(p, PrCount)) return false;          // Вводим данные в индивидуальный склад
+                p += PrCount;                                           // Смещаем указатель на следующую строку
+            };
+            return true;
+        }   // clsStorage::SetShipment (Copy, strItem)
+
+        bool clsStorage::SetShipment(strItem* &_unit) {
+        /** Функция загружает данные о плановых отгрузках ресурсов со склада. Значимыми значениями являются только
+        объемы в натуральном выражении (поля volume). Параметры: _unit[] - ссылка на указатель на одномерный массив, являющийся
+        аналогом двумерной матрицы размером stock.size()*PrCount, содержащий объемы отгрузок. Данные загружаются
+        перемещением. Функция возвращает true при удачном завершении операции. После завершения работы метода указатель
+        _unit становится равным nullptr.**/
+            if(stock.size() == sZero) return false;                     // Валидация параметров
+            strItem* p = _unit;                                         // Вспомогательный указатель
+            for(vector<clsSKU>::iterator it = stock.begin(); it != stock.end(); it++) { // Цикл по всем складам
+                if(!it->SetShipment(move(p), PrCount)) return false;    // Вводим данные в индивидуальный склад
+                p += PrCount;                                           // Смещаем указатель на следующую строку
+            }
+            if(!_unit) {                                                // Если после обмена массив _unit не пуст,
+                delete[] _unit;                                         // удаляем этот массив
+                _unit = nullptr;                                        // и присваиваем указателю nullptr
+            }
+            return true;
+        }   // clsStorage::SetShipment (Move, strItem)
+
         bool clsStorage::SetSKU(const string& Name, const string& Measure, PurchaseCalc _flag, decimal _share, bool _perm,\
             strItem _ship[], strItem _pur[]) {
         /** Метод создания склада для конкретного SKU. Создает новый экземпляр класса cksSKU непоредственно в векторе.
@@ -1076,6 +1161,39 @@ void EraseVector(vector<thread>& _pool) {
             vector <clsSKU>::iterator it = stock.begin() + isku;    // Установка итератора на SKU с индексом isku
             return it->SetPurchase(_unit, _count);                  // Загружаем массив закупок
         }   // SetPurchase
+
+        bool clsStorage::SetPurchase(const strItem _unit[]) {
+        /** Метод загружает данные о поставках ресурсов на склад (объемы, цены, стоимость). Параметры: _unit[] - указатель
+        на одномерный массив, являющийся аналогом двумерной матрицы размером stock.size()*PrCount, содержащий данные о поставках.
+        Данные загружаются копированием. Функция возвращает true при удачном завершении операции. **/
+            if(stock.size() == sZero) return false;                     // Валидация параметров
+            if(!CheckPurchase(_unit)) { return false; }                 // Проверка корректности полей массива
+            const strItem* p = _unit;                                   // Вспомогательный указатель
+            for(vector<clsSKU>::iterator it = stock.begin(); it != stock.end(); it++) { // Цикл по всем складам
+                if(!it->SetPurchase(p, PrCount)) return false;          // Вводим данные в индивидуальный склад
+                p += PrCount;                                           // Смещаем указатель на следующую строку
+            };
+            return true;
+        }   // clsStorage::SetPurchase (Copy)
+
+        bool clsStorage::SetPurchase(strItem* &_unit) {
+        /** Метод загружает данные о поставках ресурсов на склад (объемы, цены, стоимость). Параметры: _unit[] - ссылка на указатель
+        на одномерный массив, являющийся аналогом двумерной матрицы размером stock.size()*PrCount, содержащий данные о поставках.
+        Данные загружаются перемещением. Функция возвращает true при удачном завершении операции. После завершения работы метода
+        указатель _unit становится равным nullptr. **/
+            if(stock.size() == sZero) return false;                     // Валидация параметров
+            if(!CheckPurchase(_unit)) { return false; }                 // Проверка корректности полей массива
+            strItem* p = _unit;                                         // Вспомогательный указатель
+            for(vector<clsSKU>::iterator it = stock.begin(); it != stock.end(); it++) { // Цикл по всем складам
+                if(!it->SetPurchase(move(p), PrCount)) return false;    // Вводим данные в индивидуальный склад
+                p += PrCount;                                           // Смещаем указатель на следующую строку
+            }
+            if(!_unit) {                                                // Если после обмена массив _unit не пуст,
+                delete[] _unit;                                         // удаляем этот массив
+                _unit = nullptr;                                        // и присваиваем указателю nullptr
+            }
+            return true;
+        }   // clsStorage::SetPurchase (Move)
 
         bool clsStorage::SetPurPrice(const strItem _unit[]) {
         /** Метод загружает цены из одномерного массива, являющегося аналогом матрицы с планами закупок всех позиций сырья

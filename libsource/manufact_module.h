@@ -46,7 +46,7 @@
 /**                                                                                                                     **/
 /**                                                                                                                     **/
 /**                       Интерфейс к классам clsRecipeItem, clsManufactItem, clsManufactory                            **/
-/**                                                                                                                     **/
+/**                                  Версия от 2025.06.11                                                               **/
 /**                                                                                                                     **/
 /**                                                                                                                     **/
 /*************************************************************************************************************************/
@@ -404,8 +404,15 @@ class clsManufactItem {
         /** Set - методы **/
 
         bool SetProductPlan(const strItem _ProductPlan[]);
-            /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска).
-            Параметры: _Product - массив типа strItem размерностью PrCount. Используются только поля _Product.volume.  **/
+            /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска). Параметры:
+            _Product - указатель на массив типа strItem размерностью PrCount. Используются только поля _Product.volume.
+            Данные вводятся копированием. **/
+
+        bool SetProductPlan(strItem* &_ProductPlan);
+            /** Метод ввода плана выпуска продукта (объем выпуска в натуральном выражении и график выпуска). Параметры:
+            _Product - ссылка на указатель на массив типа strItem размерностью PrCount. Используются только поля _Product.volume.
+            Данные вводятся перемещением. Внимание!!! После перемещения массив _ProductPlan не пуст и содержит
+            неопределенные данные! **/
 
         bool SetRawMatPrice(const decimal _Price[]);
             /** Метод ввода цен на ресурсы. Предполагается, что после получения складом информации о потребности
@@ -419,6 +426,9 @@ class clsManufactItem {
             данного метода перемещается в массив RawMatPrice размером rcount*PrCount. Параметры: _Price - указатель на массив
             (матрицу) цен на ресурсы размером rcount*PrCount. По окончании работы указатель _Price принимает
             значение nullptr. **/
+
+        bool SetRawMatPrice(const strItem _Price[]);
+            /** Аналогичен методу SetRawMatPrice(const decimal), но входной массив типа strItem (используются поля price) **/
 
         /** Вычислительные методы **/
 
@@ -512,8 +522,21 @@ class clsManufactory {
 
         clsManufactory(const size_t _PrCount, const size_t _RMCount, const strNameMeas _RMNames[], const size_t msize);
             /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций
-            ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований
-            продуктов. **/
+            ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований продуктов. **/
+
+        clsManufactory(const size_t _PrCount, const size_t _RMCount, const strNameMeas _RMNames[], const size_t msize,\
+            const Currency _cur, const clsRecipeItem _Recipies[]);
+            /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций
+            ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований продуктов,
+            _cur - валюта проекта, _Recipies - указатель на массив с рецептурами продуктов. Наименования ресурсов и
+            рецептуры копируются. **/
+
+        clsManufactory(const size_t _PrCount, const size_t _RMCount, strNameMeas* &_RMNames, const size_t msize,\
+            const Currency _cur, clsRecipeItem* &_Recipies);
+            /** Конструктор с параметрами: _PrCount - количество периодов проекта, _RMCount - полное количество позиций
+            ресурсов, _RMNames - полный массив с названиями ресурсов, msize - полное количество наименований продуктов,
+            _cur - валюта проекта, _Recipies - указатель на массив с рецептурами продуктов. Наименования ресурсов и
+            рецептуры перемещаются. **/
 
         clsManufactory(const clsManufactory&);              // Конструктор копирования
         void swap(clsManufactory& obj) noexcept;            // Функция обмена значениями между объектами
@@ -566,7 +589,11 @@ class clsManufactory {
 
         bool SetProdPlan(const strItem _ProdPlan[]);
             /** Метод вводит план выпуска всех продуктов в производство. Параметры: _ProdPlan - указатель на полный
-            массив с планом выпуска всех продуктов, размером Manuf.size()*PrCount **/
+            массив с планом выпуска всех продуктов, размером Manuf.size()*PrCount. Данные вводятся копированием. **/
+
+        bool SetProdPlan(strItem* &_ProdPlan);
+            /** Метод вводит план выпуска всех продуктов в производство. Параметры: _ProdPlan - ссылка на указатель на
+            полный массив с планом выпуска всех продуктов, размером Manuf.size()*PrCount. Данные вводятся перемещением. **/
 
         bool SetRawMatPrice(const decimal _Price[]);
             /** Метод ввода цен на ресурсы. Предполагается, что после получения складом информации о
@@ -574,6 +601,14 @@ class clsManufactory {
             Данный метод вызывает одноименные методы каждого элемента вектора, которые записывают информацию о ценах
             в массивы RawMatPrice каждого единичного производства. Параметры: _Price - матрица цен на ресурсы
             размером RMCount*PrCount. **/
+
+        bool SetRawMatPrice(const strItem _Price[]);
+            /** Аналогичен методу SetRawMatPrice(const decimal*), но элементы массива представляют собой структуру strtItem,
+            из которой используются только поля price **/
+
+        bool SetRawMatPrice(strItem* &_Price);
+            /** Аналогичен методу SetRawMatPrice(const strItem _Price[]), но после копирования исходный массив уничтожается,
+            а указатель _Price становится равным nullptr. **/
 
         /** Сервисные методы **/
 
