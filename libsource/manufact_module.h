@@ -670,6 +670,9 @@ class clsManufactory {
         const string GetCurrency() const;
             /** Возвращает основную валюту проекта в виде текстовой строки **/
 
+        const size_t GetHomeCurrency() const;
+            /** Возвращает основную валюту проекта в виде значения поля hmcur. **/
+
         strNameMeas *GetProductDescription() const;
             /** Метод возвращает указатель на вновь создаваемый массив с именами и ед.измерения всех продуктов. **/
 

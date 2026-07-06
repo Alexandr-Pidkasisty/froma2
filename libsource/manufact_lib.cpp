@@ -2175,6 +2175,11 @@ inline void v_service(const strNameMeas* arr, size_t _rcount) {
             return *(nmBPTypes::CurrencyTXT+hmcur);
         }; // GetCurrency
 
+        const size_t clsManufactory::GetHomeCurrency() const {
+        /** ¬озвращает основную валюту проекта в виде значени€ пол€ hmcur. **/
+            return hmcur;
+        };  // clsManufactory::GetHomeCurrency
+
         strNameMeas* clsManufactory::GetProductDescription() const {
         /** ћетод возвращает указатель на вновь создаваемый массив с именами и ед.измерени€ всех продуктов. **/
             strNameMeas *temp = new(nothrow) strNameMeas[Manuf.size()]; // ¬ыдел€ем пам€ть массиву
