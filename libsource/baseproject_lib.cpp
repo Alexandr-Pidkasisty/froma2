@@ -96,11 +96,11 @@ clsBaseProject::clsBaseProject(const clsBaseProject& other) {
 
 void clsBaseProject::swap(clsBaseProject& other) noexcept {
 /** Функция обмена значениями между объектами. Функция объявлена noexcept - не вызывающей исключения **/
-    std::swap(Title, other.Title);                      // Обмениваем значения
+    Title.swap(other.Title);                            // Обмениваем значения
     std::swap(About.sComment, other.About.sComment);    // Обмениваем указатели
     std::swap(About.sCount, other.About.sCount);        // Обмениваем значения
-    std::swap(FName, other.FName);                      // Обмениваем значения
-    std::swap(RName, other.RName);                      // Обмениваем значения
+    FName.swap(other.FName);                            // Обмениваем значения
+    RName.swap(other.RName);                            // Обмениваем значения
     std::swap(Rdevice, other.Rdevice);                  // Обмениваем значения
 }   // swap
 
