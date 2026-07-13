@@ -404,10 +404,10 @@ class clsAgregate : public clsBaseProject {
     protected:
         size_t PrCount;                 // Количество периодов проекта
         vector<T_agregate> CostChain;   // Контейнер типа variant для объединения объектов типа clsStorage и clsManufactory
-        strItem* Purchase;              // Указатель на массив с ценами и объемами закупок; одномерный аналог матриы
+        strItem* Purchase;              // Указатель на массив с ценами и объемами закупок; одномерный аналог матрицы
         strItem* Shipment;              // Указатель на буферный массив. До начала вычислений содержит объемы отгрузок;
                                         // после всех вычислений - объемы и стоимостные данные; одномерный аналог матрицы
-        size_t sh_size;                 // ДинамическОе число строк массива Shipment (число столбцов равно PrCount)
+        size_t sh_size;                 // Динамическое число строк массива Shipment (число столбцов равно PrCount)
 
         clsAgregate();
         /** Конструктор по умолчанию. Чтобы запретить создание экземпляров данного класса, конструктор перенесен
@@ -415,6 +415,8 @@ class clsAgregate : public clsBaseProject {
 
         virtual void reportstream(ostream& os) const override;
         /** Метод выводит отчет в поток os. Используется невиртуальным методом clsBaseProject::Report **/
+
+        /** Методы сериализации и десериализации **/
 
         virtual bool StF(ofstream &_outF) override;
         /** Метод имплементации записи в файловую переменную текущего экземпляра класса (запись в файл, метод
