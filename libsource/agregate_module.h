@@ -35,7 +35,7 @@
 #include <warehouse_module.h>   // Подключаем класс склада clsStorage
 #include <manufact_module.h>    // Подключаем класс производства clsManufactory
 #include <Impex_module.h>       // Импорт исходных данных из файлов
-#include <baseproject_module.h> //
+#include <baseproject_module.h> // Использование базового класса clsBaseProject
 #include <variant>              // Использование типа variant
 
 enum Clc_type{seq = sZero, fut, thrd};              // Сепаратор выбора типа вычислений: последовательные,
@@ -259,18 +259,6 @@ struct Setter_progress_message {
         obj.Set_progress_message(move(Message));
     }
 };  // Setter_progress_message
-
-//struct Make_StF {
-//    ofstream &_outF;    // Поток для записи состояния объекта
-//
-//    bool operator() (clsStorage& obj) const {
-//        return obj.StF(_outF);
-//    }
-//
-//    bool operator() (clsManufactory& obj) const {
-//        return obj.StF(_outF);
-//    }
-//};  // Make_StF
 
 /***************************************************************************************************************/
 /**                                                                                                           **/
