@@ -1,5 +1,3 @@
-*.[ao]
-*~
 *.log
 build/
 bin/
