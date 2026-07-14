@@ -195,9 +195,11 @@ void clsAgregate::reportstream(ostream& os) const {
 
 bool clsAgregate::Detail_report(const size_t _dep, const string _depName[], const ChoiseData _arr, const ReportData& flg) const {
 /** Функция выводит выбранный отчет. Параметры: _dep - индекс подразделения в цепочке подразделений CostChain;
-_arr - выбор данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки;
-flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
-Отчет выводится в файл с именем, содержащимся в переменной clsBaseProject::RName. **/
+_depName - указатель на массив с названиями подразделений (может указывать на nullptr; в этом случае вместо названий
+подразделений в отчёт будут выведены их номера); _arr - выбор данных: "purchase" - поставки, "balance" - остатки/
+незавершенное производство, "shipment" - отгрузки; flg - тип выводимой в файл информации: volume - в натуральном,
+value - в стоимостном, price - в ценовом измерении. Отчет выводится в файл с именем, содержащимся в переменной
+clsBaseProject::RName. **/
     if(CostChain.size() == sZero) return false;             // Вылидация параметров
     const size_t NameCount = std::visit(Getter_exporting_count(_arr), CostChain[_dep]); // Размер экспортируемого массива
     strNameMeas* pNames = std::visit(Getter_exporting_names(_arr), CostChain[_dep]);    // Массив с именами
@@ -286,8 +288,8 @@ void clsAgregate::Set_share(const size_t index, const decimal _share[]) {
 }   // clsAgregate::Set_share
 
 void clsAgregate::Set_permission(const size_t index, const bool _perm[]) {
-/** Функция устанавливает разрешение/запрет на отгрузку и закупку в одном и том же периоде. Параметры: index
-- индекс элемента контейнера CostChain, _perm - флаг разрешения. **/
+/** Функция устанавливает разрешение/запрет на отгрузку и закупку на складе в одном и том же периоде. Параметры:
+index - индекс элемента контейнера CostChain, _perm - указатель на массив с флагами разрешения. **/
     auto Setter_permission = [&_perm](auto& obj) {      // Функция-посетитель
         using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
         if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
@@ -300,8 +302,8 @@ void clsAgregate::Set_permission(const size_t index, const bool _perm[]) {
 }   // clsAgregate::Set_permission
 
 void clsAgregate::Set_autopurchase(const size_t index, const PurchaseCalc _pcalc[]) {
-/** Функция устанавливает флаг авторасчета/ ручного расчета закупок. Параметры: index - индекс элемента контейнера
-CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
+/** Функция устанавливает флаг авторасчета/ ручного расчета закупок на складе. Параметры: index - индекс элемента
+контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
     auto Setter_autopurchase = [&_pcalc](auto& obj) {   // Функция-посетитель
         using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
         if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
