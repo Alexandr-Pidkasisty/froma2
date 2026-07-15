@@ -91,7 +91,7 @@ clsAgregate::~clsAgregate() {
 }   //Dtor
 
 clsAgregate& clsAgregate::operator=(const clsAgregate& rhs) {
-/** Перегрузка оператора присваивания копированием. Реализовано в идеоме
+/** Перегрузка оператора присваивания копированием. Реализовано в идиоме
 КОПИРОВАНИЯ-И-ЗАМЕНЫ (copy-and-swap idiom) **/
     if (this == &rhs) return *this;         // Если объекты идентичны, то ничего не делаем
     clsAgregate tmp(rhs);                   // Получаем копию объекта rhs в переменной tmp
@@ -100,7 +100,7 @@ clsAgregate& clsAgregate::operator=(const clsAgregate& rhs) {
 }   // Copy operator=
 
 clsAgregate& clsAgregate::operator=(clsAgregate&& rhs) {
-/** Перегрузка оператора присваивания перемещением. Реализовано в идеоме ПЕРЕМЕЩЕНИЯ-И-ЗАМЕНЫ
+/** Перегрузка оператора присваивания перемещением. Реализовано в идиоме ПЕРЕМЕЩЕНИЯ-И-ЗАМЕНЫ
 (move-and-swap idiom) **/
     if(this == &rhs) return *this;          // Если объекты идентичны, то ничего не делаем
     clsAgregate tmp(move(rhs));             // Перемещаем объект rhs в переменную tmp
@@ -116,10 +116,11 @@ size_t clsAgregate::ProjectCount() {
 }
 
 size_t clsAgregate::Counts(const ChoiseData _arr, const size_t _count) {
-/** Метод возвращает число ресурсов выбранного подразделения. Параметры: _count - индекс выбранного
-подразделения: 0 - первое подразделение, принимающее ресурсы (элемент контейнера CostChain с индексом
-ноль); подразделение, отгружающее готовую продукцию будет иметь самый большой номер (элемент контейнера
-CostChain с максимальным индексом). **/
+/** Метод возвращает число ресурсов выбранного подразделения. Параметры: _arr – сепаратор выбора данных:
+"purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" – отгрузки; _count
+- индекс выбранного подразделения: 0 - первое подразделение, принимающее ресурсы (элемент контейнера
+CostChain с индексом ноль); подразделение, отгружающее готовую продукцию будет иметь самый большой номер
+(элемент контейнера CostChain с максимальным индексом). **/
     if(CostChain.size() == sZero) return sZero;     // Если контейнер пуст, то возвращаем ноль
     else return std::visit(Getter_exporting_count(_arr), *(CostChain.begin()+_count));
 }   // clsAgregate::Counts
@@ -194,9 +195,11 @@ void clsAgregate::reportstream(ostream& os) const {
 
 bool clsAgregate::Detail_report(const size_t _dep, const string _depName[], const ChoiseData _arr, const ReportData& flg) const {
 /** Функция выводит выбранный отчет. Параметры: _dep - индекс подразделения в цепочке подразделений CostChain;
-_arr - выбор данных: "purchase" - поставки, "balance" - остатки/незавершенное производство, "shipment" - отгрузки;
-flg - тип выводимой в файл информации: volume - в натуральном, value - в стоимостном, price - в ценовом измерении.
-Отчет выводится в файл с именем, содержащимся в переменной clsBaseProject::RName. **/
+_depName - указатель на массив с названиями подразделений (может указывать на nullptr; в этом случае вместо названий
+подразделений в отчёт будут выведены их номера); _arr - выбор данных: "purchase" - поставки, "balance" - остатки/
+незавершенное производство, "shipment" - отгрузки; flg - тип выводимой в файл информации: volume - в натуральном,
+value - в стоимостном, price - в ценовом измерении. Отчет выводится в файл с именем, содержащимся в переменной
+clsBaseProject::RName. **/
     if(CostChain.size() == sZero) return false;             // Вылидация параметров
     const size_t NameCount = std::visit(Getter_exporting_count(_arr), CostChain[_dep]); // Размер экспортируемого массива
     strNameMeas* pNames = std::visit(Getter_exporting_names(_arr), CostChain[_dep]);    // Массив с именами
@@ -285,8 +288,8 @@ void clsAgregate::Set_share(const size_t index, const decimal _share[]) {
 }   // clsAgregate::Set_share
 
 void clsAgregate::Set_permission(const size_t index, const bool _perm[]) {
-/** Функция устанавливает разрешение/запрет на отгрузку и закупку в одном и том же периоде. Параметры: index
-- индекс элемента контейнера CostChain, _perm - флаг разрешения. **/
+/** Функция устанавливает разрешение/запрет на отгрузку и закупку на складе в одном и том же периоде. Параметры:
+index - индекс элемента контейнера CostChain, _perm - указатель на массив с флагами разрешения. **/
     auto Setter_permission = [&_perm](auto& obj) {      // Функция-посетитель
         using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
         if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
@@ -299,8 +302,8 @@ void clsAgregate::Set_permission(const size_t index, const bool _perm[]) {
 }   // clsAgregate::Set_permission
 
 void clsAgregate::Set_autopurchase(const size_t index, const PurchaseCalc _pcalc[]) {
-/** Функция устанавливает флаг авторасчета/ ручного расчета закупок. Параметры: index - индекс элемента контейнера
-CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
+/** Функция устанавливает флаг авторасчета/ ручного расчета закупок на складе. Параметры: index - индекс элемента
+контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
     auto Setter_autopurchase = [&_pcalc](auto& obj) {   // Функция-посетитель
         using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
         if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
@@ -314,7 +317,7 @@ CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
 
 bool clsAgregate::Set_ship_volume(const strItem _Shipment[]) {
 /** Метод ввода объемов отгрузки в подразделение с самым большим индексом. Параметры: _Shipment
-- указатель на вводимый массив с отгрузками. Метод возвращает True при удачном копировании входного
+- указатель на вводимый массив с отгрузками. Метод возвращает true при удачном копировании входного
 массива во внутренний массив Shipment.**/
     if((!_Shipment)  || (CostChain.size() == sZero)) return false;  // Валидация параметров
     sh_size = std::visit(Getter_exporting_count(shipment), *(CostChain.cend()-1));  // Получаем число строк массива
@@ -329,7 +332,7 @@ bool clsAgregate::Set_ship_volume(const strItem _Shipment[]) {
 
 bool clsAgregate::Set_pur_price(const strItem _Purchase[]) {
 /** Метод ввода цен поставок в подразделение с нулевым индексом. Параметры: _Purchase - указатель на вводимый
-массив с поставками. Метод возвращает True при удачном копировании входного массива во внутренний массив Purchase. **/
+массив с поставками. Метод возвращает true при удачном копировании входного массива во внутренний массив Purchase. **/
     if((!_Purchase)  || (CostChain.size() == sZero)) return false;  // Валидация параметров
     sh_size = std::visit(Getter_exporting_count(purchase), *(CostChain.cbegin()));  // Получаем число строк массива
     size_t tcount = sh_size * PrCount;              // Вычисляем размер копируемых массивов
@@ -353,7 +356,8 @@ bool clsAgregate::Set_pur_price(const strItem _Purchase[]) {
 bool clsAgregate::Set_pur_volume(const strItem _Pur_vol[]) {
 /** Метод ввода объемов поставок в подразделение типа clsStorage с самым низким индексом. Используется в случае, когда
 хотя бы для одного SKU установлен флаг ручного ввода объемов поставок (флаг "nocalc" - без автоматического расчета).
-ВНИМАНИЕ!!! Метод вызывается ДО вызова функции RCalculate, примерно рядом с вызовом метода Set_ship_volume. **/
+ВНИМАНИЕ!!! Метод вызывается ДО вызова функции RCalculate, примерно рядом с вызовом метода Set_ship_volume.
+Параметры: _Pur_vol - указатель на вводимый массив с поставками. **/
     if(!_Pur_vol) return false;                             // Валидация параметров
     for(vector<T_agregate>::iterator it = CostChain.begin(); it != CostChain.end(); it++)
         if(std::holds_alternative<clsStorage>(*it)) {       // Если it указывает на clsStorage, то
@@ -457,9 +461,9 @@ bool clsAgregate::FCalculate(const string msg[]) {
     };
     for(vector<T_agregate>::iterator it = CostChain.begin(); it != CostChain.end(); it++) {
     // Устанавливаем наименование индикатора прогресса, устанавливаем максимальное значение счётчика
-    // индикатора прогресса, вводим данные об поставке из массива Shipment в элемент контейнера,
+    // индикатора прогресса, вводим данные о поставке из массива Shipment в элемент контейнера,
     // рассчитываем этот элемент, выводим расчётные данные в массив Shipment. И так для всех элементов
-    // контейнера в реверсивном направлении
+    // контейнера в прямом направлении
         std::visit(Setter_progress_message{*(msg+i)}, *it);    // Устанавливаем заголовок индикатора прогресса
         MCount = std::visit(Getter_exporting_count(shipment), *it); // Определяем число отгружаемых SKU в подразделении
         std::visit(Setter_maxcount, *it);                      // Устанавливаем счётчик индикатора прогресса
@@ -480,7 +484,7 @@ bool clsAgregate::FCalculate(const string msg[]) {
 
 bool clsAgregate::StF(ofstream &_outF) {
 /** Метод имплементации записи в файловую переменную текущего экземпляра класса (запись в файл, метод
-сериализации). Параметры: &_outF - экземпляр класса ofstream для записи данных **/
+сериализации). Параметры: &_outF - ссылка на экземпляр класса ofstream для записи данных **/
     #ifdef DEBUG_StF_RfF                            // Макрос вывода отладочной информации. Работает, если определен DEBUG_StF_RfF
         long bpos = _outF.tellp();          // Определяем позицию в начале файла
         cout << "clsAgregate::StF begin bpos= " << bpos << endl;
