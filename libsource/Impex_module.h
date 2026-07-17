@@ -49,6 +49,10 @@ const size_t constexpr ex_precision = (std::is_same<decimal, LongReal>::value) ?
 /** Если в расчётах используются вещественные числа типа LongReal, то длина мантиссы равна manDigits,
 если встроенные типы, - то max_digits10. Используется в методах clsImpex::csvExport и clsImpex::Import. **/
 
+template<typename U>            // Ограничение типа для Get-функции
+constexpr bool is_decimal_bool_or_size_t_v =
+    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
+
 /*************************************************************************************************************************/
 /**                        Класс clsImpex для импорта и экспорта информации из cvs-файлов                               **/
 /**                 и подготовки исходных данных для объектов типа clsStorage и clsManufactory                          **/
@@ -112,6 +116,13 @@ class clsImpex
         // ВНИМАНИЕ!!! Для совместимости с параметрами методов классов clsStorage и clsManufactory матрица
         // (в векторе m_data) с импортированными данными должна иметь горизонтальную ориентацию (разные периоды
         // - в разных столбцах). В противном случае перед применением настоящего метода матрицу необходимо транспонировать.
+
+        template<typename T, class=std::enable_if_t<is_decimal_bool_or_size_t_v<T>>>
+        T* GetData(const size_t brow, const size_t erow, const size_t bcol, const size_t ecol) const;
+        /** Метод возвращает выбранные в матрице данные, конвертированные в тип decimal, bool или size_t.
+        Параметры: brow - начальная строка данных, erow - конечная строка, bcol - начальный столбец, ecol
+        - конечный столбец. Метод возвращает одномерный динамический массив, являющийся аналогом двумерной
+        матрицы размером (erow-brow+1)*(ecol-bcol+1). **/
 
         nmBPTypes::strNameMeas* GetNames(const size_t brow, const size_t erow,const size_t idName,\
         const size_t idMeas) const;                 // Метод возвращает выбранные в матрице данные
