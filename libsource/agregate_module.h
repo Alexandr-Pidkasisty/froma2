@@ -108,10 +108,10 @@ struct Getter_exporting_count {
     public:
         Getter_exporting_count(const ChoiseData _arr) : arr(_arr) {}// Ctor с установкой сепаратора
 
-        const size_t operator() (const clsStorage& obj) {           // Получаем число позиций
+        size_t operator() (const clsStorage& obj) {           // Получаем число позиций
             return obj.Size();
         }
-        const size_t operator() (const clsManufactory& obj) {
+        size_t operator() (const clsManufactory& obj) {
             if((arr==balance) || (arr==shipment))
                 fMcount = &clsManufactory::GetProdCount;            // указываем на функцию возврата числа продуктов
             else
@@ -366,7 +366,11 @@ class clsAgregate : public clsBaseProject {
 
         void Set_autopurchase(const size_t index, const PurchaseCalc _pcalc[]);
         /** Функция устанавливает флаг авторасчета/ ручного расчета закупок на складе. Параметры: index - индекс элемента
-        контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
+        контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета.**/
+
+        void Set_autopurchase(const size_t index, const size_t _pcalc[]);
+        /** Функция устанавливает флаг авторасчета/ ручного расчета закупок на складе. Параметры: index - индекс элемента
+        контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета.**/
 
         bool Set_ship_volume(const strItem _Shipment[]);
         /** Метод ввода объемов отгрузки в подразделение с самым большим индексом. Параметры: _Shipment
