@@ -59,13 +59,13 @@
 using namespace nmBPTypes;          // Наиболее употребимые константы, типы и функции
 using namespace nmPrntSrvs;         // Константы и функции для методов визуального контроля
 
-enum AccountingMethod : size_t {FIFO = sZero, LIFO, AVG};       // Индексы принципов учета запасов
-const string AccountTXT[] = {"FIFO", "LIFO", "AVERAGE"};        // Наименования принципов учета запасов
-enum ChoiseData : size_t {purchase = sZero, balance, shipment}; // Выбор данных для ввода/вывода: данные закупок или отгрузок
-enum PurchaseCalc : size_t {calc = sZero, nocalc};              // Флаг разрешающий/ запрещающий рассчитывать объем закупок
-const string PurchaseCalcTXT[] = {"AUTO", "MANUAL"};     // Наименования флага расчёта закупок
-const string ProhibitedTXT[] = {"PROHIBITED", "ALLOWED"};// Наименование флага разрешения поступлений и отгрузок
-                                                         // в одном и том же периоде
+enum AccountingMethod {FIFO = sZero, LIFO, AVG};            // Индексы принципов учета запасов
+const string AccountTXT[] = {"FIFO", "LIFO", "AVERAGE"};    // Наименования принципов учета запасов
+enum ChoiseData {purchase = sZero, balance, shipment};      // Выбор данных для ввода/вывода: данные закупок или отгрузок
+enum PurchaseCalc {calc = sZero, nocalc};                   // Флаг разрешающий/ запрещающий рассчитывать объем закупок
+const string PurchaseCalcTXT[] = {"AUTO", "MANUAL"};        // Наименования флага расчёта закупок
+const string ProhibitedTXT[] = {"PROHIBITED", "ALLOWED"};   // Наименование флага разрешения поступлений и отгрузок
+                                                            // в одном и том же периоде
 struct TLack {      /** Структура для получения информации о дефиците ресурсов и имени SKU, где есть дефицит **/
     decimal lack{dZero};    // Дефицит ресурсов
     string Name{EmpStr};    // Наименование SKU (Stock Keeping Unit - единица складского учета), где выявлен дефицит
