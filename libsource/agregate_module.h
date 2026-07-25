@@ -275,7 +275,7 @@ namespace nmAgregate {
     const string rByPrice    = "¬ удельном стоимостном измерении";
     const string rByValue    = "¬ стоимостном измерении";
     const string aPurchase   = "поступлени€";
-    const string aBalance    = "остатки";
+    const string aBalance    = "остатки/ незавершенное производство";
     const string aShipment   = "отгрузки";
 };
 
