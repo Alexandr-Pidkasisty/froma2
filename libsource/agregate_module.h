@@ -31,7 +31,7 @@
 #ifndef FROMA2_AGREGATE_MODULE_H
 #define FROMA2_AGREGATE_MODULE_H
 
-#include <common_values.hpp>    // Наиболее общие типы, переменные и функции библиотеки  FROMA2
+#include "common_values.hpp"    // Наиболее общие типы, переменные и функции библиотеки  FROMA2
 #include <warehouse_module.h>   // Подключаем класс склада clsStorage
 #include <manufact_module.h>    // Подключаем класс производства clsManufactory
 #include <Impex_module.h>       // Импорт исходных данных из файлов
