@@ -32,10 +32,10 @@
 #define FROMA2_AGREGATE_MODULE_H
 
 #include "common_values.hpp"    // Наиболее общие типы, переменные и функции библиотеки  FROMA2
-#include <warehouse_module.h>   // Подключаем класс склада clsStorage
-#include <manufact_module.h>    // Подключаем класс производства clsManufactory
-#include <Impex_module.h>       // Импорт исходных данных из файлов
-#include <baseproject_module.h> // Использование базового класса clsBaseProject
+#include "warehouse_module.h"   // Подключаем класс склада clsStorage
+#include "manufact_module.h"    // Подключаем класс производства clsManufactory
+#include "Impex_module.h"       // Импорт исходных данных из файлов
+#include "baseproject_module.h" // Использование базового класса clsBaseProject
 #include <variant>              // Использование типа variant
 
 enum Clc_type{seq = sZero, fut, thrd};              // Сепаратор выбора типа вычислений: последовательные,
