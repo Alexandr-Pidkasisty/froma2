@@ -17,6 +17,8 @@ add_library("${LIBRARY_NAME}" STATIC
 	progress_module.hpp
 	serialization_module.hpp
 	warehouse_lib.cpp
-	warehouse_module.h)
+	warehouse_module.h
+	agregate_module.h
+	agregate_lib.cpp)
 # Добавляем текущий каталог для использования при компиляции зависимых целей от текущей
 target_include_directories("${LIBRARY_NAME}" INTERFACE .)
