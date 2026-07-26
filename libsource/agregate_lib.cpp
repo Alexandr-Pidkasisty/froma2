@@ -307,8 +307,22 @@ void clsAgregate::Set_autopurchase(const size_t index, const PurchaseCalc _pcalc
     auto Setter_autopurchase = [&_pcalc](auto& obj) {   // Функция-посетитель
         using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
         if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
-            for(size_t i{}; i<obj.Size(); i++)                      // то для каждого индивидуального i-го склада
-                obj.SetAutoPurchase(i, *(_pcalc+i));                // устанавливаем соответствующий флаг авторасчёта
+            for(size_t i{}; i<obj.Size(); i++)          // то для каждого индивидуального i-го склада устанавливаем
+                obj.SetAutoPurchase(i, *(_pcalc+i));    // соответствующий флаг авторасчёта
+        else if constexpr (std::is_same_v<T, clsManufactory>) {};   // Если базовый тип clsManufactory,
+    };                                                              // то ничего не делаем
+    if(CostChain.size() == sZero) return;                           // Если контейнер пуст, то выходим
+    else std::visit(Setter_autopurchase, CostChain[index]);         // Вызываем посетителя для элемента
+}   // clsAgregate::Set_autopurchase
+
+void clsAgregate::Set_autopurchase(const size_t index, const size_t _pcalc[]) {
+/** Функция устанавливает флаг авторасчета/ ручного расчета закупок на складе. Параметры: index - индекс элемента
+контейнера CostChain, _pcalc - указатель на массив с флагами авторасчета. **/
+    auto Setter_autopurchase = [&_pcalc](auto& obj) {   // Функция-посетитель
+        using T = std::decay_t<decltype(obj)>;          // Преобразование к базовому типу и определения алиаса Т
+        if constexpr (std::is_same_v<T, clsStorage>)    // Если базовый тип clsStorage,
+            for(size_t i{}; i<obj.Size(); i++)          // то для каждого индивидуального i-го склада устанавливаем
+                obj.SetAutoPurchase(i, static_cast<PurchaseCalc>(*(_pcalc+i))); // соответствующий флаг авторасчёта
         else if constexpr (std::is_same_v<T, clsManufactory>) {};   // Если базовый тип clsManufactory,
     };                                                              // то ничего не делаем
     if(CostChain.size() == sZero) return;                           // Если контейнер пуст, то выходим

@@ -1,6 +1,6 @@
 set(LIBRARY_NAME "froma2")	# Переменная с именем библиотеки
 project("${LIBRARY_NAME}"	# Название, версия, описание, язык программирования
-	VERSION 1.3.0
+	VERSION 1.3.3
 	DESCRIPTION "Direct costing modeling software library"
 	LANGUAGES CXX)
 # Добавляем файлы в проект статической библиотеки froma2
@@ -17,6 +17,8 @@ add_library("${LIBRARY_NAME}" STATIC
 	progress_module.hpp
 	serialization_module.hpp
 	warehouse_lib.cpp
-	warehouse_module.h)
+	warehouse_module.h
+	agregate_module.h
+	agregate_lib.cpp)
 # Добавляем текущий каталог для использования при компиляции зависимых целей от текущей
 target_include_directories("${LIBRARY_NAME}" INTERFACE .)

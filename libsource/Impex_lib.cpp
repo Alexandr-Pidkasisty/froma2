@@ -265,6 +265,41 @@ brow - начальная строка данных, erow - конечная строка, bcol - начальный столбец
     return dData;
 }   // GetDecimal
 
+template <typename T, class>
+T* clsImpex::GetData(const size_t brow, const size_t erow, const size_t bcol, const size_t ecol) const {
+/** Метод возвращает выбранные в матрице данные, конвертированные в тип decimal, bool или size_t.
+Параметры: brow - начальная строка данных, erow - конечная строка, bcol - начальный столбец, ecol
+- конечный столбец. Метод возвращает одномерный динамический массив, являющийся аналогом двумерной
+матрицы размером (erow-brow+1)*(ecol-bcol+1). **/
+    if((m_rowcount==nmBPTypes::sZero) || (m_colcount==nmBPTypes::sZero) ||\
+        (m_data.size()==nmBPTypes::sZero)) return nullptr;                          // Проверка на наличие данных
+    if((brow>=m_rowcount) || (erow>=m_rowcount) || (brow>erow) ||\
+        (bcol>=m_colcount) || (ecol>=m_colcount) || (bcol>ecol)) return nullptr;    // Проверка корректности параметров
+    size_t trows = erow-brow+nmBPTypes::sOne;           // Количество строк в выходном массиве
+    size_t tcols = ecol-bcol+nmBPTypes::sOne;           // Количество столбцов в выходном массиве
+    T* dData = new(nothrow) T[trows*tcols];             // Выделяем память массиву
+    if(!dData) return nullptr;                          // Если память не выделена, то выход и возврат nullptr
+    vector<vector<string>>::const_iterator citrow;      // Итератор для строк
+    vector<string>::const_iterator citcell;             // Итератор для столбцов
+    size_t i=nmBPTypes::sZero;                          // Индекс строки
+    for(citrow=m_data.cbegin()+brow; citrow<=m_data.cbegin()+erow; citrow++) {              // Перебор по строкам
+        size_t j=nmBPTypes::sZero;                                                          // Индекс столбца
+        for(citcell=(*citrow).cbegin()+bcol; citcell<=(*citrow).cbegin()+ecol; citcell++) { // Перебор по столбцам
+            stringstream ss;                            // Вспомогательный поток строк
+            ss << *citcell;                             // Читаем из матрицы в поток строк
+            ss >> *(dData+tcols*i+j);                   // Экспортируем из потока в число
+            j++;                                        // Изменяем индекс столбца
+        };
+        i++;                                            // Изменяем индекс строки
+    };
+    return dData;
+}   // clsImpex::GetData
+
+template decimal* clsImpex::GetData<decimal>(const size_t brow, const size_t erow, const size_t bcol, const size_t ecol) const;
+template bool* clsImpex::GetData<bool>(const size_t brow, const size_t erow, const size_t bcol, const size_t ecol) const;
+template size_t* clsImpex::GetData<size_t>(const size_t brow, const size_t erow, const size_t bcol, const size_t ecol) const;
+/** Явно созданные экземпляры шаблонов для типов decimal, bool и size_t **/
+
 nmBPTypes::strNameMeas* clsImpex::GetNames(const size_t brow, const size_t erow,\
 const size_t idName, const size_t idMeas) const {
 /** Метод возвращает выбранные в матрице данные, конвертированные в тип strNameMeas. Параметры:
