@@ -1134,7 +1134,7 @@ void EraseVector(vector<thread>& _pool) {
         }   // clsStorage::SetShipment (Move, strItem)
 
         bool clsStorage::SetSKU(const string& Name, const string& Measure, PurchaseCalc _flag, decimal _share, bool _perm,\
-            strItem _ship[], strItem _pur[]) {
+            strItem _ship[], const strItem _pur[]) {
         /** ћетод создани€ склада дл€ конкретного SKU. —оздает новый экземпл€р класса cksSKU непоредственно в векторе.
         ѕараметры: Name - наименование SKU, Measure - единица измерени€ SKU, _flag - флаг разрешающий авторасчет закупок,
         _share - запас ресурсов на складе в каждый период, выраженный в доле от объема отгрузок за этот период,

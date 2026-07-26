@@ -461,7 +461,7 @@ class clsStorage {       /** Склад ресурсов для нескольких номенклатурных позици
             с непустым вектором. В случае успешной записи, метод возвращает true.  **/
 
         bool SetSKU(const string& Name, const string& Measure, PurchaseCalc _flag, decimal _share, bool _perm,\
-            strItem _ship[], strItem _pur[]);
+            strItem _ship[], const strItem _pur[]);
             /** Метод создания склада для конкретного SKU. Создает новый экземпляр класса cksSKU непоредственно в векторе.
             Параметры: Name - наименование SKU, Measure - единица измерения SKU, _flag - флаг разрешающий авторасчет закупок,
             _share - запас ресурсов на складе в каждый период, выраженный в доле от объема отгрузок за этот период,
