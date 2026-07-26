@@ -187,6 +187,8 @@ int main(int argc, char* argv[]) {
 
     string ReportName = V_DIR_REPORTS;  // Устанавливаем полный путь до файла отчета
     ReportName.append("Model_2");       // Добавляем имя отчета
+    cout << "Введите имя файла отчета без расширения [" << ReportName << "]: ";
+    inData(ReportName, ReportName);                         // Читаем имя файла в переменную ReportName
     Stock->SetDevice(file);             // Устанавливаем устройство для вывода отчета
     Stock->SetRName(ReportName);        // Устанавливаем имя файла отчета
     Stock->Report();
@@ -210,7 +212,16 @@ int main(int argc, char* argv[]) {
 /****************************************************************************************************/
 
     string outdir = V_DIR_OUTPUTDATA;
-    cout << endl << "Экспорт CSV-файлов в папку " << outdir << endl;
+    cout << "Введите папку для экспорта CSV-файлов [" << outdir << "]: ";
+    inData(outdir, outdir);                 // Читаем имя папки в переменную outdir
+    struct stat sb;                         // Переменная для записи методанных о файле
+    if (stat(outdir.c_str(), &sb) != 0) {   // Если папка для вывода csv-файлов не существует, то
+        cout << "Ошибка вывода csv-файлов: указанная папка не существует\n";
+        delete Stock;
+        cout << "Copyright (c) 2026 Пидкасистый Александр Павлович" << endl;
+        return EXIT_FAILURE;                // выходим из программы с кодом неудачного завершения
+    }
+    cout << "Экспорт CSV-файлов в папку " << outdir << endl;
 
        /** Объем отгрузок в натуральном выражении **/
     if(!Stock->Export_Data(outdir+f_ws_volume, outStock, shipment, volume)) {
