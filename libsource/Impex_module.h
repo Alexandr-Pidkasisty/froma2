@@ -169,4 +169,32 @@ class clsImpex
 
 };
 
+/*************************************************************************************************************************/
+/**                                                 Внеклассовые функции                                                **/
+/*************************************************************************************************************************/
+
+using namespace nmBPTypes;
+
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, ReportData flg,\
+    strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив, flg - флаг, определяющий тип импортируемых данных: "volume" - объемы в натуральном выражении,
+"price" - цены, "value" - стоимость; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия
+ресурсов и номера периодов проекта. **/
+
+template<typename U>                // Ограничение типа для функции ImportSingleArray
+constexpr bool is_decimal_bool_or_PurchaseCalc_v =
+    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
+
+template<typename T, class=std::enable_if_t<is_decimal_bool_or_PurchaseCalc_v<T>>>
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    T* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
+периодов проекта. **/
+
 #endif // FROMA2_CLSIMPEX_H

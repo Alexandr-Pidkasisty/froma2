@@ -24,9 +24,9 @@ template<typename T>                // Ограничение типа для функции inData
 constexpr bool is_ch_or_size_t_or_double_v =
     std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, decimal>::value;
 
-template<typename U>                // Ограничение типа для функции ImportSingleArray
-constexpr bool is_decimal_bool_or_PurchaseCalc_v =
-    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
+//template<typename U>                // Ограничение типа для функции ImportSingleArray
+//constexpr bool is_decimal_bool_or_PurchaseCalc_v =
+//    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
 
 /****************************************************************************************************/
 /**                                    Вспомогательные функции                                     **/
@@ -121,71 +121,6 @@ class clsImportConfig {
         vector<clsRecipeItem> In_Recipe;    // Контейнер с тех.картами для ЦЗП
 
         /** Методы **/
-        bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, ReportData flg,\
-            strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-        /** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
-        - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
-        указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
-        формируемый массив, flg - флаг, определяющий тип импортируемых данных: "volume" - объемы в натуральном выражении,
-        "price" - цены, "value" - стоимость; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия
-        ресурсов и номера периодов проекта. **/
-            ifstream input(_filename);                  // Связываем файл с потоком на чтение
-            if(!input.is_open()) return false;          // Проверка открытия файла
-            const char ch = _ch;                        // Выбираем разделитель
-            clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-            input.close();                              // Закрываем файл с исходными данными
-            if(Data->is_Empty()) {                      // Если вектор не создан, то
-                delete Data;                            // удаляем объект
-                return false;                           // и выходим с false
-            };
-            ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-            RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-            strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
-            strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-            size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-            size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-            tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
-            tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-            delete Data;                                // Удаляем объект для импорта
-            std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-            std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-            if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-            if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-            return true;
-        }   // ImportSingleArray
-
-        template<typename T, class=std::enable_if_t<is_decimal_bool_or_PurchaseCalc_v<T>>>
-        bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
-            T* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-        /** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
-        - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
-        указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
-        формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
-        периодов проекта. **/
-            ifstream input(_filename);                  // Связываем файл с потоком на чтение
-            if(!input.is_open()) return false;          // Проверка открытия файла
-            const char ch = _ch;                        // Выбираем разделитель
-            clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-            input.close();                              // Закрываем файл с исходными данными
-            if(Data->is_Empty()) {                      // Если вектор не создан, то
-                delete Data;                            // удаляем объект
-                return false;                           // и выходим с false
-            };
-            ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-            RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-            T* tmpdata;                                 // Временная переменная-указатель на массив с данными
-            strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-            size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-            size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-            tmpdata = Data->GetData<T>(hrows, maxRow, hcols, maxCol);           // Получаем указатель на массив с данными
-            tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-            delete Data;                                // Удаляем объект для импорта
-            std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-            std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-            if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-            if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-            return true;
-        }   // template-ImportSingleArray
 
         bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
             &_Recipe, size_t _Count) {

@@ -44,15 +44,6 @@ class clsCCStorageTest {
         vector<clsRecipeItem> Out_Recipe;   // Контейнер с тех.картами для ЦЗО
         vector<clsRecipeItem> In_Recipe;    // Контейнер с тех.картами для ЦЗП
 
-        bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows,\
-            ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
-        /** Метод читает информацию из файла с именем filename и разделителями между полями _ch и заполняет
-        поля: RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов
-        проекта, _names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их
-        измерения, _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых
-        данных: "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость; hcols и hrows
-        - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера периодов проекта. **/
-
         bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,\
             vector<clsRecipeItem>& _Recipe, size_t _Count);
         /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
