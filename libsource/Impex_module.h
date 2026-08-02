@@ -39,8 +39,13 @@
 #include <vector>
 #include <iomanip>
 #include <limits>               // Предельные значения фундаментальных типов
+#include <filesystem>           // Работа с файлами и директориями
+#include <regex>                // Работа с регулярнями выражениями
 #include "common_values.hpp"
 #include "LongReal_module.h"
+#include "manufact_module.h"    // Используем тип clsRecipeItem
+
+namespace fs = std::filesystem; // Создаем короткий алиас
 
 using namespace std;
 
@@ -196,5 +201,17 @@ bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, siz
 указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
 формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
 периодов проекта. **/
+
+bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
+    &_Recipe, size_t _Count, const string& msks, const string& V_DIR_INPUTDATA);
+/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
+_prefixname (в данном конкретном примере строка с префиксом определяется макросом filename_recipe_in для
+техкарт ЦЗП и префиксом filename_recipe_out для тех.карт ЦЗО). Обрабатываются все файлы, удовлетворяющие
+маске (в примере строка с регулярным выражением определяется макросом msks) и лежащие в одной папке. Метод
+заполняет контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
+_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
+количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера,
+msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA - папка, где будет
+происходить поиск файлов. **/
 
 #endif // FROMA2_CLSIMPEX_H
