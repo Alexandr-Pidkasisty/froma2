@@ -213,14 +213,6 @@ class clsEnterprise : public clsBaseProject {
         bool Import_About(const string filename);   /** ћетод читает информацию из файла с описанием
         проекта и формирует пол€ Title и Descript класса clsBaseProject. **/
 
-        bool ImportSingleArray(const string filename, const char _ch, size_t hcols, size_t hrows,\
-        ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
-        /** ћетод читает информацию из файла с именем filename и разделител€ми между пол€ми ch и заполн€ет пол€:
-        RowCount - ссылка число номенклатурных позиций (ресурсов или продуктов), ColCount - ссылка на число периодов
-        проекта, names - ссылка на указатель на массив с наименовани€ми номенклатурных позиций и единиц их измерени€,
-        _data - ссылка на указатель на формируемый массив, flg - флаг, определ€ющий тип импортируемых данных:
-        "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
-
         bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows);
         /** ћетод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
         _prefixname. ќбрабатываютс€ все файлы, удовлетвор€ющие маске (определ€етс€ макросом msks) и лежащие в одной

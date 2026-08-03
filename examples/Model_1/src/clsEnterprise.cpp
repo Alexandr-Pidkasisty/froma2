@@ -642,12 +642,19 @@ bool clsEnterprise::Import_Data() {
     }
     Purch_indr = ImConfig.P_indr;           // Инициализируем поле с флагом для ССМ
     Ship_indr = ImConfig.S_indr;            // Инициализируем поле с флагом для СГП
-    if(!ImportSingleArray(ImConfig.filename_Shipment, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    /** Формируем полные имена файлов с путем **/
+    string InputShipment, InputProduction, InputPurchase, InputPurchase_V;  // Переменные для имен файлов
+    (InputShipment.assign(indir)).append(ImConfig.filename_Shipment);       // Путь и имя файла отгрузок
+    (InputProduction.assign(indir)).append(ImConfig.filename_Production);   // Путь и имя файла производства
+    (InputPurchase.assign(indir)).append(ImConfig.filename_Purchase);       // Путь и имя файла с ценами закупок
+    (InputPurchase_V.assign(indir)).append(ImConfig.filename_Purchase_V);   // Путь и имя файла с объемами закупок
+
+    if(!ImportSingleArray(InputShipment, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Shipment, ProdNames, PrCount, ProdCount)) {
         return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
     }
     size_t tmp1, tmp2;                                      // Временные переменные - "заглушки"
-    if(ImportSingleArray(ImConfig.filename_Production, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(ImportSingleArray(InputProduction, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Production, ProdNames, tmp1, tmp2)) {
         mancalc = nocalc;                   // Если импорт удачный, меняем и отображаем флаг расчета закупок
         ShipShare = dZero;                  // и норматив запаса на складе СГП
@@ -656,14 +663,14 @@ bool clsEnterprise::Import_Data() {
         ShipShare = ImConfig.S_Share;
         ImConfig.filename_Production = NoFileName;
     }
-    if(!ImportSingleArray(ImConfig.filename_Purchase, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(!ImportSingleArray(InputPurchase, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     price, Purchase, RMNames, tmp1, RMCount)) {
         return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
     }
     strItem* tmpPurchase = nullptr;                         // Создаем временный указатель
     std::swap(tmpPurchase, Purchase);                       // Перебрасываем указатель на массив закупочных цен
     strNameMeas* tmpNames;                                  // Временные переменные - "заглушки"
-    if(!ImportSingleArray(ImConfig.filename_Purchase_V, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(!ImportSingleArray(InputPurchase_V, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Purchase, tmpNames, tmp1, tmp2)) {  // Если импорт неудачный, то возвращаем указатели в исходное состояние
         std::swap(tmpPurchase, Purchase);       // Если импорт неудачный, то возвращаем указатели в исходное состояние
         PurchShare = ImConfig.P_Share;
@@ -1138,38 +1145,6 @@ clsBaseProject. **/
     }
     else return false;
 }   // Import_About
-
-bool clsEnterprise::ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows,\
-    ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-/** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
-RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта,
-_names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
-_data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
-"volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
-    string filename = FullFName(indir, _filename);  // Формируем полное имя файла
-    ifstream input(filename);                       // Связываем файл с потоком на чтение
-    const char ch = _ch;                        // Выбираем разделитель
-    clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-    input.close();                              // Закрываем файл с исходными данными
-    if(Data->is_Empty()) {                      // Если вектор не создан, то
-        delete Data;                            // удаляем объект
-        return false;                           // и выходим с false
-    };
-    ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-    RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-    strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
-    strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-    size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-    size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-    tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
-    tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-    delete Data;                                // Удаляем объект для импорта
-    std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-    std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-    if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-    if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-    return true;
-}   // clsEnterprise::ImportSingleArray
 
 bool clsEnterprise::Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows) {
 /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
