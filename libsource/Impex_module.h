@@ -205,10 +205,8 @@ bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, siz
 bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
     &_Recipe, size_t _Count, const string& msks, const string& V_DIR_INPUTDATA);
 /** ћетод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-_prefixname (в данном конкретном примере строка с префиксом определ€етс€ макросом filename_recipe_in дл€
-техкарт ÷«ѕ и префиксом filename_recipe_out дл€ тех.карт ÷«ќ). ќбрабатываютс€ все файлы, удовлетвор€ющие
-маске (в примере строка с регул€рным выражением определ€етс€ макросом msks) и лежащие в одной папке. ћетод
-заполн€ет контейнер рецептур _Recipe размером _Count. ѕараметры: _prefixname - префикс имен файлов тех.карт,
+_prefixname. ќбрабатываютс€ все файлы, удовлетвор€ющие маске msks и лежащие в одной папке. ћетод заполн€ет
+контейнер рецептур _Recipe размером _Count. ѕараметры: _prefixname - префикс имен файлов тех.карт,
 _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
 количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера,
 msks - маска регул€рного выражени€ дл€ поиска подход€щих файлов, V_DIR_INPUTDATA - папка, где будет

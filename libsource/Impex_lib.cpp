@@ -497,10 +497,8 @@ template bool ImportSingleArray(const string _filename, const char _ch, size_t h
 bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
     &_Recipe, size_t _Count, const string& msks, const string& V_DIR_INPUTDATA) {
 /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-_prefixname (в данном конкретном примере строка с префиксом определяется макросом filename_recipe_in для
-техкарт ЦЗП и префиксом filename_recipe_out для тех.карт ЦЗО). Обрабатываются все файлы, удовлетворяющие
-маске (в примере строка с регулярным выражением определяется макросом msks) и лежащие в одной папке. Метод
-заполняет контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
+_prefixname. Обрабатываются все файлы, удовлетворяющие маске msks и лежащие в одной папке. Метод заполняет
+контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
 _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
 количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера,
 msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA - папка, где будет
@@ -518,7 +516,7 @@ msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA
     if(!fs::exists(indata)) return false;               // Проверяем существование папки
     for(auto &p : fs::directory_iterator(indata)) {     // Поиск в папке
         if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
-        string name((p.path().filename()).string());    // Получаем имя файла
+        string name((p.path().filename()).string());    // Получаем имя файла в виде строки
         if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской
             rec.open(p.path());                         // Связываем поток с файлом
             if(!rec.is_open()) {                        // Если файл не открыт, то
