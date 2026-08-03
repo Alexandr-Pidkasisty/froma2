@@ -517,7 +517,7 @@ msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA
     const fs::path indata{pth};                         // Папка с файлами рецептур
     if(!fs::exists(indata)) return false;               // Проверяем существование папки
     for(auto &p : fs::directory_iterator(indata)) {     // Поиск в папке
-        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что анйденный файл регулярный (не папка, не ссылка)
+        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
         string name((p.path().filename()).string());    // Получаем имя файла
         if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской
             rec.open(p.path());                         // Связываем поток с файлом
