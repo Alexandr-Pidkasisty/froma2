@@ -44,16 +44,6 @@ class clsCCStorageTest {
         vector<clsRecipeItem> Out_Recipe;   // Контейнер с тех.картами для ЦЗО
         vector<clsRecipeItem> In_Recipe;    // Контейнер с тех.картами для ЦЗП
 
-        bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,\
-            vector<clsRecipeItem>& _Recipe, size_t _Count);
-        /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-        _prefixname (в данном конкретном примере строка с префиксом определяется макросом filename_recipe_in для
-        техкарт ЦЗП и префиксом filename_recipe_out для тех.карт ЦЗО). Обрабатываются все файлы, удовлетворяющие
-        маске (в примере строка с регулярным выражением определяется макросом msks) и лежащие в одной папке. Метод
-        заполняет контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
-        _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-        количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера. **/
-
     public:
         clsCCStorageTest();
         clsCCStorageTest(const clsCCStorageTest&) = delete;

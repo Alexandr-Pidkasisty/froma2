@@ -213,13 +213,6 @@ class clsEnterprise : public clsBaseProject {
         bool Import_About(const string filename);   /** Метод читает информацию из файла с описанием
         проекта и формирует поля Title и Descript класса clsBaseProject. **/
 
-        bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows);
-        /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-        _prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
-        папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
-        _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-        количество строк с заголовками в файлах. **/
-
         /** Методы редактирования **/
         bool SKUEdt(clsStorage* stock, const size_t num);
         /**  Метод редактирования введенной ранее информации: редактирование номенклатурной позиции (SKU).

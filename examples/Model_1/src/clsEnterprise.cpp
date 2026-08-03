@@ -685,9 +685,9 @@ bool clsEnterprise::Import_Data() {
         for(size_t i{}; i<(RMCount*PrCount); i++)   // Рассчитываем поля volume массива Purchase
             (Purchase+i)->value = (Purchase+i)->volume * (Purchase+i)->price;
     }
-    if(!Import_Recipes(ImConfig.filenameprefix_Recipes, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows)) {
+    if(!Import_Recipes(ImConfig.filenameprefix_Recipes, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+        Recipe, ProdCount, msks, indir))
         return false;   // Вводим Инфорацию о рецептурах. Если не введено, выходим из программы с false
-    };
     /** Формируем массивы с индивидуальными настройками **/
     if(P_settings) delete[] P_settings;     // Если массив существует, то удаляем его
     P_settings = ImConfig.GetPurSettings(); // и формируем новый массив
@@ -1145,51 +1145,6 @@ clsBaseProject. **/
     }
     else return false;
 }   // Import_About
-
-bool clsEnterprise::Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows) {
-/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-_prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
-папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
-_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-количество строк с заголовками в файлах. **/
-    vector<clsRecipeItem> tmpRecipe;                    // Вспомогательный вектор
-    tmpRecipe.reserve(ProdCount);                       // Резервируем память для элементов вектора
-    ifstream rec;                                       // Поток для чтения из файла
-    clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
-    regex fmask(_prefixname + msks);                    // Маска поиска файлов
-    string pth = indir;                                 // Получаем путь к папке с рецептурами
-    pth.resize(pth.length()-sOne);                      // Удаляем последний слеш в имени папки
-    const fs::path indata{pth};                         // Папка с файлами рецептур в переменной типа fs::path
-    if(!fs::exists(indata)) return false;               // Проверяем существование папки
-    for(auto &p : fs::directory_iterator(indata)) {     // Поиск по всем файлам в папке
-        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
-        string name((p.path().filename()).string());    // Получаем имя файла в виде строки
-        if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской. Если удачно:
-            rec.open(p.path());                         // Связываем поток с файлом
-            if(!Data->Import(rec, _ch)) {               // Импортируем данные из файла. Если импорт не удался,
-                rec.close();                            // то закрываем файл;
-                delete Data;                            // удаляем экземпляр класса для импорта
-                return false;                           // и выходим с false
-            };
-            rec.close();                                // Закрываем файл
-            strNameMeas* _names = Data->GetNames(sZero, sZero, sZero, sOne);// Читаем название и ед.измерения продукта
-            size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
-            size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
-            size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
-            size_t maxCol = _duration-sOne+hcols;           // Последний столбец
-            strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Моссив с наименованиями ресурсов
-            decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);          // Получаем тех.карту ресурса
-            tmpRecipe.emplace_back(_names->name, _names->measure, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
-            delete[] _names;                            // Удаляем вспомогательный массив
-            delete[] _rnames;                           // Удаляем вспомогательный массив
-            delete[] _recipeitem;                       // Удаляем вспомогательный массив
-            Data->reset();                              // Сбрасываем состояние объекта до дефолтного
-        }
-    }   // for(auto &p...)
-    delete Data;                                        // Удаляем экземпляр класса для импорта
-    Recipe = move(tmpRecipe);                           // Перемещаем вспомогательный массив в основной
-    return true;
-}   // clsEnterprise::Import_Recipes
 
 /** Методы редактирования **/
 
