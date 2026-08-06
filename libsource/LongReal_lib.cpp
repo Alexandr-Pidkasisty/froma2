@@ -609,6 +609,11 @@ template long double LongReal::Get<long double>() const; // экземпляра функции и
 template double LongReal::Get<double>() const;
 template float LongReal::Get<float>() const;
 
+/** Операторы преобразования типов. Для присваивания переменным стандартных вещественных чисел значений типа LongReal. **/
+LongReal::operator long double() const { return Get<long double>(); }   // Оператор присваивания переменной типа long double
+LongReal::operator double() const { return Get<double>(); }             // Оператор присваивания переменной типа double
+LongReal::operator float() const { return Get<float>(); }               // Оператор присваивания переменной типа float
+
 string LongReal::LongReal::Get(const size_t n) const {
 /** Функция возвращает число в форме string с заданным количеством n знаков после точки **/
     if(this->isNaN()) return strNaN;        // Если объект равен NaN, выводим NaN и выходим
