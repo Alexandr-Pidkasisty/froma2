@@ -610,7 +610,7 @@ template double LongReal::Get<double>() const;
 template float LongReal::Get<float>() const;
 
 /** ќператоры преобразовани€ типов. ƒл€ присваивани€ переменным стандартных вещественных чисел значений типа LongReal.
-ќбъ€влены explicit дл€ предотвращени€ непредсказуемого использовани€ компил€тором **/
+ќбъ€влены explicit дл€ предотвращени€ не€вных (автоматических) преобразований типов **/
 LongReal::operator long double() const { return Get<long double>(); }   // ќператор присваивани€ переменной типа long double
 LongReal::operator double() const { return Get<double>(); }             // ќператор присваивани€ переменной типа double
 LongReal::operator float() const { return Get<float>(); }               // ќператор присваивани€ переменной типа float
