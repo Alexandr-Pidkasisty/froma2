@@ -159,9 +159,9 @@ int main() {
     double doub;
     float flt;
 
-    ldoub = inNum;
-    doub = inNum;
-    flt = inNum;
+    ldoub = static_cast<long double>(inNum);
+    doub = static_cast<double>(inNum);
+    flt = static_cast<float>(inNum);
     clog << "long double= " << std::fixed << std::setprecision(std::numeric_limits<long double>::max_digits10) << ldoub << endl;
     clog << "double= " << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10) << doub << endl;
     clog << "float= " << std::fixed << std::setprecision(std::numeric_limits<float>::max_digits10) << flt << endl;
