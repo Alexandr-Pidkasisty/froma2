@@ -19,12 +19,13 @@ namespace fs = std::filesystem; // Создаем короткий алиас
 
 const string confdir = V_DIR_CONFIG;// Макрос V_DIR_CONFIG определен в файле pathes.h
 const string NoFileName = "nofile"; // Имя для отсутствующего файла
+const string ID_Program_str = "Model_2";// Идентификатор программы в строковом формате
 
-template<typename T>                // Ограничение типа для функции inData
+template<typename T>                    // Ограничение типа для функции inData
 constexpr bool is_ch_or_size_t_or_double_v =
     std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, decimal>::value;
 
-//template<typename U>                // Ограничение типа для функции ImportSingleArray
+//template<typename U>                  // Ограничение типа для функции ImportSingleArray
 //constexpr bool is_decimal_bool_or_PurchaseCalc_v =
 //    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
 
@@ -80,6 +81,9 @@ is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по ум
 class clsImportConfig {
 /** Класс, формирующий исходные данные **/
     private:
+        /** Идентификатор для проверки соответствия конфигурационного файла **/
+        const size_t ID_Program = std::hash<std::string>{}(ID_Program_str);
+
         /** Конфигурационные данные **/
         string filename_cfg;        // Имя файла конфигурации
         string filename_About;      // Имя файла с описанием проекта
@@ -202,6 +206,7 @@ class clsImportConfig {
                 long bpos = outF.tellp();                                      // Определяем позицию в начале файла
                 cout << "clsImportConfig::SCtF begin bpos= " << bpos << endl;   // Выводим позицию на экран
             #endif // Save_Read_File_debug
+            if(!SEF(outF, ID_Program)) return false;            // Сохраняем идентификатор конфиг. файла
             if(!SEF(outF, filename_About)) return false;        // Сохраняем имя файла с описанием
             if(!SEF(outF, filename_shipment)) return false;
             if(!SEF(outF, filename_purprice)) return false;
@@ -233,7 +238,10 @@ class clsImportConfig {
                 long bpos = inF.tellg();                                    // Определяем позицию в начале файла
                 cout << "clsImportConfig::RCdfF begin bpos= " << bpos << endl;  // Выводим позицию на экран
             #endif // Save_Read_File_debug
-            if(!DSF(inF, tmp.filename_About)) return false; // Читаем имя файла с описанием
+            if(!DSF(inF, tmp.ID_Program)) return false;
+            if(tmp.ID_Program != std::hash<std::string>{}(ID_Program_str))  // Проверяем равенство хэшей
+                throw "Ошибка: конфигурационный файл не соответствует программе";
+            if(!DSF(inF, tmp.filename_About)) return false;                 // Читаем имя файла с описанием
             if(!DSF(inF, tmp.filename_shipment)) return false;
             if(!DSF(inF, tmp.filename_purprice)) return false;
             if(!DSF(inF, tmp.filename_purvolume)) return false;
@@ -560,9 +568,15 @@ class clsImportConfig {
             ifstream inF(confdir + _filename, ios::in | ios::binary);   // Связываем имя файла с файловым потоком для чтения с диска
             if (!inF.is_open())                                         // Если файл не открыт, то
                 return false;                                           // выход из функции с false
-            if(!RCdfF(inF)) {                                           // Если запись в файл неудачна, то
-                inF.close();                                            // закрываем файл
-                return false;                                           // и выходим с false
+            try {                                                       // Проверяем соответствие конфигурационного файла
+                if(!RCdfF(inF)) {                                       // Если чтение из файла неудачно, то
+                    inF.close();                                        // закрываем файл
+                    return false;                                       // и выходим с false
+                }
+            }                                                           // Если конф.файл не соответствует программе, то
+            catch(const char* error_message) {                          // вызывается исключение,
+                cout << error_message << endl;                          // выводится сообщение об ошибке
+                return false;                                           // и завершается работа метода с false
             }
             inF.close();
             return true;
