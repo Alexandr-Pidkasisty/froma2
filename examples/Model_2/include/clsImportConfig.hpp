@@ -71,7 +71,7 @@ is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по ум
 }   // void inData
 
 constexpr size_t HashRealType() {
-/** Метод возвращает хэш используемого типа вещественных чисел **/
+/** Метод возвращает пользовательский хэш используемого типа вещественных чисел **/
     if constexpr (std::is_same_v<decimal, LongReal>)    return 11111;
     if constexpr (std::is_same_v<decimal, long double>) return 22222;
     if constexpr (std::is_same_v<decimal, double>)      return 33333;
