@@ -17,17 +17,13 @@
 
 namespace fs = std::filesystem; // Создаем короткий алиас
 
-const string confdir = V_DIR_CONFIG;// Макрос V_DIR_CONFIG определен в файле pathes.h
-const string NoFileName = "nofile"; // Имя для отсутствующего файла
+const string confdir = V_DIR_CONFIG;    // Макрос V_DIR_CONFIG определен в файле pathes.h
+const string NoFileName = "nofile";     // Имя для отсутствующего файла
 const string ID_Program_str = "Model_2";// Идентификатор программы в строковом формате
 
 template<typename T>                    // Ограничение типа для функции inData
 constexpr bool is_ch_or_size_t_or_double_v =
     std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, decimal>::value;
-
-//template<typename U>                  // Ограничение типа для функции ImportSingleArray
-//constexpr bool is_decimal_bool_or_PurchaseCalc_v =
-//    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
 
 /****************************************************************************************************/
 /**                                    Вспомогательные функции                                     **/
@@ -74,6 +70,15 @@ is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по ум
     cin.ignore(numeric_limits<streamsize>::max(), ch); // Очищаем буфер ввода
 }   // void inData
 
+constexpr size_t HashRealType() {
+/** Метод возвращает хэш используемого типа вещественных чисел **/
+    if constexpr (std::is_same_v<decimal, LongReal>)    return 11111;
+    if constexpr (std::is_same_v<decimal, long double>) return 22222;
+    if constexpr (std::is_same_v<decimal, double>)      return 33333;
+    if constexpr (std::is_same_v<decimal, float>)       return 44444;
+    else return 0;
+}   // HashRealType
+
 /****************************************************************************************************/
 /**                                     class clsImportConfig                                      **/
 /****************************************************************************************************/
@@ -82,7 +87,8 @@ class clsImportConfig {
 /** Класс, формирующий исходные данные **/
     private:
         /** Идентификатор для проверки соответствия конфигурационного файла **/
-        const size_t ID_Program = std::hash<std::string>{}(ID_Program_str);
+        const size_t ID_Program = std::hash<std::string>{}(ID_Program_str); // Хэш имени программы
+        const size_t ID_r_type  = HashRealType();                           // Хэш типа вещественных чисел
 
         /** Конфигурационные данные **/
         string filename_cfg;        // Имя файла конфигурации
@@ -206,7 +212,8 @@ class clsImportConfig {
                 long bpos = outF.tellp();                                      // Определяем позицию в начале файла
                 cout << "clsImportConfig::SCtF begin bpos= " << bpos << endl;   // Выводим позицию на экран
             #endif // Save_Read_File_debug
-            if(!SEF(outF, ID_Program)) return false;            // Сохраняем идентификатор конфиг. файла
+            if(!SEF(outF, ID_Program)) return false;            // Сохраняем хэш имени программы
+            if(!SEF(outF, ID_r_type)) return false;             // Сохраняем хэш типа веществ. чисел
             if(!SEF(outF, filename_About)) return false;        // Сохраняем имя файла с описанием
             if(!SEF(outF, filename_shipment)) return false;
             if(!SEF(outF, filename_purprice)) return false;
@@ -241,6 +248,9 @@ class clsImportConfig {
             if(!DSF(inF, tmp.ID_Program)) return false;
             if(tmp.ID_Program != std::hash<std::string>{}(ID_Program_str))  // Проверяем равенство хэшей
                 throw "Ошибка: конфигурационный файл не соответствует программе";
+            if(!DSF(inF, tmp.ID_r_type)) return false;
+            if(tmp.ID_r_type != HashRealType())
+                throw "Ошибка: несовпадение типов вещественных чисел";
             if(!DSF(inF, tmp.filename_About)) return false;                 // Читаем имя файла с описанием
             if(!DSF(inF, tmp.filename_shipment)) return false;
             if(!DSF(inF, tmp.filename_purprice)) return false;
