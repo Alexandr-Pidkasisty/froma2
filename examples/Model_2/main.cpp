@@ -2,7 +2,7 @@
 #include "clsImportConfig.hpp"
 #include "clsCompany.h"
 
-#define ALT_PLACE_FOR_PRICE_SETTING       // Изменяем место в коде для ввода цен на ресурсы
+#define ALT_PLACE_FOR_PRICE_SETTING         // Изменяем место в коде для ввода цен на ресурсы
 
 /** Имена файлов для экспорта данных со склада **/
 #define f_ws_volume "f_ws_volume.csv"       // Объемы отгрузок со склада в натуральном выражении
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     string ProgramHeader = "Программа для расчета полных и удельных переменных затрат склада Model_2";
     nmRePrint::PrintHeader0(cout, nmRePrint::smblcunt+nmRePrint::uThree, ProgramHeader);
 
-    string cfg_file = "config.cfg";     // Определение имени конфигурационного файла по умолчанию
+    string cfg_file = "model_2.cfg";    // Определение имени конфигурационного файла по умолчанию
     Currency Cur = RUR;                 // Устанавливаем валюту проекта
     const AccountingMethod ac = AVG;    // Устанавливаем принцип учёта запасов
 
