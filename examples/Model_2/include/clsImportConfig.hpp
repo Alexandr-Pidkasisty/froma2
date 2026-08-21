@@ -107,9 +107,9 @@ class clsImportConfig {
         string Title;           // Название проекта
         Descript About;         // Описание проекта. Тип объявлен в классе clsBaseProject.
 
-        char _ch;               // Символ разделителя между полями в CSV_файлах
-        size_t HeadCols;        // Количество столбцов с заголовками в CSV_файлах
-        size_t HeadRows;        // Количество строк с заголовками в CSV_файлах
+        char _ch;               // Символ разделителя между полями в CSV-файлах
+        size_t HeadCols;        // Количество столбцов с заголовками в CSV-файлах
+        size_t HeadRows;        // Количество строк с заголовками в CSV-файлах
         Currency cur;           // Валюта проекта
         AccountingMethod ac;    // Принцип учёта запасов
 
