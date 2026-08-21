@@ -325,40 +325,6 @@ class clsImportConfig {
 
     public:
 
-        clsImportConfig() {
-        /** Конструктор по умолчанию **/
-            filename_cfg = "config.cfg";
-            filename_About = EmpStr;
-            filename_shipment = EmpStr;
-            filename_purprice = EmpStr;
-            filename_purvolume = EmpStr;
-            filename_recipe_in = EmpStr;
-            filename_recipe_out = EmpStr;
-            msks  = "_\\d{1,3}\\.csv";
-            filename_shares = EmpStr;
-            filename_permission = EmpStr;
-            filename_purchasecalc = EmpStr;
-            Title = EmpStr;
-            About.sCount = sZero;
-            About.sComment = nullptr;
-            _ch = ';';
-            HeadCols = sTwo;
-            HeadRows = sOne;
-            PrCount = sZero;
-            cur = RUR;
-            ac = AVG;
-            ProdCount = sZero;
-            ResForOutCount = sZero;
-            RMCount = sZero;
-            ResNames = nullptr;
-            Purchase_p = nullptr;
-            Purchase_v = nullptr;
-            Shipment = nullptr;
-            Shares = nullptr;
-            Permission = nullptr;
-            Purcalc = nullptr;
-        }   // Default Ctor
-
         clsImportConfig(const string& _filename_cfg) {
         /** Конструктор с параметрами. Параметры: _filename_cfg - имя файла конфигурации. **/
             filename_cfg = _filename_cfg;
