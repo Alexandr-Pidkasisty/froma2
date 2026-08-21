@@ -1,6 +1,6 @@
 set(PROGRAMM_NAME Model_2)						# Имя программы
 project("${PROGRAMM_NAME}"						# Название, версия, описание, язык программирования
-	VERSION 1.0.0
+	VERSION 1.1.0
 	DESCRIPTION "Direct costing modeling. Two cost center model"
 	LANGUAGES CXX)
 file(GLOB hdrs "include/*.h")						# Ищет файлы в текущей директории, подходящие регулярному выражению и
