@@ -1,9 +1,9 @@
 #ifndef FROMA2_MODEL_2_CLSIMPORTCONFIG_HPP
 #define FROMA2_MODEL_2_CLSIMPORTCONFIG_HPP
 
-#include <string>                   // Работа со строками
-#include <filesystem>               // Работа с файлами и директориями
-#include <regex>                    // Работа с регулярнями выражениями
+#include <string>               // Работа со строками
+#include <filesystem>           // Работа с файлами и директориями
+#include <regex>                // Работа с регулярнями выражениями
 
 #include "LongReal_module.h"    // Длинная арифметика
 #include "baseproject_module.h" // Подключаем базовый класс clsBaseProject
@@ -104,6 +104,7 @@ class clsImportConfig {
         string filename_permission;     // Имя файла c Флагами разрешения на отгрузку и закупку в одном и том же периоде
         string filename_purchasecalc;   // Имя файла c Флагами авторасчета
 
+        string Title;           // Название проекта
         Descript About;         // Описание проекта. Тип объявлен в классе clsBaseProject.
 
         char _ch;               // Символ разделителя между полями в CSV_файлах
@@ -324,8 +325,6 @@ class clsImportConfig {
 
     public:
 
-        string Title;           // Название проекта
-
         clsImportConfig() {
         /** Конструктор по умолчанию **/
             filename_cfg = "config.cfg";
@@ -360,7 +359,6 @@ class clsImportConfig {
             Purcalc = nullptr;
         }   // Default Ctor
 
-//        clsImportConfig(const string& _key, const string& _filename_cfg) {
         clsImportConfig(const string& _filename_cfg) {
         /** Конструктор с параметрами. Параметры: _filename_cfg - имя файла конфигурации. **/
             filename_cfg = _filename_cfg;
