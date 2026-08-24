@@ -413,3 +413,137 @@ void clsImpex::View(ostream& os) const {
         os << endl;
     };
 }   // View
+
+/*************************************************************************************************************************/
+/**                                                 Внеклассовые функции                                                **/
+/*************************************************************************************************************************/
+
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, ReportData flg,\
+    strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив, flg - флаг, определяющий тип импортируемых данных: "volume" - объемы в натуральном выражении,
+"price" - цены, "value" - стоимость; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия
+ресурсов и номера периодов проекта. **/
+    ifstream input(_filename);                  // Связываем файл с потоком на чтение
+    if(!input.is_open()) return false;          // Проверка открытия файла
+    const char ch = _ch;                        // Выбираем разделитель
+    clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
+    input.close();                              // Закрываем файл с исходными данными
+    if(Data->is_Empty()) {                      // Если вектор не создан, то
+        delete Data;                            // удаляем объект
+        return false;                           // и выходим с false
+    };
+    ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
+    RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
+    strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
+    strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
+    size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
+    size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
+    tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
+    tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
+    delete Data;                                // Удаляем объект для импорта
+    std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
+    std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
+    if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
+    if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
+    return true;
+}   // ImportSingleArray
+
+template<typename T, class>
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    T* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
+периодов проекта. **/
+    ifstream input(_filename);                  // Связываем файл с потоком на чтение
+    if(!input.is_open()) return false;          // Проверка открытия файла
+    const char ch = _ch;                        // Выбираем разделитель
+    clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
+    input.close();                              // Закрываем файл с исходными данными
+    if(Data->is_Empty()) {                      // Если вектор не создан, то
+        delete Data;                            // удаляем объект
+        return false;                           // и выходим с false
+    };
+    ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
+    RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
+    T* tmpdata;                                 // Временная переменная-указатель на массив с данными
+    strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
+    size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
+    size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
+    tmpdata = Data->GetData<T>(hrows, maxRow, hcols, maxCol);           // Получаем указатель на массив с данными
+    tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
+    delete Data;                                // Удаляем объект для импорта
+    std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
+    std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
+    if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
+    if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
+    return true;
+}   // template-ImportSingleArray
+
+/** Специализации шаблона T для функции ImportSingleArray **/
+template bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    decimal* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+
+template bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    bool* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+
+template bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    size_t* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+
+bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
+    &_Recipe, size_t _Count, const string& msks, const string& V_DIR_INPUTDATA) {
+/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
+_prefixname. Обрабатываются все файлы, удовлетворяющие маске msks и лежащие в одной папке. Метод заполняет
+контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
+_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
+количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера,
+msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA - папка, где будет
+происходить поиск файлов. **/
+    vector<clsRecipeItem> tmpRecipe;                    // Вспомогательный вектор
+    tmpRecipe.reserve(_Count);                          // Резервируем память для элементов вектора
+    ifstream rec;                                       // Поток для чтения из файла
+    clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
+    regex fmask(_prefixname + msks);                    // Маска поиска файлов
+
+    string pth = V_DIR_INPUTDATA;                       // Переменная с путем для поиска файлов
+    pth.resize(pth.length()-1);
+
+    const fs::path indata{pth};                         // Папка с файлами рецептур
+    if(!fs::exists(indata)) return false;               // Проверяем существование папки
+    for(auto &p : fs::directory_iterator(indata)) {     // Поиск в папке
+        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
+        string name((p.path().filename()).string());    // Получаем имя файла в виде строки
+        if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской
+            rec.open(p.path());                         // Связываем поток с файлом
+            if(!rec.is_open()) {                        // Если файл не открыт, то
+                delete Data;                            // удаляем экземпляр класса для импорта
+                return false;                           // и выходим с false
+            }
+            if(!Data->Import(rec, _ch)) {               // Импортируем данные из файла. Если импорт не удался,
+                rec.close();                            // то закрываем файл;
+                delete Data;                            // удаляем экземпляр класса для импорта
+                return false;                           // и выходим с false
+            };
+            rec.close();                                // Закрываем файл
+            strNameMeas* _names = Data->GetNames(sZero, sZero, sZero, sOne);    // Читаем название и ед.измерения продукта
+            size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
+            size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
+            size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
+            size_t maxCol = _duration-sOne+hcols;           // Последний столбец
+            strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Моссив с наименованиями ресурсов
+            decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);          // Получаем тех.карту ресурса
+            tmpRecipe.emplace_back(_names->name, _names->measure, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
+            delete[] _names;                                // Удаляем вспомогательный массив
+            delete[] _rnames;                               // Удаляем вспомогательный массив
+            delete[] _recipeitem;                           // Удаляем вспомогательный массив
+            Data->reset();                                  // Сбрасываем состояние объекта до дефолтного
+        }
+    }   // for(auto &p...)
+    delete Data;
+    _Recipe = move(tmpRecipe);                          // Перемещаем вспомогательный массив в основной
+    return true;
+}   // Import_Recipes

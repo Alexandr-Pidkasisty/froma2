@@ -39,8 +39,13 @@
 #include <vector>
 #include <iomanip>
 #include <limits>               // Предельные значения фундаментальных типов
+#include <filesystem>           // Работа с файлами и директориями
+#include <regex>                // Работа с регулярнями выражениями
 #include "common_values.hpp"
 #include "LongReal_module.h"
+#include "manufact_module.h"    // Используем тип clsRecipeItem
+
+namespace fs = std::filesystem; // Создаем короткий алиас
 
 using namespace std;
 
@@ -168,5 +173,43 @@ class clsImpex
     protected:
 
 };
+
+/*************************************************************************************************************************/
+/**                                                 Внеклассовые функции                                                **/
+/*************************************************************************************************************************/
+
+using namespace nmBPTypes;
+
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, ReportData flg,\
+    strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив, flg - флаг, определяющий тип импортируемых данных: "volume" - объемы в натуральном выражении,
+"price" - цены, "value" - стоимость; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия
+ресурсов и номера периодов проекта. **/
+
+template<typename U>                // Ограничение типа для функции ImportSingleArray
+constexpr bool is_decimal_bool_or_PurchaseCalc_v =
+    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
+
+template<typename T, class=std::enable_if_t<is_decimal_bool_or_PurchaseCalc_v<T>>>
+bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
+    T* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
+/** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
+- число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
+указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
+формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
+периодов проекта. **/
+
+bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
+    &_Recipe, size_t _Count, const string& msks, const string& V_DIR_INPUTDATA);
+/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
+_prefixname. Обрабатываются все файлы, удовлетворяющие маске msks и лежащие в одной папке. Метод заполняет
+контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
+_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
+количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера,
+msks - маска регулярного выражения для поиска подходящих файлов, V_DIR_INPUTDATA - папка, где будет
+происходить поиск файлов. **/
 
 #endif // FROMA2_CLSIMPEX_H

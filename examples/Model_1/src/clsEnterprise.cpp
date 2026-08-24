@@ -642,12 +642,19 @@ bool clsEnterprise::Import_Data() {
     }
     Purch_indr = ImConfig.P_indr;           // Инициализируем поле с флагом для ССМ
     Ship_indr = ImConfig.S_indr;            // Инициализируем поле с флагом для СГП
-    if(!ImportSingleArray(ImConfig.filename_Shipment, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    /** Формируем полные имена файлов с путем **/
+    string InputShipment, InputProduction, InputPurchase, InputPurchase_V;  // Переменные для имен файлов
+    (InputShipment.assign(indir)).append(ImConfig.filename_Shipment);       // Путь и имя файла отгрузок
+    (InputProduction.assign(indir)).append(ImConfig.filename_Production);   // Путь и имя файла производства
+    (InputPurchase.assign(indir)).append(ImConfig.filename_Purchase);       // Путь и имя файла с ценами закупок
+    (InputPurchase_V.assign(indir)).append(ImConfig.filename_Purchase_V);   // Путь и имя файла с объемами закупок
+
+    if(!ImportSingleArray(InputShipment, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Shipment, ProdNames, PrCount, ProdCount)) {
         return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
     }
     size_t tmp1, tmp2;                                      // Временные переменные - "заглушки"
-    if(ImportSingleArray(ImConfig.filename_Production, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(ImportSingleArray(InputProduction, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Production, ProdNames, tmp1, tmp2)) {
         mancalc = nocalc;                   // Если импорт удачный, меняем и отображаем флаг расчета закупок
         ShipShare = dZero;                  // и норматив запаса на складе СГП
@@ -656,14 +663,14 @@ bool clsEnterprise::Import_Data() {
         ShipShare = ImConfig.S_Share;
         ImConfig.filename_Production = NoFileName;
     }
-    if(!ImportSingleArray(ImConfig.filename_Purchase, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(!ImportSingleArray(InputPurchase, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     price, Purchase, RMNames, tmp1, RMCount)) {
         return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
     }
     strItem* tmpPurchase = nullptr;                         // Создаем временный указатель
     std::swap(tmpPurchase, Purchase);                       // Перебрасываем указатель на массив закупочных цен
     strNameMeas* tmpNames;                                  // Временные переменные - "заглушки"
-    if(!ImportSingleArray(ImConfig.filename_Purchase_V, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+    if(!ImportSingleArray(InputPurchase_V, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Purchase, tmpNames, tmp1, tmp2)) {  // Если импорт неудачный, то возвращаем указатели в исходное состояние
         std::swap(tmpPurchase, Purchase);       // Если импорт неудачный, то возвращаем указатели в исходное состояние
         PurchShare = ImConfig.P_Share;
@@ -678,9 +685,9 @@ bool clsEnterprise::Import_Data() {
         for(size_t i{}; i<(RMCount*PrCount); i++)   // Рассчитываем поля volume массива Purchase
             (Purchase+i)->value = (Purchase+i)->volume * (Purchase+i)->price;
     }
-    if(!Import_Recipes(ImConfig.filenameprefix_Recipes, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows)) {
+    if(!Import_Recipes(ImConfig.filenameprefix_Recipes, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
+        Recipe, ProdCount, msks, indir))
         return false;   // Вводим Инфорацию о рецептурах. Если не введено, выходим из программы с false
-    };
     /** Формируем массивы с индивидуальными настройками **/
     if(P_settings) delete[] P_settings;     // Если массив существует, то удаляем его
     P_settings = ImConfig.GetPurSettings(); // и формируем новый массив
@@ -1138,83 +1145,6 @@ clsBaseProject. **/
     }
     else return false;
 }   // Import_About
-
-bool clsEnterprise::ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows,\
-    ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-/** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
-RowCount - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта,
-_names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
-_data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
-"volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
-    string filename = FullFName(indir, _filename);  // Формируем полное имя файла
-    ifstream input(filename);                       // Связываем файл с потоком на чтение
-    const char ch = _ch;                        // Выбираем разделитель
-    clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-    input.close();                              // Закрываем файл с исходными данными
-    if(Data->is_Empty()) {                      // Если вектор не создан, то
-        delete Data;                            // удаляем объект
-        return false;                           // и выходим с false
-    };
-    ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-    RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-    strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
-    strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-    size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-    size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-    tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
-    tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-    delete Data;                                // Удаляем объект для импорта
-    std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-    std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-    if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-    if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-    return true;
-}   // clsEnterprise::ImportSingleArray
-
-bool clsEnterprise::Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows) {
-/** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-_prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
-папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
-_ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-количество строк с заголовками в файлах. **/
-    vector<clsRecipeItem> tmpRecipe;                    // Вспомогательный вектор
-    tmpRecipe.reserve(ProdCount);                       // Резервируем память для элементов вектора
-    ifstream rec;                                       // Поток для чтения из файла
-    clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
-    regex fmask(_prefixname + msks);                    // Маска поиска файлов
-    string pth = indir;                                 // Получаем путь к папке с рецептурами
-    pth.resize(pth.length()-sOne);                      // Удаляем последний слеш в имени папки
-    const fs::path indata{pth};                         // Папка с файлами рецептур в переменной типа fs::path
-    if(!fs::exists(indata)) return false;               // Проверяем существование папки
-    for(auto &p : fs::directory_iterator(indata)) {     // Поиск по всем файлам в папке
-        if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что найденный файл регулярный (не папка, не ссылка)
-        string name((p.path().filename()).string());    // Получаем имя файла в виде строки
-        if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской. Если удачно:
-            rec.open(p.path());                         // Связываем поток с файлом
-            if(!Data->Import(rec, _ch)) {               // Импортируем данные из файла. Если импорт не удался,
-                rec.close();                            // то закрываем файл;
-                delete Data;                            // удаляем экземпляр класса для импорта
-                return false;                           // и выходим с false
-            };
-            rec.close();                                // Закрываем файл
-            strNameMeas* _names = Data->GetNames(sZero, sZero, sZero, sOne);// Читаем название и ед.измерения продукта
-            size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
-            size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
-            size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
-            size_t maxCol = _duration-sOne+hcols;           // Последний столбец
-            strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Моссив с наименованиями ресурсов
-            decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);          // Получаем тех.карту ресурса
-            tmpRecipe.emplace_back(_names->name, _names->measure, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
-            delete[] _names;                            // Удаляем вспомогательный массив
-            delete[] _rnames;                           // Удаляем вспомогательный массив
-            delete[] _recipeitem;                       // Удаляем вспомогательный массив
-            Data->reset();                              // Сбрасываем состояние объекта до дефолтного
-        }
-    }   // for(auto &p...)
-    delete Data;                                        // Удаляем экземпляр класса для импорта
-    Recipe = move(tmpRecipe);                           // Перемещаем вспомогательный массив в основной
-    return true;
-}   // clsEnterprise::Import_Recipes
 
 /** Методы редактирования **/
 

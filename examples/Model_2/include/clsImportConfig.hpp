@@ -1,9 +1,9 @@
 #ifndef FROMA2_MODEL_2_CLSIMPORTCONFIG_HPP
 #define FROMA2_MODEL_2_CLSIMPORTCONFIG_HPP
 
-#include <string>                   // Работа со строками
-#include <filesystem>               // Работа с файлами и директориями
-#include <regex>                    // Работа с регулярнями выражениями
+#include <string>               // Работа со строками
+#include <filesystem>           // Работа с файлами и директориями
+#include <regex>                // Работа с регулярнями выражениями
 
 #include "LongReal_module.h"    // Длинная арифметика
 #include "baseproject_module.h" // Подключаем базовый класс clsBaseProject
@@ -17,16 +17,13 @@
 
 namespace fs = std::filesystem; // Создаем короткий алиас
 
-const string confdir = V_DIR_CONFIG;// Макрос V_DIR_CONFIG определен в файле pathes.h
-const string NoFileName = "nofile"; // Имя для отсутствующего файла
+const string confdir = V_DIR_CONFIG;    // Макрос V_DIR_CONFIG определен в файле pathes.h
+const string NoFileName = "nofile";     // Имя для отсутствующего файла
+const string ID_Program_str = "Model_2";// Идентификатор программы в строковом формате
 
-template<typename T>                // Ограничение типа для функции inData
+template<typename T>                    // Ограничение типа для функции inData
 constexpr bool is_ch_or_size_t_or_double_v =
     std::is_same<T, char>::value || std::is_same<T, size_t>::value || std::is_same<T, decimal>::value;
-
-template<typename U>                // Ограничение типа для функции ImportSingleArray
-constexpr bool is_decimal_bool_or_PurchaseCalc_v =
-    std::is_same<U, decimal>::value || std::is_same<U, bool>::value || std::is_same<U, size_t>::value;
 
 /****************************************************************************************************/
 /**                                    Вспомогательные функции                                     **/
@@ -73,13 +70,26 @@ is_ch_or_size_t_or_double_v. При отсутствии данных, подставляются значения по ум
     cin.ignore(numeric_limits<streamsize>::max(), ch); // Очищаем буфер ввода
 }   // void inData
 
+constexpr size_t HashRealType() {
+/** Метод возвращает пользовательский хэш используемого типа вещественных чисел **/
+    if constexpr (std::is_same_v<decimal, LongReal>)    return 11111;
+    if constexpr (std::is_same_v<decimal, long double>) return 22222;
+    if constexpr (std::is_same_v<decimal, double>)      return 33333;
+    if constexpr (std::is_same_v<decimal, float>)       return 44444;
+    else return 0;
+}   // HashRealType
+
 /****************************************************************************************************/
 /**                                     class clsImportConfig                                      **/
 /****************************************************************************************************/
 
 class clsImportConfig {
-/** Класс, формирующий тестовые данные **/
+/** Класс, формирующий исходные данные **/
     private:
+        /** Идентификатор для проверки соответствия конфигурационного файла **/
+        const size_t ID_Program = std::hash<std::string>{}(ID_Program_str); // Хэш имени программы
+        const size_t ID_r_type  = HashRealType();                           // Хэш типа вещественных чисел
+
         /** Конфигурационные данные **/
         string filename_cfg;        // Имя файла конфигурации
         string filename_About;      // Имя файла с описанием проекта
@@ -94,12 +104,12 @@ class clsImportConfig {
         string filename_permission;     // Имя файла c Флагами разрешения на отгрузку и закупку в одном и том же периоде
         string filename_purchasecalc;   // Имя файла c Флагами авторасчета
 
-//        string Title;           // Название проекта
+        string Title;           // Название проекта
         Descript About;         // Описание проекта. Тип объявлен в классе clsBaseProject.
 
-        char _ch;               // Символ разделителя между полями в CSV_файлах
-        size_t HeadCols;        // Количество столбцов с заголовками в CSV_файлах
-        size_t HeadRows;        // Количество строк с заголовками в CSV_файлах
+        char _ch;               // Символ разделителя между полями в CSV-файлах
+        size_t HeadCols;        // Количество столбцов с заголовками в CSV-файлах
+        size_t HeadRows;        // Количество строк с заголовками в CSV-файлах
         Currency cur;           // Валюта проекта
         AccountingMethod ac;    // Принцип учёта запасов
 
@@ -121,125 +131,6 @@ class clsImportConfig {
         vector<clsRecipeItem> In_Recipe;    // Контейнер с тех.картами для ЦЗП
 
         /** Методы **/
-        bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, ReportData flg,\
-            strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-        /** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
-        - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
-        указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
-        формируемый массив, flg - флаг, определяющий тип импортируемых данных: "volume" - объемы в натуральном выражении,
-        "price" - цены, "value" - стоимость; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия
-        ресурсов и номера периодов проекта. **/
-            ifstream input(_filename);                  // Связываем файл с потоком на чтение
-            if(!input.is_open()) return false;          // Проверка открытия файла
-            const char ch = _ch;                        // Выбираем разделитель
-            clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-            input.close();                              // Закрываем файл с исходными данными
-            if(Data->is_Empty()) {                      // Если вектор не создан, то
-                delete Data;                            // удаляем объект
-                return false;                           // и выходим с false
-            };
-            ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-            RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-            strItem* tmpdata;                           // Временная переменная-указатель на массив с данными
-            strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-            size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-            size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-            tmpdata = Data->GetstrItem(hrows, maxRow, hcols, maxCol, flg);      // Получаем указатель на массив с данными
-            tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-            delete Data;                                // Удаляем объект для импорта
-            std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-            std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-            if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-            if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-            return true;
-        }   // ImportSingleArray
-
-        template<typename T, class=std::enable_if_t<is_decimal_bool_or_PurchaseCalc_v<T>>>
-        bool ImportSingleArray(const string _filename, const char _ch, size_t hcols, size_t hrows, \
-            T* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount) {
-        /** Метод читает информацию из файла с именем _filename и разделителями между полями _ch и заполняет поля: RowCount
-        - число номенклатурных позиций (ресурсов или продуктов), ColCount - число периодов проекта, _names - ссылка на
-        указатель на массив с наименованиями номенклатурных позиций и единиц их измерения, _data - ссылка на указатель на
-        формируемый массив; hcols и hrows - количество столбцов и строк с заголовками, содержащие названия ресурсов и номера
-        периодов проекта. **/
-            ifstream input(_filename);                  // Связываем файл с потоком на чтение
-            if(!input.is_open()) return false;          // Проверка открытия файла
-            const char ch = _ch;                        // Выбираем разделитель
-            clsImpex* Data = new clsImpex(input, ch);   // Создаем класс для импорта и импортируем данные из файла
-            input.close();                              // Закрываем файл с исходными данными
-            if(Data->is_Empty()) {                      // Если вектор не создан, то
-                delete Data;                            // удаляем объект
-                return false;                           // и выходим с false
-            };
-            ColCount = Data->GetColCount()-hcols;       // Получаем число периодов проекта
-            RowCount = Data->GetRowCount()-hrows;       // Получаем число номенклатурных позиций (ресурсов или продуктов)
-            T* tmpdata;                                 // Временная переменная-указатель на массив с данными
-            strNameMeas* tmpnames;                      // Временная переменная-указатель на массив с названиями
-            size_t maxRow = RowCount-sOne+hrows;        // Последняя строка
-            size_t maxCol = ColCount-sOne+hcols;        // Последний столбец
-            tmpdata = Data->GetData<T>(hrows, maxRow, hcols, maxCol);           // Получаем указатель на массив с данными
-            tmpnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Получаем указатель на массив с названиями
-            delete Data;                                // Удаляем объект для импорта
-            std::swap(_data, tmpdata);                  // Перекидываем ссылку на целевой указатель
-            std::swap(_names, tmpnames);                // Перекидываем ссылку на целевой указатель
-            if(tmpdata) delete[] tmpdata;               // Удаляем вспомогательный массив, если он есть
-            if(tmpnames) delete[] tmpnames;             // Удаляем вспомогательный массив, если он есть
-            return true;
-        }   // template-ImportSingleArray
-
-        bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows,vector<clsRecipeItem>\
-            &_Recipe, size_t _Count) {
-        /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-        _prefixname (в данном конкретном примере строка с префиксом определяется макросом filename_recipe_in для
-        техкарт ЦЗП и префиксом filename_recipe_out для тех.карт ЦЗО). Обрабатываются все файлы, удовлетворяющие
-        маске (в примере строка с регулярным выражением определяется макросом msks) и лежащие в одной папке. Метод
-        заполняет контейнер рецептур _Recipe размером _Count. Параметры: _prefixname - префикс имен файлов тех.карт,
-        _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-        количество строк с заголовками в файлах, _Recipe - выходной контейнер, _Count - размер этого контейнера. **/
-            vector<clsRecipeItem> tmpRecipe;                    // Вспомогательный вектор
-            tmpRecipe.reserve(_Count);                          // Резервируем память для элементов вектора
-            ifstream rec;                                       // Поток для чтения из файла
-            clsImpex* Data = new(nothrow) clsImpex();           // Создаем экземпляр класса для импорта
-            regex fmask(_prefixname + msks);                    // Маска поиска файлов
-
-            string pth = V_DIR_INPUTDATA;
-            pth.resize(pth.length()-1);
-
-            const fs::path indata{pth};                         // Папка с файлами рецептур
-            if(!fs::exists(indata)) return false;               // Проверяем существование папки
-            for(auto &p : fs::directory_iterator(indata)) {     // Поиск в папке
-                if(!fs::is_regular_file(p.status())) continue;  // Проверяем, что анйденный файл регулярный (не папка, не ссылка)
-                string name((p.path().filename()).string());    // Получаем имя файла
-                if(regex_match(name, fmask)) {                  // Проверяем имя файла на совпадение с маской
-                    rec.open(p.path());                         // Связываем поток с файлом
-                    if(!rec.is_open()) {                        // Если файл не открыт, то
-                        delete Data;                            // удаляем экземпляр класса для импорта
-                        return false;                           // и выходим с false
-                    }
-                    if(!Data->Import(rec, _ch)) {               // Импортируем данные из файла. Если импорт не удался,
-                        rec.close();                            // то закрываем файл;
-                        delete Data;                            // удаляем экземпляр класса для импорта
-                        return false;                           // и выходим с false
-                    };
-                    rec.close();                                // Закрываем файл
-                    strNameMeas* _names = Data->GetNames(sZero, sZero, sZero, sOne);    // Читаем название и ед.измерения продукта
-                    size_t _duration = Data->GetColCount()-hcols;   // Получаем длительность производственного цикла
-                    size_t _rcount = Data->GetRowCount()-hrows;     // Получаем количество позиций сырья в рецептуре
-                    size_t maxRow = _rcount-sOne+hrows;             // Последняя строка
-                    size_t maxCol = _duration-sOne+hcols;           // Последний столбец
-                    strNameMeas* _rnames = Data->GetNames(hrows, maxRow, hcols-sTwo, hcols-sOne);   // Моссив с наименованиями ресурсов
-                    decimal* _recipeitem = Data->GetDecimal(hrows, maxRow, hcols, maxCol);          // Получаем тех.карту ресурса
-                    tmpRecipe.emplace_back(_names->name, _names->measure, _duration, _rcount, _rnames, _recipeitem); // Создаем объект "рецептура" в векторе
-                    delete[] _names;                                // Удаляем вспомогательный массив
-                    delete[] _rnames;                               // Удаляем вспомогательный массив
-                    delete[] _recipeitem;                           // Удаляем вспомогательный массив
-                    Data->reset();                                  // Сбрасываем состояние объекта до дефолтного
-                }
-            }   // for(auto &p...)
-            delete Data;
-            _Recipe = move(tmpRecipe);                          // Перемещаем вспомогательный массив в основной
-            return true;
-        }   // Import_Recipes
 
         void Show() {
         /** Метод отображает текущую конфигурацию на экране **/
@@ -322,6 +213,8 @@ class clsImportConfig {
                 long bpos = outF.tellp();                                      // Определяем позицию в начале файла
                 cout << "clsImportConfig::SCtF begin bpos= " << bpos << endl;   // Выводим позицию на экран
             #endif // Save_Read_File_debug
+            if(!SEF(outF, ID_Program)) return false;            // Сохраняем хэш имени программы
+            if(!SEF(outF, ID_r_type)) return false;             // Сохраняем хэш типа веществ. чисел
             if(!SEF(outF, filename_About)) return false;        // Сохраняем имя файла с описанием
             if(!SEF(outF, filename_shipment)) return false;
             if(!SEF(outF, filename_purprice)) return false;
@@ -353,7 +246,13 @@ class clsImportConfig {
                 long bpos = inF.tellg();                                    // Определяем позицию в начале файла
                 cout << "clsImportConfig::RCdfF begin bpos= " << bpos << endl;  // Выводим позицию на экран
             #endif // Save_Read_File_debug
-            if(!DSF(inF, tmp.filename_About)) return false; // Читаем имя файла с описанием
+            if(!DSF(inF, tmp.ID_Program)) return false;
+            if(tmp.ID_Program != std::hash<std::string>{}(ID_Program_str))  // Проверяем равенство хэшей
+                throw "Ошибка: конфигурационный файл не соответствует программе";
+            if(!DSF(inF, tmp.ID_r_type)) return false;
+            if(tmp.ID_r_type != HashRealType())
+                throw "Ошибка: несовпадение типов вещественных чисел";
+            if(!DSF(inF, tmp.filename_About)) return false;                 // Читаем имя файла с описанием
             if(!DSF(inF, tmp.filename_shipment)) return false;
             if(!DSF(inF, tmp.filename_purprice)) return false;
             if(!DSF(inF, tmp.filename_purvolume)) return false;
@@ -426,43 +325,6 @@ class clsImportConfig {
 
     public:
 
-        string Title;           // Название проекта
-
-        clsImportConfig() {
-        /** Конструктор по умолчанию **/
-            filename_cfg = "config.cfg";
-            filename_About = EmpStr;
-            filename_shipment = EmpStr;
-            filename_purprice = EmpStr;
-            filename_purvolume = EmpStr;
-            filename_recipe_in = EmpStr;
-            filename_recipe_out = EmpStr;
-            msks  = "_\\d{1,3}\\.csv";
-            filename_shares = EmpStr;
-            filename_permission = EmpStr;
-            filename_purchasecalc = EmpStr;
-            Title = EmpStr;
-            About.sCount = sZero;
-            About.sComment = nullptr;
-            _ch = ';';
-            HeadCols = sTwo;
-            HeadRows = sOne;
-            PrCount = sZero;
-            cur = RUR;
-            ac = AVG;
-            ProdCount = sZero;
-            ResForOutCount = sZero;
-            RMCount = sZero;
-            ResNames = nullptr;
-            Purchase_p = nullptr;
-            Purchase_v = nullptr;
-            Shipment = nullptr;
-            Shares = nullptr;
-            Permission = nullptr;
-            Purcalc = nullptr;
-        }   // Default Ctor
-
-//        clsImportConfig(const string& _key, const string& _filename_cfg) {
         clsImportConfig(const string& _filename_cfg) {
         /** Конструктор с параметрами. Параметры: _filename_cfg - имя файла конфигурации. **/
             filename_cfg = _filename_cfg;
@@ -680,9 +542,15 @@ class clsImportConfig {
             ifstream inF(confdir + _filename, ios::in | ios::binary);   // Связываем имя файла с файловым потоком для чтения с диска
             if (!inF.is_open())                                         // Если файл не открыт, то
                 return false;                                           // выход из функции с false
-            if(!RCdfF(inF)) {                                           // Если запись в файл неудачна, то
-                inF.close();                                            // закрываем файл
-                return false;                                           // и выходим с false
+            try {                                                       // Проверяем соответствие конфигурационного файла
+                if(!RCdfF(inF)) {                                       // Если чтение из файла неудачно, то
+                    inF.close();                                        // закрываем файл
+                    return false;                                       // и выходим с false
+                }
+            }                                                           // Если конф.файл не соответствует программе, то
+            catch(const char* error_message) {                          // вызывается исключение,
+                cout << error_message << endl;                          // выводится сообщение об ошибке
+                return false;                                           // и завершается работа метода с false
             }
             inF.close();
             return true;
@@ -764,11 +632,11 @@ class clsImportConfig {
                 return false;   // Вводим Инфорацию об отгрузках. Если не введено, выходим из программы с false
             }
             /** Читаем тех.карты для ЦЗП **/
-            if(!Import_Recipes(filename_recipe_in, ';', sTwo, sOne, tmp.In_Recipe, tmp.ResForOutCount)) {
+            if(!Import_Recipes(filename_recipe_in, ';', sTwo, sOne, tmp.In_Recipe, tmp.ResForOutCount, msks, V_DIR_INPUTDATA)) {
                 return false;   // Вводим Инфорацию об тех.картах ЦЗП. Если не введено, выходим из программы с false
             }
             /** Читаем тех.карты для ЦЗО **/
-            if(!Import_Recipes(filename_recipe_out, ';', sTwo, sOne, tmp.Out_Recipe, tmp.ProdCount)) {
+            if(!Import_Recipes(filename_recipe_out, ';', sTwo, sOne, tmp.Out_Recipe, tmp.ProdCount, msks, V_DIR_INPUTDATA)) {
                 return false;   // Вводим Инфорацию об тех.картах ЦЗП. Если не введено, выходим из программы с false
             }
             swap(tmp);  // Обмениваемся состоянием с буфферным объектом

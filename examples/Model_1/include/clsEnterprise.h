@@ -213,21 +213,6 @@ class clsEnterprise : public clsBaseProject {
         bool Import_About(const string filename);   /** Метод читает информацию из файла с описанием
         проекта и формирует поля Title и Descript класса clsBaseProject. **/
 
-        bool ImportSingleArray(const string filename, const char _ch, size_t hcols, size_t hrows,\
-        ReportData flg, strItem* &_data, strNameMeas* &_names, size_t& ColCount, size_t& RowCount);
-        /** Метод читает информацию из файла с именем filename и разделителями между полями ch и заполняет поля:
-        RowCount - ссылка число номенклатурных позиций (ресурсов или продуктов), ColCount - ссылка на число периодов
-        проекта, names - ссылка на указатель на массив с наименованиями номенклатурных позиций и единиц их измерения,
-        _data - ссылка на указатель на формируемый массив, flg - флаг, определяющий тип импортируемых данных:
-        "volume" - объемы в натуральном выражении, "price" - цены, "value" - стоимость. **/
-
-        bool Import_Recipes(const string _prefixname, const char _ch, size_t hcols, size_t hrows);
-        /** Метод читает информацию из файлов с именами, содержащими префикс имени рецептуры/ технологической карты
-        _prefixname. Обрабатываются все файлы, удовлетворяющие маске (определяется макросом msks) и лежащие в одной
-        папке. Метод заполняет поле с рецептурами Recipe. Параметры: _prefixname - префикс имен файлов рецептур,
-        _ch - разделитель, используемый в файлах типа CSV, hcols - количество столбцов с заголовками, hrows -
-        количество строк с заголовками в файлах. **/
-
         /** Методы редактирования **/
         bool SKUEdt(clsStorage* stock, const size_t num);
         /**  Метод редактирования введенной ранее информации: редактирование номенклатурной позиции (SKU).
