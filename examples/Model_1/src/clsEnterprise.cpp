@@ -669,7 +669,7 @@ bool clsEnterprise::Import_Data() {
     }
     strItem* tmpPurchase = nullptr;                         // Создаем временный указатель
     std::swap(tmpPurchase, Purchase);                       // Перебрасываем указатель на массив закупочных цен
-    strNameMeas* tmpNames;                                  // Временные переменные - "заглушки"
+    strNameMeas* tmpNames = nullptr;                        // Временные переменные - "заглушки"
     if(!ImportSingleArray(InputPurchase_V, ImConfig._ch, ImConfig.HeadCols, ImConfig.HeadRows,\
     volume, Purchase, tmpNames, tmp1, tmp2)) {  // Если импорт неудачный, то возвращаем указатели в исходное состояние
         std::swap(tmpPurchase, Purchase);       // Если импорт неудачный, то возвращаем указатели в исходное состояние
